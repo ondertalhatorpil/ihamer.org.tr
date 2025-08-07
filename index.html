@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İhamer - Modern Ana Sayfa</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container navbar__container">
+            <a href="index.html" class="navbar__logo">
+                <img src="assest/images/logo/Ihamer-Kahverengi.png" alt="İhamer Logo">
+            </a>
+
+            <nav class="navbar__menu">
+                <ul class="navbar__menu-list">
+                    <li class="navbar__menu-item"><a href="index.html">Ana Sayfa</a></li>
+                    <li class="navbar__menu-item navbar__menu-item--has-dropdown">
+                        <a href="#">Kurumsal <span class="arrow-down"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="kurumsal/hakkimizda.html">Hakkımızda</a></li>
+                            <li><a href="kurumsal/vizyon-misyon.html">Vizyon & Misyon</a></li>
+                            <li><a href="kurumsal/ilkeler.html">İlkeler</a></li>
+                            <li><a href="kurumsal/timeline.html">Timeline</a></li>
+                            <li><a href="kurumsal/yonetim-kurulu.html">Yönetim Kurulu</a></li>
+                        </ul>
+                    </li>
+                    <li class="navbar__menu-item navbar__menu-item--has-dropdown">
+                        <a href="#">Raporlar <span class="arrow-down"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="raporlar/calistaylar.html">Çalıştaylar</a></li>
+                            <li><a href="raporlar/bilgi-notlari.html">Bilgi Notları</a></li>
+                        </ul>
+                    </li>
+                    <li class="navbar__menu-item"><a href="etkinlikler-haberler.html">Etkinlikler & Haberler</a></li>
+                    <li class="navbar__menu-item"><a href="talim-dergisi.html">Talim Dergisi</a></li>
+                    <li class="navbar__menu-item"><a href="iletisim.html">İletişim</a></li>
+                </ul>
+            </nav>
+
+            <button class="navbar__hamburger" id="hamburger-btn">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </header>
+
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu__panel">
+            <ul class="mobile-menu__list">
+                 <li><a href="index.html">Ana Sayfa</a></li>
+                <li>
+                    <a href="#" class="mobile-menu__trigger">Kurumsal <span class="arrow-down"></span></a>
+                    <ul class="mobile-submenu">
+                         <li><a href="kurumsal/hakkimizda.html">Hakkımızda</a></li>
+                         <li><a href="kurumsal/vizyon-misyon.html">Vizyon & Misyon</a></li>
+                         <li><a href="kurumsal/ilkeler.html">İlkeler</a></li>
+                         <li><a href="kurumsal/timeline.html">Timeline</a></li>
+                         <li><a href="kurumsal/yonetim-kurulu.html">Yönetim Kurulu</a></li>
+                    </ul>
+                </li>
+                 <li>
+                    <a href="#" class="mobile-menu__trigger">Raporlar <span class="arrow-down"></span></a>
+                    <ul class="mobile-submenu">
+                        <li><a href="raporlar/calistaylar.html">Çalıştaylar</a></li>
+                        <li><a href="raporlar/bilgi-notlari.html">Bilgi Notları</a></li>
+                    </ul>
+                </li>
+                <li><a href="etkinlikler-haberler.html">Etkinlikler & Haberler</a></li>
+                <li><a href="talim-dergisi.html">Talim Dergisi</a></li>
+                <li><a href="iletisim.html">İletişim</a></li>
+            </ul>
+        </div>
+    </div>
+
+
+    <main class="main-content">
+        <section class="hero-slider">
+            <div class="hero-slider__track" id="hero-slider-track">
+                <div class="hero-slider__slide">
+                    <div class="hero-slider__image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1920&h=700&fit=crop" alt="Ana Görsel 1">
+                    </div>
+                    <div class="hero-slider__content">
+                        <div class="container">
+                            <h1 class="hero-slider__title">Modern Çözümler Üretiyoruz</h1>
+                            <p class="hero-slider__subtitle">Topluma fayda sağlayan projelerle geleceği şekillendiriyoruz.</p>
+                            <a href="#" class="button button--primary">Daha Fazla Bilgi</a>
+                        </div>
+                    </div>
+                </div>
+                 <div class="hero-slider__slide">
+                     <div class="hero-slider__image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920&h=700&fit=crop" alt="Ana Görsel 2">
+                    </div>
+                    <div class="hero-slider__content">
+                        <div class="container">
+                            <h1 class="hero-slider__title">Eğitimde Yeni Ufuklar</h1>
+                            <p class="hero-slider__subtitle">Yenilikçi eğitim modelleri ile potansiyeli ortaya çıkarıyoruz.</p>
+                            <a href="#" class="button button--primary">Projelerimizi Keşfedin</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="slider-btn slider-btn--prev" id="hero-slider-prev">&#10094;</button>
+            <button class="slider-btn slider-btn--next" id="hero-slider-next">&#10095;</button>
+            <div class="hero-slider__pagination" id="hero-slider-pagination"></div>
+        </section>
+
+        <section class="news-section">
+            <div class="container">
+                <h2 class="section-title">Güncel Haberler</h2>
+                <div class="news-tabs">
+                    <button class="news-tab-button is-active" data-tab="dernek">Dernek</button>
+                    <button class="news-tab-button" data-tab="duyurular">Duyurular</button>
+                    <button class="news-tab-button" data-tab="komisyon">Komisyon</button>
+                    <button class="news-tab-button" data-tab="okullar">Okullar</button>
+                </div>
+
+                <div class="news-content">
+                    <div class="news-content__panel is-active" data-content="dernek">
+                        <div class="news-grid">
+                            <a href="haber-detay.html" class="news-card">
+                                <div class="news-card__image-wrapper">
+                                    <img src="https://via.placeholder.com/400x250/024959/FFFFFF?text=Dernek+1" alt="Haber Başlığı 1" class="news-card__image">
+                                </div>
+                                <div class="news-card__content">
+                                    <span class="news-card__category">Dernek</span>
+                                    <h3 class="news-card__title">Yeni Yönetim Kurulu Toplantısı Gerçekleştirildi</h3>
+                                    <time class="news-card__date" datetime="2025-08-01">1 Ağustos 2025</time>
+                                </div>
+                            </a>
+                            <a href="haber-detay.html" class="news-card">
+                                <div class="news-card__image-wrapper">
+                                    <img src="https://via.placeholder.com/400x250/593E25/FFFFFF?text=Dernek+2" alt="Haber Başlığı 2" class="news-card__image">
+                                </div>
+                                <div class="news-card__content">
+                                    <span class="news-card__category">Dernek</span>
+                                    <h3 class="news-card__title">Gönüllülerimizle Bir Araya Geldik</h3>
+                                    <time class="news-card__date" datetime="2025-07-25">25 Temmuz 2025</time>
+                                </div>
+                            </a>
+                             <a href="haber-detay.html" class="news-card">
+                                <div class="news-card__image-wrapper">
+                                    <img src="https://via.placeholder.com/400x250/A1A2A6/000000?text=Dernek+3" alt="Haber Başlığı 3" class="news-card__image">
+                                </div>
+                                <div class="news-card__content">
+                                    <span class="news-card__category">Dernek</span>
+                                    <h3 class="news-card__title">Yıllık Faaliyet Raporumuz Yayınlandı</h3>
+                                    <time class="news-card__date" datetime="2025-07-18">18 Temmuz 2025</time>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="news-content__panel" data-content="duyurular">
+                         <div class="news-grid">
+                            <a href="haber-detay.html" class="news-card">
+                                <div class="news-card__image-wrapper">
+                                    <img src="https://via.placeholder.com/400x250/F2C12E/000000?text=Duyuru+1" alt="Haber Başlığı 4" class="news-card__image">
+                                </div>
+                                <div class="news-card__content">
+                                    <span class="news-card__category">Duyurular</span>
+                                    <h3 class="news-card__title">Burs Başvuruları Başladı!</h3>
+                                    <time class="news-card__date" datetime="2025-08-05">5 Ağustos 2025</time>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                     <div class="news-content__panel" data-content="komisyon"><p>Komisyon haberleri burada gösterilecek.</p>
+                      <div class="news-grid">
+                        <a href="haber-detay.html" class="news-card">
+                            <div class="news-card__image-wrapper">
+                                <img src="https://via.placeholder.com/400x250/F2C12E/000000?text=Duyuru+1" alt="Haber Başlığı 4" class="news-card__image">
+                            </div>
+                            <div class="news-card__content">
+                                <span class="news-card__category">Duyurular</span>
+                                <h3 class="news-card__title">Burs Başvuruları Başladı!</h3>
+                                <time class="news-card__date" datetime="2025-08-05">5 Ağustos 2025</time>
+                            </div>
+                        </a>
+                    </div>
+                    </div>
+                    <div class="news-content__panel" data-content="okullar"><p>Okullar ile ilgili haberler burada gösterilecek.</p>
+                      <div class="news-grid">
+                        <a href="haber-detay.html" class="news-card">
+                            <div class="news-card__image-wrapper">
+                                <img src="https://via.placeholder.com/400x250/F2C12E/000000?text=Duyuru+1" alt="Haber Başlığı 4" class="news-card__image">
+                            </div>
+                            <div class="news-card__content">
+                                <span class="news-card__category">Duyurular</span>
+                                <h3 class="news-card__title">Burs Başvuruları Başladı!</h3>
+                                <time class="news-card__date" datetime="2025-08-05">5 Ağustos 2025</time>
+                            </div>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
