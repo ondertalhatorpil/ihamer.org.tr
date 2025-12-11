@@ -1,0 +1,49 @@
+.animationWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #f0f0f0; 
+    z-index: 9999;
+  }
+  
+  .fullLogo {
+    max-width: 30%;
+    max-height: 30%;
+    
+    /* İki animasyon kullanacağız:
+      1. fadeIn: 0.5 saniyede logonun görünür olmasını sağlar.
+      2. pulse: 0.5 saniye sonra başlar ve logo ekranda kaldığı sürece devam eder.
+    */
+    animation: fadeIn 0.1s ease-out,
+               pulse 1s ease-in-out 0.1s infinite;
+  }
+  
+  /* Sadece görünür hale getirme (kaybolma yok) */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  /* Yükleme boyunca hafifçe nefes alıp verme efekti */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.10); /* Hafifçe büyüt */
+    }
+    100% {
+      transform: scale(1);
+    }
+  }

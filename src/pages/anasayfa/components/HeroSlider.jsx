@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const sliderImages = [
+  "https://ihamer.org.tr/wp-content/uploads/2025/12/hikmetinIzindeAfisSlider-scaled.jpg",
   "https://ihamer.org.tr/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-29-at-14.21.02-1600x468.jpeg",
   "https://ihamer.org.tr/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-29-at-14.10.30-1600x468.jpeg",
   "https://ihamer.org.tr/wp-content/uploads/2024/10/IHAMER-100-1959x574.jpg",
@@ -11,9 +12,15 @@ const sliderImages = [
 
 const HeroSlider = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
+    
     const trackRef = useRef(null);
     const sliderRef = useRef(null);
     const intervalRef = useRef(null);
+
+    // Kaydırma (Swipe) hassasiyeti (piksel cinsinden)
+    const minSwipeDistance = 50;
 
     const goToSlide = useCallback((index) => {
         if (trackRef.current && sliderRef.current) {
@@ -23,75 +30,140 @@ const HeroSlider = () => {
         }
     }, []);
 
-    const startAutoPlay = useCallback(() => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(() => {
-            setCurrentIndex(prevIndex => {
-                const nextIndex = (prevIndex + 1) % sliderImages.length;
-                return nextIndex;
-            });
-        }, 5000);
+    const pauseAutoPlay = useCallback(() => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
     }, []);
 
+    const startAutoPlay = useCallback(() => {
+        pauseAutoPlay();
+        intervalRef.current = setInterval(() => {
+            setCurrentIndex(prevIndex => (prevIndex + 1) % sliderImages.length);
+        }, 5000);
+    }, [pauseAutoPlay]);
+
+    // --- SWIPE (DOKUNMATİK) MANTIĞI BAŞLANGICI ---
+    const onTouchStart = (e) => {
+        pauseAutoPlay(); // Dokunulduğunda otomatiği durdur
+        setTouchEnd(null); // Reset
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+        startAutoPlay(); // Bırakıldığında tekrar başlat
+        if (!touchStart || !touchEnd) return;
+        
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            // Sola kaydırıldı -> Sonraki slayt
+            const nextIndex = currentIndex === sliderImages.length - 1 ? 0 : currentIndex + 1;
+            goToSlide(nextIndex);
+        }
+        
+        if (isRightSwipe) {
+            // Sağa kaydırıldı -> Önceki slayt
+            const prevIndex = currentIndex === 0 ? sliderImages.length - 1 : currentIndex - 1;
+            goToSlide(prevIndex);
+        }
+    };
+    // --- SWIPE MANTIĞI BİTİŞİ ---
+
     useEffect(() => {
-        goToSlide(currentIndex);
-    }, [currentIndex, goToSlide]);
+        if (trackRef.current && sliderRef.current) {
+            const slideWidth = sliderRef.current.clientWidth;
+            trackRef.current.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+        }
+    }, [currentIndex]);
 
     useEffect(() => {
         startAutoPlay();
-        
         const sliderElement = sliderRef.current;
-        sliderElement.addEventListener('mouseenter', () => clearInterval(intervalRef.current));
-        sliderElement.addEventListener('mouseleave', startAutoPlay);
-
-        const resizeObserver = new ResizeObserver(() => {
-            goToSlide(currentIndex);
-        });
-        if (trackRef.current) {
-            resizeObserver.observe(trackRef.current);
+        if (sliderElement) {
+            sliderElement.addEventListener('mouseenter', pauseAutoPlay);
+            sliderElement.addEventListener('mouseleave', startAutoPlay);
         }
-
+        
         return () => {
-            clearInterval(intervalRef.current);
+            pauseAutoPlay();
             if (sliderElement) {
-              sliderElement.removeEventListener('mouseenter', () => clearInterval(intervalRef.current));
-              sliderElement.removeEventListener('mouseleave', startAutoPlay);
-            }
-            if (trackRef.current) {
-              resizeObserver.unobserve(trackRef.current);
+                sliderElement.removeEventListener('mouseenter', pauseAutoPlay);
+                sliderElement.removeEventListener('mouseleave', startAutoPlay);
             }
         };
-    }, [startAutoPlay, goToSlide, currentIndex]);
+    }, [startAutoPlay, pauseAutoPlay]);
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (trackRef.current && sliderRef.current) {
+                const slideWidth = sliderRef.current.clientWidth;
+                setCurrentIndex(latestIndex => {
+                    trackRef.current.style.transform = `translateX(-${latestIndex * slideWidth}px)`;
+                    return latestIndex;
+                });
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     return (
-        <section ref={sliderRef} className="relative overflow-hidden w-full bg-accent-gold m-0">
-            <div ref={trackRef} className="flex transition-transform duration-700 ease-in-out">
+        <section 
+            ref={sliderRef} 
+            className="relative overflow-hidden w-full bg-accent-gold m-0 touch-pan-y" // touch-pan-y: dikey kaydırmaya izin ver, yatayı js ile kontrol et
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+        >
+            <div ref={trackRef} className="flex transition-transform duration-700 ease-in-out select-none">
                 {sliderImages.map((src, index) => (
-                    <a href="#" key={index} className="flex-shrink-0 w-full relative block">
+                    <div key={index} className="flex-shrink-0 w-full relative block">
                         <div className="relative w-full">
-                            <img src={src} alt={`Ana Görsel ${index + 1}`} className="block w-full h-auto" />
+                            <img 
+                                src={src} 
+                                alt={`Ana Görsel ${index + 1}`} 
+                                className="block w-full h-auto pointer-events-none" // Resimlerin sürüklenmesini engelle (native drag)
+                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
                         </div>
-                    </a>
+                    </div>
                 ))}
             </div>
 
-            {/* KAPSAYICI DIV'İ RESPONSIVE HALE GETİRİLDİ */}
-            {/* Mobil: altta, ortada, yatay | Masaüstü (md): sağda, ortada, dikey */}
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[3] flex flex-row gap-2 max-w-[calc(100%-2rem)] overflow-x-auto p-1.5 
-                            md:flex-col md:gap-3 md:top-1/2 md:left-auto md:right-4 md:bottom-auto md:-translate-y-1/2 md:translate-x-0 md:max-w-none md:overflow-y-auto md:max-h-[70vh]">
-                {sliderImages.map((_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => goToSlide(index)}
-                        // BUTONLAR RESPONSIVE HALE GETİRİLDİ
-                        // Mobil: küçük, daire | Masaüstü (md): büyük, dikey
-                        className={`cursor-pointer transition-all duration-300 flex-shrink-0 rounded-full w-2.5 h-2.5 md:w-[8px] md:h-8
-                                    ${currentIndex === index ? 'bg-[#B58E65] scale-125 md:scale-y-125 md:scale-100' : 'bg-gray-800'}`}
-                        aria-label={`Slayt ${index + 1}'e git`}
-                    ></button>
-                ))}
+            {/* NAVIGASYON NOKTALARI */}
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[3] flex flex-row gap-2 max-w-[calc(100%-2rem)] p-1.5 
+                            md:flex-col md:gap-1.5 md:top-1/2 md:left-auto md:right-4 md:bottom-auto md:-translate-y-1/2 md:translate-x-0 
+                            md:w-4 md:h-[60vh] md:justify-center">
+                {sliderImages.map((_, index) => {
+                    const isActive = currentIndex === index;
+                    return (
+                        <button
+                            key={index}
+                            onClick={() => goToSlide(index)}
+                            /* Mantık:
+                                flex-1: Standart boyut.
+                                flex-[4]: Aktif olan diğerlerinin 4 katı yer kaplamaya çalışsın.
+                                max-h-12: Aktif olan çok da devasa olmasın.
+                                min-h-[4px]: Pasif olanlar tamamen kaybolmasın.
+                            */
+                            className={`cursor-pointer transition-all duration-500 rounded-full 
+                                        flex-shrink-0 w-2.5 h-2.5
+                                        md:w-[8px] md:flex-shrink md:h-auto md:min-h-[6px]
+                                        ${isActive 
+                                            ? 'bg-[#B58E65] md:flex-[5] md:max-h-16 shadow-[0_0_10px_rgba(181,142,101,0.6)]' 
+                                            : 'bg-gray-800/80 hover:bg-gray-600 md:flex-1 md:max-h-3'
+                                        }`}
+                            aria-label={`Slayt ${index + 1}'e git`}
+                        ></button>
+                    );
+                })}
             </div>
         </section>
     );

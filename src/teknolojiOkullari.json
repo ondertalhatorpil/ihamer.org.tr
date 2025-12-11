@@ -1,0 +1,121 @@
+[
+    {
+      "id": 1,
+      "name": "Bursa Nilüfer Ali Kuşçu Anadolu İmam Hatip Lisesi",
+      "city": "Bursa",
+      "district": "Nilüfer",
+      "programs": "Fen ve Teknoloji | Hafız Öğrencilerin Eğitim Gördüğü AİHL | İngilizce Hazırlık Sınıfı | Örgün Eğitimle Birlikte Hafızlık"
+    },
+    {
+      "id": 2,
+      "name": "Diyarbakır Yenişehir Abdullah Tivnikli Anadolu İmam Hatip Lisesi",
+      "city": "Diyarbakır",
+      "district": "Yenişehir",
+      "programs": "Fen ve Sosyal Bilimler | Fen ve Teknoloji | İngilizce Hazırlık Sınıfı | Örgün Eğitimle Birlikte Hafızlık"
+    },
+    {
+      "id": 3,
+      "name": "Gaziantep Şahinbey Uluslararası Gaziantep Anadolu İmam Hatip Lisesi",
+      "city": "Gaziantep",
+      "district": "Şahinbey",
+      "programs": "Fen ve Sosyal Bilimler | Uluslararası AİHL | Hafız Öğrencilerin Eğitim Gördüğü AİHL | Fen ve Teknoloji | İngilizce Hazırlık Sınıfı"
+    },
+    {
+      "id": 4,
+      "name": "Malatya Battalgazi Enesler Fen ve Teknoloji Anadolu İmam Hatip Lisesi",
+      "city": "Malatya",
+      "district": "Battalgazi",
+      "programs": "Fen ve Sosyal Bilimler | Fen ve Teknoloji"
+    },
+    {
+      "id": 5,
+      "name": "Eskişehir Tepebaşı Uluslararası Cevat Ülger Anadolu İmam Hatip Lisesi",
+      "city": "Eskişehir",
+      "district": "Tepebaşı",
+      "programs": "Fen ve Sosyal Bilimler | Uluslararası AİHL | Fen ve Teknoloji"
+    },
+    {
+      "id": 6,
+      "name": "İstanbul Kadıköy Kadıköy Anadolu İmam Hatip Lisesi",
+      "city": "İstanbul",
+      "district": "Kadıköy",
+      "programs": "Fen ve Sosyal Bilimler | İspanyolca Hazırlık Sınıfı | İngilizce Hazırlık Sınıfı | Arapça Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 7,
+      "name": "İstanbul Kağıthane Kağıthane Kız Anadolu İmam Hatip Lisesi",
+      "city": "İstanbul",
+      "district": "Kağıthane",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 8,
+      "name": "Kayseri Melikgazi 50. Yıl Dedeman Fen ve Teknoloji Anadolu İmam Hatip Lisesi",
+      "city": "Kayseri",
+      "district": "Melikgazi",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 9,
+      "name": "Düzce Merkez Düzce Fen ve Teknoloji Hafız Anadolu İmam Hatip Lisesi",
+      "city": "Düzce",
+      "district": "Merkez",
+      "programs": "Örgün Eğitimle Birlikte Hafızlık | Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Arapça Hazırlık Sınıfı | İlahiyat Odaklı Hafızlık Projesi | Fen ve Teknoloji"
+    },
+    {
+      "id": 10,
+      "name": "Denizli Merkezefendi Hatipzade Veli Başer Anadolu İmam Hatip Lisesi",
+      "city": "Denizli",
+      "district": "Merkezefendi",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 11,
+      "name": "İzmir Bayraklı Bayraklı Hisar Anadolu İmam Hatip Lisesi",
+      "city": "İzmir",
+      "district": "Bayraklı",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 12,
+      "name": "İzmir Karabağlar Necmettin Erbakan Anadolu İmam Hatip Lisesi",
+      "city": "İzmir",
+      "district": "Karabağlar",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 13,
+      "name": "İstanbul Bahçelievler 15 Temmuz Şehitleri Anadolu İmam Hatip Lisesi",
+      "city": "İstanbul",
+      "district": "Bahçelievler",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Arapça Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 14,
+      "name": "İstanbul Başakşehir Akif İnan Anadolu İmam Hatip Lisesi",
+      "city": "İstanbul",
+      "district": "Başakşehir",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Fen ve Teknoloji | Örgün Eğitimle Birlikte Hafızlık"
+    },
+    {
+      "id": 15,
+      "name": "İstanbul Sancaktepe Sancaktepe Teknoloji Anadolu İmam Hatip Lisesi",
+      "city": "İstanbul",
+      "district": "Sancaktepe",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 16,
+      "name": "İstanbul Üsküdar Tenzile Erdoğan Kız Anadolu İmam Hatip Lisesi",
+      "city": "İstanbul",
+      "district": "Üsküdar",
+      "programs": "Fen ve Sosyal Bilimler | İngilizce Hazırlık Sınıfı | Arapça Hazırlık Sınıfı | Fen ve Teknoloji"
+    },
+    {
+      "id": 17,
+      "name": "Konya Meram Rukiye Mehmet Akış Fen ve Teknoloji Anadolu İmam Hatip Lisesi",
+      "city": "Konya",
+      "district": "Meram",
+      "programs": "Fen ve Teknoloji | İngilizce Hazırlık Sınıfı | Fen ve Sosyal Bilimler"
+    }
+  ]

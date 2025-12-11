@@ -1,0 +1,104 @@
+[
+    {
+      "id": 1,
+      "name": "Ankara Gölbaşı Uluslararası Millî İrade Kız AİHL",
+      "city": "Ankara",
+      "district": "Gölbaşı"
+    },
+    {
+      "id": 2,
+      "name": "Ankara Yenimahalle Uluslararası Prof. Dr. Muhammed Hamidullah AİHL",
+      "city": "Ankara",
+      "district": "Yenimahalle"
+    },
+    {
+      "id": 3,
+      "name": "Bursa Osmangazi Uluslararası Murat Hüdavendigar AİHL",
+      "city": "Bursa",
+      "district": "Osmangazi"
+    },
+    {
+      "id": 4,
+      "name": "Eskişehir Tepebaşı Uluslararası Cevat Ülger AİHL",
+      "city": "Eskişehir",
+      "district": "Tepebaşı"
+    },
+    {
+      "id": 5,
+      "name": "Gaziantep Şahinbey Uluslararası Gaziantep AİHL",
+      "city": "Gaziantep",
+      "district": "Şahinbey"
+    },
+    {
+      "id": 6,
+      "name": "Hatay Reyhanlı Uluslararası Ebu Ubeyde AİHL",
+      "city": "Hatay",
+      "district": "Reyhanlı"
+    },
+    {
+      "id": 7,
+      "name": "İstanbul Bahçelievler Uluslararası Şehit Mehmet Karaaslan Kız AİHL",
+      "city": "İstanbul",
+      "district": "Bahçelievler"
+    },
+    {
+      "id": 8,
+      "name": "İstanbul Bayrampaşa Uluslararası Kaptan Ahmet Erdoğan AİHL",
+      "city": "İstanbul",
+      "district": "Bayrampaşa"
+    },
+    {
+      "id": 9,
+      "name": "İstanbul Fatih Uluslararası Fatih Sultan Mehmet AİHL",
+      "city": "İstanbul",
+      "district": "Fatih"
+    },
+    {
+      "id": 10,
+      "name": "İstanbul Pendik Uluslararası Pendik Kız AİHL",
+      "city": "İstanbul",
+      "district": "Pendik"
+    },
+    {
+      "id": 11,
+      "name": "İzmir Seferihisar Uluslararası Seferihisar İMKB AİHL",
+      "city": "İzmir",
+      "district": "Seferihisar"
+    },
+    {
+      "id": 12,
+      "name": "Konya Selçuklu Uluslararası Mevlana AİHL",
+      "city": "Konya",
+      "district": "Selçuklu"
+    },
+    {
+      "id": 13,
+      "name": "Mersin Tarsus Uluslararası Ashabı Kehf AİHL",
+      "city": "Mersin",
+      "district": "Tarsus"
+    },
+    {
+      "id": 14,
+      "name": "Sivas Merkez Uluslararası Şehit M. Murat Ertekin AİHL",
+      "city": "Sivas",
+      "district": "Merkez"
+    },
+    {
+      "id": 15,
+      "name": "Tekirdağ Süleymanpaşa Uluslararası Şehit Münür Alkan AİHL",
+      "city": "Tekirdağ",
+      "district": "Süleymanpaşa"
+    },
+    {
+      "id": 16,
+      "name": "Tokat Merkez Uluslararası Tokat AİHL",
+      "city": "Tokat",
+      "district": "Merkez"
+    },
+    {
+      "id": 17,
+      "name": "Uluslararası Şehit Ömer Halisdemir AİHL",
+      "city": "İzmir",
+      "district": "Konak"
+    }
+  ]

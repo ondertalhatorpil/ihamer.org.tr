@@ -1,0 +1,21 @@
+// Geleneksel Ve Çağdaş Görsel Sanatlar Programı Uygulayan Anadolu İmam Hatip Liseleri
+export const gorselSanatSchools = [
+    { il: "Ankara", ilce: "Altındağ", okul: "Ulus İlk Meclis Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "Amasya", ilce: "Merkez", okul: "Türk Telekom Anadolu İmam Hatip Lisesi", pansiyon: "Var", ogrenci: "Kız" },
+    { il: "Batman", ilce: "Merkez", okul: "TP Fatıma Zehra Kız Anadolu İmam Hatip Lisesi", pansiyon: "Var (Kız)", ogrenci: "Kız" },
+    { il: "Bursa", ilce: "Osmangazi", okul: "Mihraplı Abdulkadir Can Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "İstanbul", ilce: "Fatih", okul: "Fatih Kız Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "İstanbul", ilce: "Üsküdar", okul: "Hakkı Demir Anadolu İmam Hatip Lisesi", pansiyon: "Var (Erkek)", ogrenci: "Erkek" },
+    { il: "İstanbul", ilce: "Ataşehir", okul: "Ataşehir Kız Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "İstanbul", ilce: "Sancaktepe", okul: "Rabia Kız Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "İstanbul", ilce: "Üsküdar", okul: "Ayşe Hümeyra Ökten Kız Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "İzmir", ilce: "Konak", okul: "Şehit Ömer Halisdemir Kız Anadolu İmam Hatip Lisesi", pansiyon: "Var (Kız)", ogrenci: "Kız" },
+    { il: "Kayseri", ilce: "Melikgazi", okul: "Kayseri Anadolu İmam Hatip Lisesi", pansiyon: "Var (Erkek)", ogrenci: "Erkek" },
+    { il: "Kayseri", ilce: "Melikgazi", okul: "Kayseri Kız Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "Kırıkkale", ilce: "Merkez", okul: "15 Temmuz Şehitleri Kız Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "Konya", ilce: "Karatay", okul: "Karatay Konya Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "Konya", ilce: "Karapınar", okul: "Osman Hulusi Ateş Kız Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "Samsun", ilce: "İlkadım", okul: "Şehit Ahmet Altunoğlu Anadolu İmam Hatip Lisesi", pansiyon: "Yok", ogrenci: "Kız" },
+    { il: "Sivas", ilce: "Merkez", okul: "Asım Şahin Kız Anadolu İmam Hatip Lisesi", pansiyon: "Var (Kız)", ogrenci: "Kız" },
+    { il: "Yalova", ilce: "Merkez", okul: "Zehra Ekşinozlugil Kız Anadolu İmam Hatip Lisesi", pansiyon: "Var (Kız)", ogrenci: "Kız" },
+  ];
