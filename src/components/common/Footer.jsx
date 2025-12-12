@@ -16,7 +16,7 @@ const Footer = () => {
           <a href="/">
             <img
               className="w-48"
-              src="https://ihamer.org.tr/wp-content/uploads/2022/01/Ihamer-Kahverengi.png"
+              src="/public/kurumsal/assest/tamlogo.png"
               alt="İhamer Logo"
             />
             <p className="text-lg font-medium text-white mt-6 mb-5">

@@ -221,21 +221,21 @@ const MainContent = () => {
       id: "c1",
       title: `Din Eğitiminde Kur'an-ı Kerim Öğretimi Çalıştayı`,
       image:
-        "https://ihamer.org.tr/wp-content/uploads/2025/07/684aa2c9cf731.png",
+        "/public/kurumsal/assest/Din Eğitiminde Kur'an-ı Kerim Öğretimi Çalıştayı.png",
       pdfUrl: "https://onder.org.tr/data/uploads/document/688876fabd9df.pdf",
     },
     {
       id: "c2",
       title: "Uluslararası İmam Hatip Okulları Çalıştayı",
       image:
-        "https://ihamer.org.tr/wp-content/uploads/2025/07/684aa3cbc3598.png",
+        '/public/kurumsal/assest/Uluslararası İmam Hatip Okulları Çalıştayı.png',
       pdfUrl: "https://onder.org.tr/data/uploads/document/6888771e45f22.pdf",
     },
     {
       id: "c3",
       title: "İmam Hatip Okullarında Arapça Öğretimi Çalıştayı",
       image:
-        "https://ihamer.org.tr/wp-content/uploads/2025/07/684aa34e1ef14-1.png",
+        '/public/kurumsal/assest/İmam Hatip Okullarında Arapça Öğretimi Çalıştayı.png',
       pdfUrl: "https://onder.org.tr/data/uploads/document/68887744526ce.pdf",
     },
   ];
@@ -245,14 +245,14 @@ const MainContent = () => {
       id: "b1",
       title: "Bilgi Notu 1",
       image:
-        "https://ihamer.org.tr/wp-content/uploads/2024/10/656f0c8c2576e.jpeg",
+        "/public/kurumsal/assest/bilgi-1.jpeg",
       pdfUrl: "https://onder.org.tr/data/uploads/document/690db5e698cf2.pdf",
     },
     {
       id: "b2",
       title: "Bilgi Notu 2",
       image:
-        "https://ihamer.org.tr/wp-content/uploads/2024/10/Bilgi-Notlari-2.png",
+        "/public/kurumsal/assest/bilgi-2.jpeg",
       pdfUrl: " https://onder.org.tr/data/uploads/document/690db6105f192.pdf",
     },
   ];

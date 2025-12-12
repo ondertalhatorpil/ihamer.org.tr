@@ -5,19 +5,19 @@ const DocumentSection = () => {
     {
       id: 1,
       title: `Din Eğitiminde Kur'an-ı Kerim Öğretimi Çalıştayı`,
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/07/684aa2c9cf731.png',
+      image: "/public/kurumsal/assest/Din Eğitiminde Kur'an-ı Kerim Öğretimi Çalıştayı.png",
       pdfUrl: 'https://onder.org.tr/data/uploads/document/688876fabd9df.pdf'
     },
     {
       id: 2,
       title: 'Uluslararası İmam Hatip Okulları Çalıştayı',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/07/684aa3cbc3598.png',
+      image: '/public/kurumsal/assest/Uluslararası İmam Hatip Okulları Çalıştayı.png',
       pdfUrl: 'https://onder.org.tr/data/uploads/document/6888771e45f22.pdf'
     },
     {
         id: 3,
         title: 'İmam Hatip Okullarında Arapça Öğretimi Çalıştayı',
-        image: 'https://ihamer.org.tr/wp-content/uploads/2025/07/684aa34e1ef14-1.png',
+        image: '/public/kurumsal/assest/İmam Hatip Okullarında Arapça Öğretimi Çalıştayı.png',
         pdfUrl: 'https://onder.org.tr/data/uploads/document/68887744526ce.pdf'
       }
   ];

@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './LogoAnimation.module.css';
 
 // Yeni tam logonuzu içe aktarın
-import tamLogo from '../../assets/tam logo.png'; 
+import tamLogo from "/public/kurumsal/assest/tamlogo.png"; 
 
 const LogoAnimation = () => {
   return (

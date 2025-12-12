@@ -13,8 +13,7 @@ import { Link, useLocation } from "react-router-dom";
 
 // --- Logo ve link sabitleri ---
 
-const LOGO_SRC =
-  "https://ihamer.org.tr/wp-content/uploads/2022/01/Ihamer-Kahverengi.png";
+const LOGO_SRC = "/public/kurumsal/assest/tamlogo.png";
 
 const LOGO_LINK = "/";
 

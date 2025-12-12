@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const sliderImages = [
-  "https://ihamer.org.tr/wp-content/uploads/2025/12/hikmetinIzindeAfisSlider-scaled.jpg",
-  "https://ihamer.org.tr/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-29-at-14.21.02-1600x468.jpeg",
-  "https://ihamer.org.tr/wp-content/uploads/2025/07/WhatsApp-Image-2025-07-29-at-14.10.30-1600x468.jpeg",
-  "https://ihamer.org.tr/wp-content/uploads/2024/10/IHAMER-100-1959x574.jpg",
-  "https://ihamer.org.tr/wp-content/uploads/2024/05/Turkiyenin-Imam-Hatipleri-ve-Muhafazakar-Toplumsal-Hareketlilik.webp",
-  "https://ihamer.org.tr/wp-content/uploads/2024/05/Lise-Ogrencilerinin-Imam-Hatip-Tercih-Etme-Nedenleri.webp",
-  "https://ihamer.org.tr/wp-content/uploads/2024/05/Turkiyede-Din-Egitimi-ve-Imam-Hatip-Okullari.webp",
+  "/public/kurumsal/assest/hikmetinİzindeAfisSlider.jpg",
+  "/public/kurumsal/assest/slider-1.jpeg",
+  "/public/kurumsal/assest/slider-2.jpeg",
+  "/public/kurumsal/assest/slider-3.jpeg",
+  "/public/kurumsal/assest/slider-4.jpeg",
+  "/public/kurumsal/assest/slider-5.jpeg",
+  "/public/kurumsal/assest/slider-6.jpeg",
+
 ];
 
 const HeroSlider = () => {
