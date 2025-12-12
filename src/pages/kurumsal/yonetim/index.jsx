@@ -9,7 +9,7 @@ const BoardMembers = () => {
       id: 1,
       name: 'Ahmet YAPICI',
       title: 'Başkan',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_10.jpg',
+      image: '/kurumsal/assest/ahmetyapıcı.JPEG',
       bio: `İlahiyat alanında lisans (2000), Din Sosyolojisi alanında yüksek lisans (2012) eğitimlerini Marmara Üniversitesinde tamamladı.
 
 10 yıl Diyanet İşleri Başkanlığında çalıştıktan sonra Millî Eğitim Bakanlığı bünyesinde imam hatip lisesi meslek dersleri kitapları, din dersi kitapları ve seçmeli din dersleri kitapları yazarlığı; öğretmen, müdür yardımcısı, okul müdürü ve şube müdürlüğü yaptı.
@@ -20,7 +20,7 @@ Hâlen İstanbul İl Millî Eğitim Müdür Yardımcısı olarak görev alan Ahm
       id: 2,
       name: 'Dr. Muhammed ÇELİK',
       title: 'Başkan Yardımcısı',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/yk-taslak.jpg",
       bio: `1986 yılında Tokat'ta doğdu. İlkokulu Tokat'ta, ortaokul ve liseyi İstanbul'da tamamladı. 2008 yılında Selçuk Üniversitesi Eğitim Fakültesi İngilizce Öğretmenliği bölümünden mezun oldu. 2013 yılında Sakarya Üniversitesi Eğitim Bilimleri Enstitüsü Eğitim Yönetimi ve Denetimi Anabilim Dalı'nda yüksek lisans, 2019 yılında ise aynı alandaki doktora eğitimini Bolu Abant İzzet Baysal Üniversitesi'nde tamamladı.
 
 Millî Eğitim Bakanlığına bağlı yurt içi ve yurt dışı (Cidde Uluslararası Türk Okulu, Suudi Arabistan) her kademe okulda (ilkokul, ortaokul, lise, imam hatip, bilsem), bazı AB ve ABD projelerinde (Erasmus Öğrenci Değişim Programı, Piktes+, Comenius, Grundtvig, Work and Travel), çeşitli özel kurum ve sivil toplum örgütlerinde öğretmenlik, idarecilik, proje uzmanlığı, editörlük ve liderlik görevlerinde bulundu.
@@ -31,14 +31,14 @@ Hâlen İstanbul İl Millî Eğitim Müdürlüğü bünyesinde gerçekleştirile
       id: 3,
       name: 'Halit ÇABUK',
       title: 'Sekreter',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/yk-taslak.jpg",
       bio: `30.10.2000 tarihinde İstanbul'da doğdu. TOKİ Aliya İzzetbegoviç Anadolu İmam Hatip Lisesi mezunudur. Marmara Üniversitesi Siyasal Bilgiler Fakültesi'nde Siyaset Bilimi ve Uluslararası İlişkiler bölümünden mezun oldu. Aynı üniversitede Orta Doğu ve İslam Ülkeleri Enstitüsünde yüksek lisans eğitimine devam etmektedir. Şu anda Türkiye Maarif Vakfı'nda çalışmaktadır.`,
     },
     {
       id: 4,
       name: 'Doç. Dr. Özkan ÖZTÜRK',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_6.jpg',
+      image: '/kurumsal/assest/ozkanozturk.JPEG',
       bio: `1979 senesinde İstanbul-Kartal'da doğdu. 1997 yılında Kartal Anadolu İmam Hatip Lisesi'nden mezun oldu. 2003 senesinde Marmara Üniversitesi İlahiyat Fakültesi'nde lisans eğitimini bitirdi. Marmara Üniversitesi Sosyal Bilimler Enstitüsü'nde başladığı yüksek lisansını, 2007 yılında "Çağdaş Türk Düşüncesinde İbn Arabî Felsefesinin Ele Alınışı" başlıklı tezi ile bitirdi. 2014 yılında ise aynı enstitüde "Tasavvuf Geleneğinin Osmanlı Siyasî Düşüncesinde Tezâhürü" başlıklı doktora çalışmasını tamamladı. Her iki çalışmasını da Prof. Dr. İsmail KARA'nın danışmanlığında gerçekleştirdi.
 
 2003-2015 yılları arasında Milli Eğitim Bakanlığı'na bağlı okullarda öğretmenlik ve idarecilik görevlerinde bulundu. 2015 yılında göreve başladığı Tekirdağ Namık Kemal Üniversitesi İlahiyat Fakültesi'nde öğretim üyeliği ve dekan yardımcılığı vazifelerinde bulundu. Tekirdağ Namık Kemal Üniversitesi İlahiyat Fakültesi'nde Doç. Dr. olarak çalışmalarına devam eden Özkan Öztürk, 25.11.2020 yılında Kartal Anadolu İmam Hatip Lisesi Müdürü olarak görevlendirildi. Öztürk, evli ve iki çocukludur.`,
@@ -47,7 +47,7 @@ Hâlen İstanbul İl Millî Eğitim Müdürlüğü bünyesinde gerçekleştirile
       id: 5,
       name: 'Sema BEKİROĞLU',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_8.jpg',
+      image: '/kurumsal/assest/semabekiroglu.JPEG',
       bio: `Lisans eğitimini 1999'da Marmara Üniversitesi Atatürk Eğitim Fakültesi Tarih Öğretmenliği Bölümünde tamamladı. Yüksek lisans eğitimine Sabahattin Zaim Üniversitesi Sosyal Bilimler Enstitüsü'nde Tarih ve Medeniyet Araştırmaları dalında devam ederek 2020 yılında "Sadettin Ökten'de Medeniyet Tasavvuru ve Çağdaşı Düşünürlerle Mukayesesi" başlıklı tezini yazdı. 2022'de Sadettin Ökten ve Medeniyet Tasavvuru kitabı yayımlandı.
 
 Çeşitli sivil toplum kuruluşlarında kültür ve eğitim alanındaki projelere katılmıştır. Özel ve devlet kurumlarında öğretmenlik yapmış olup şu anda akademik çalışmalarına devam etmekte olan Sema Bekiroğlu 3 çocuk annesidir.`,
@@ -56,7 +56,7 @@ Hâlen İstanbul İl Millî Eğitim Müdürlüğü bünyesinde gerçekleştirile
       id: 6,
       name: 'Süleyman DULKAR',
       title: 'Muhasip',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/yk-taslak.jpg",
       bio: `İstanbul Bağcılar'da doğdu. Ortaöğrenimini TOKİ Aliya İzzetbegoviç Anadolu İmam Hatip Lisesi'nde, yükseköğrenimini ise Marmara Üniversitesi Siyaset Bilimi ve Uluslararası İlişkiler Bölümü'nde tamamladı.
 
 ÖNDER İmam Hatipliler Derneği'nde 2016'dan beri çeşitli faaliyetlerde yer aldı. 2019 yılında İstanbul Şehir Üniversitesi Kulüp Başkanı, 2020'de ÖNDER Gençlik Eğitim Koordinatörü, 2021'de ÖNDER Gençlik Üniversite Koordinatörü, Tohum Dergisi Yayın Kurulu Üyesi, 58. ve 59. Dönem ÖNDER Yönetim Kurulu Üyesi olarak görev yaptı.
@@ -67,7 +67,7 @@ Halihazırda işe alım uzmanı olarak kariyerine devam etmektedir. Lise yıllar
       id: 7,
       name: 'Doç. Dr. Ahmet KOÇ',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/yk-taslak.jpg",
       bio: `Doç. Dr. Ahmet Koç, din eğitimi alanında uzmanlaşmış bir akademisyendir. Lisans, yüksek lisans ve doktora derecelerini ilahiyat ve eğitim bilimleri alanlarında tamamladıktan sonra akademik kariyerine çeşitli üniversitelerde öğretim elemanı olarak devam etmiştir. Hâlen İstanbul Üniversitesi İlahiyat Fakültesi Dekan Yardımcısı ve Din Eğitimi Anabilim Dalı Başkanı görev yapmaktadır.
 
 Akademik çalışmaları, din eğitimi, değerler eğitimi, Kuzey Kıbrıs'ta din eğitimi, din öğretiminde çağdaş ölçme ve değerlendirme teknikleri, dini alanlarda yapay zekâ kullanımı, ölçek geliştirme, erken çocuklukta din eğitimi, dijitalleşmenin din eğitimi üzerindeki etkileri ve örgün eğitimle birlikte hafızlık programları gibi geniş bir yelpazeye yayılmaktadır. Makaleleri, Sustainability, Religions, Frontiers in Psychology ve SAGE Open gibi uluslararası saygın dergilerde yayımlanmıştır. "Din Öğretiminde Alternatif Ölçme ve Değerlendirme" kitabının yanında geliştirdiği dokuz özgün ölçme aracı ve TR Dizin'de taranan pek çok dergide yayımlanmış kapsamlı araştırmaları mevcuttur.
@@ -78,7 +78,7 @@ Editöryal faaliyetleri kapsamında SAGE Open, Hitit İlahiyat Dergisi, darulfun
       id: 8,
       name: 'Doç. Dr. Umut KAYA',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_7.jpg',
+      image: '/kurumsal/assest/umutkaya.JPEG',
       bio: `1981 yılında İstanbul'da doğdu. 1999'da Eyüp Anadolu İmam Hatip Lisesi'nden mezun olduktan sonra tedrisatına Marmara Üniversitesi İlahiyat Fakültesi'nde devam etti. Marmara Üniversitesi Sosyal Bilimler Enstitüsü'nde yüksek lisans (2006) ve doktora (2012) eğitimini tamamladı.
 
 2009–2014 yılları arasında beş yıl süre ile Başbakanlık Osmanlı Arşivi'nde görev aldı. 2014 yılında ise Marmara Üniversitesi İlahiyat Fakültesi'nde Yardımcı Doçent olarak göreve başladı. 2021 yılında Doçent oldu. Halen Marmara Üniversitesi İlahiyat Fakültesi'nde bu görevini sürdürmektedir. Tanzimat'tan Cumhuriyet'e Osmanlı'da Ahlak Eğitimi adında bir eseri bulunan Kaya, din eğitimi alanında çalışmalarını sürdürmektedir.`,
@@ -87,7 +87,7 @@ Editöryal faaliyetleri kapsamında SAGE Open, Hitit İlahiyat Dergisi, darulfun
       id: 9,
       name: 'Emine ERDOĞAN',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_1.jpg',
+      image: '/kurumsal/assest/emineerdogan.JPEG',
       bio: `İlk, orta ve lise eğitimini Kayseri'de tamamladı. Erciyes Üniversitesi ilahiyat fakültesinden 2002 yılında mezun oldu. Anadolu Üniversitesi İktisat Fakültesi Kamu Yönetimi lisans eğitimini tamamladıktan sonra aynı üniversitenin Medya ve İletişim bölümünden mezun oldu. Maltepe Üniversitesi Eğitim Yönetimi ve Denetimi alanında yüksek lisansını yaptı.
 
 Çeşitli okullarda öğretmenlik ve idarecilik yaptı. İstanbul Pendik Sezai Karakoç İmam Hatip Ortaokulunda Okul Müdürü olarak görevini halen devam ettirmektedir. Evli ve iki çocuk annesidir. Eğitim Bir Sen 4 Nolu Şube Kadın Komisyonu Başkanlığını yürütmektedir.`,
@@ -96,14 +96,14 @@ Editöryal faaliyetleri kapsamında SAGE Open, Hitit İlahiyat Dergisi, darulfun
       id: 10,
       name: 'Başhanım BARLIK',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_9.jpg',
+      image: '/kurumsal/assest/bashanimbarlik.JPEG',
       bio: `1980 yılında Adana'da doğdu. Bakırköy İmam Hatip Lisesi'nden mezun oldu. Kocaeli Üniversitesi İlahiyat Fakültesi'ni ve Eskişehir Anadolu Üniversitesi Sosyal Hizmetler bölümünü tamamladı. Öğretmenlik mesleğinde 10 yıllık bir tecrübeye sahip olup son 5 yıldır ÖNDER çatısı altında Öğretmen Komisyonu üyesi olarak görev yapmaktadır. Evli ve üç çocuk annesidir.`,
     },
     {
       id: 11,
-      name: 'Rabbani BOZANCI',
+      name: 'Rabbani BOZACI',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/rabbanibozacı.JPEG",
       bio: `Rabbani Bozacı, lise eğitimini 2022 yılında İstanbul İmam Hatip Lisesi'nde tamamladı. Aynı yıl Marmara Üniversitesi İlahiyat Fakültesi'ne yerleşerek bir yıl Arapça hazırlık eğitimi aldı. Bu süreçte üç aylık bir dönem için Ürdün'de bulundu. Üniversite eğitimiyle eş zamanlı olarak İstanbul Eğitim ve Araştırma Merkezi (İSAR) bünyesinde iki yıl boyunca İslamî ilimler ve sosyal bilimler alanlarında seçkin hocalardan dersler aldı. İlahiyat Fakültesi birinci sınıfın sonunda Marmara Üniversitesi Hukuk Fakültesi'nde Çift Anadal Programı'na kabul edilerek eğitimine burada da devam etmeye başladı.
 
 Hâlihazırda her iki lisans programını birlikte sürdürmektedir. Üniversite yıllarından itibaren profesyonel yazarlık eğitimleri almış; çeşitli sosyal bilim alanlarında makaleler kaleme almış ve yazmaya devam etmektedir. İslam iktisadı, eğitim ve politika başlıca ilgi alanları arasında yer almaktadır. İyi düzeyde Arapça bilmektedir.`,
@@ -112,26 +112,27 @@ Hâlihazırda her iki lisans programını birlikte sürdürmektedir. Üniversite
       id: 12,
       name: 'Vildan MENTEŞ ÇETİN',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-1.jpg',
+      image: '/kurumsal/assest/vildanmentescetin.JPEG',
       bio: `1977 yılında İstanbul'da doğdu. Bakırköy İmam-Hatip Lisesini bitirdikten sonra Marmara Üniversitesi İlahiyat Fakültesi'nde eğitim hayatını tamamladı. Dönemin yasakları devam ederken gönüllü din hizmetleri ve çeşitli sivil toplum faaliyetlerinde yer aldı. 2005 yılında Diyanet İşleri Başkanlığına Vaiz olarak atandı. Gümüşhane ve İstanbul Müftülüklerinde görev yaptı. Dokuz yıl süren vaizlik görevi boyunca Aile İrşat ve Rehberlik faaliyetleri, engelliler ve ailelerine yönelik seminerler, Darülaceze, Çocuk Esirgeme vb kurumlarda çeşitli çalışmalar yaptı. 2013 yılında Millî Eğitim Bakanlığına Öğretmen olarak atandı. Fıkıh, eğitim, kadın ve Türk İslam sanatları alanlarında makaleleri bulunmaktadır. Aslen Kosova-Prizrenli olup evli ve beş çocuk annesidir.`,
     },
     {
       id: 13,
       name: 'Doç. Dr. Ahmet EKŞİ',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/yk-taslak.jpg",
       bio: `Ahmet EKŞİ 1972 yılında Erzurum'un İspir ilçesine bağlı Çayırözü Köyü'nde doğdu. 1992 yılında Bursa Merkez İmam-Hatip Lisesi'nden mezun oldu. Aynı yıl kazandığı Marmara Üniversitesi İlahiyat Fakültesi'nden 1997'de mezun oldu. Ardından Marmara Üniversitesi Sosyal Bilimler Enstitüsünde İslam Hukuku Anabilim Dalında Yüksek Lisans öğretim programını tamamladı. Bu süre içerisinde "İslam Hukukunda Mağdurun Rızasının Hukuka Aykırılığa Etkisi ve Sorumluluk Bakımından Sonuçları" adlı Yüksek Lisans Tezini hazırladı.
 
 22 Aralık 1998 yılında İstanbul Güngören Haznedar A. İpekçi İÖO'da Din Kültürü ve Ahlak Bilgisi öğretmeni olarak göreve başladı. Yedi yıl öğretmenlik yaptıktan sonra 2006 yılında Milli Eğitim Bakanlığı Din Öğretimi Genel Müdürlüğü tarafından ders kitaplarını yazım komisyonunda görevlendirildi. Bu süre içerisinde komisyonda yer alan diğer öğretmenlerle birlikte önce İlköğretim ve Lise Din Kültürü ve Ahlak Bilgisi ders kitapları ile Öğretmen Kılavuz kitaplarını yazdılar. Ardından İmam-Hatip Lisesi Meslek derslerinin kitaplarını hazırladılar. Yine aynı süre içerisinde Batı Trakya Türklerinin okullarında okutulacak olan ilkokul, ortaokul ve lise ders kitaplarının hazırlanmasında çalıştı. 2010 Yılında Selçuk Üniversitesi'nde İslam Hukuku alanında "İslam Hukukunda Tıbbi Müdahalelerden Doğan Hukuki Sorumluluk" adlı teziyle doktora ünvanını aldı. Mart 2012'de Yıldız Teknik Üniversitesi Eğitim Fakültesi DKAB Bölümüne Yrd. Doç. Olarak atandı. Üç yıl görev yaptıktan sonra Kocaeli Üniversitesi İlahiyat Fakültesine naklini aldırdı. 2020'de Doçent oldu. Halen Kocaeli Üniversitesi İlahiyat Fakültesi Temel İslam Bilimleri Anabilim Dalı İslam Hukuku'nda öğretim üyesi olarak görev yapmaktadır. Yazdığı ders kitaplarının yanı sıra birçok kitap ile ulusal ve uluslararası hakemli dergilerde yayınlanmış makalesi bulunmaktadır. Evli ve iki çocuk babası olup Arapça ve İngilizce bilmektedir.`,
     },
   ];
 
+
   const supervisionMembers = [
     {
       id: 14,
       name: 'Resul ÇİFTÇİ',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_4.jpg',
+      image: '/kurumsal/assest/resulçiftci.jpg',
       bio: `1994 yılında Giresun'un Şebinkarahisar ilçesinde doğdu. İlk ve ortaokulu Şebinkarahisar'da tamamladı. 2012 yılında İstanbul Kartal Anadolu İmam Hatip Lisesi'nden 2017 yılında da İstanbul Üniversitesi İlahiyat Fakültesi'nden mezun oldu.
 
 Lise ve üniversite yıllarında birçok dernek ve vakıfta gönüllü çalışmalar içerisinde yer aldı. İLKE Vakfı çatısı altında Geleceğin Türkiye'si Raporları kapsamında Araştırmacı olarak çalıştı.
@@ -144,7 +145,7 @@ Lise ve üniversite yıllarında birçok dernek ve vakıfta gönüllü çalışm
       id: 15,
       name: 'Recep YEŞİLKAYA',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/recepyesilkaya.JPEG",
       bio: `İbn Haldun Üniversitesi'nde Siyaset Bilimi ve Uluslararası İlişkiler ile İslami İlimler bölümlerinde çift anadal yapmaktadır.
 
 2021 yılında ÖNDER Gençlik'te çeşitli koordinatörlükler üstlenmiş, son olarak Gençlik Teşkilat biriminde görev almıştır. 2024 yılında Ürdün'de bulunan World Islamic Science and Education University'de Arapça dil eğitimi almıştır.`,
@@ -153,7 +154,7 @@ Lise ve üniversite yıllarında birçok dernek ve vakıfta gönüllü çalışm
       id: 16,
       name: 'Prof. Dr. Ahmet TÜRKAN',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/yk-taslak.jpg",
       bio: `1976 yılında Düzce'de doğdu. 1994 yılında Düzce İmam Hatip Lisesinden, 2000 yılında Selçuk Üniversitesi İlahiyat Fakültesi'nden mezun oldu. Selçuk Üniversitesi Sosyal Bilimler Enstitüsü Felsefe ve Din Bilimleri Anabilim Dalı Dinler Tarihi bilim dalında 2003 yılında Yüksek Lisansını ve 2011 yılında Doktorasını tamamladı.
 
 2013 yılında Dumlupınar Üniversitesi İlahiyat Fakültesi Felsefe ve Din Bilimleri Bölümü Dinler Tarihi Anabilim Dalında Doktor Öğretim Üyesi olarak göreve başladı, 2018 yılında doçent ve 2023 yılında profesör oldu. Dumlupınar Üniversitesi Senato üyeliği ve Kütüphane Daire Başkanı görevlerinin yanında aynı üniversitenin İlahiyat Fakültesinde Felsefe ve Din Bilimleri Bölüm Başkanlığı ve Dekan Yardımcılığı yaptı. 2021 yılında Necmettin Erbakan Üniversitesi Ahmet Keleşoğlu İlahiyat Fakültesinde Dinler Tarihi Anabilim Dalında göreve başladı. Ahmet TÜRKAN halen NEÜ Ahmet Keleşoğlu İlahiyat Fakültesi'nde Dinler Tarihi anabilim dalı başkanlığının yanı sıra NEÜ Kurumsal Kalite ve Akreditasyon koordinatörü olarak görevini sürdürmektedir.`,
@@ -162,7 +163,7 @@ Lise ve üniversite yıllarında birçok dernek ve vakıfta gönüllü çalışm
       id: 17,
       name: 'Doç. Dr. Ahmet MEYDAN',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/yk-taslak.jpg",
       bio: `05.12.1973 tarihinde Erzincan'da doğdu. İlkokuldan sonra Bayrampaşa Yeşil Cami Kur'an Kursu'nda hafızlık yaptı. Aynı yerde Arapça Gramer ve Dini İlimler okudu. Dışarıdan sınavları vererek ortaokul ve lise diploması aldı. 1997 yılında Marmara Üniversitesi İlahiyat Fakültesi'nden mezun olduktan sonra "İslam Hukukunda Muvâzaa Kavramı" başlıklı teziyle yüksek lisansını (2006), "Kutbüddîn-i Şîrâzî'nin Miftâhu'l-Miftâh Adlı Eserinin Tahkik ve Tahlili" başlıklı teziyle de doktorasını tamamladı (2019).
 
 Milli Eğitim Bakanlığı'nda öğretmen olarak ve Din Kültürü ve Ahlak Bilgisi ile İHL Meslek dersleri ders kitapları yazım komisyonunda da yazar olarak görev yaptı. Diğer taraftan tercüme eserlerinin yanı sıra gençlere ve ailelere yönelik çok sayıda eser telif etti. 2012-2023 yılları arasında Yalova Üniversitesi İslami İlimler Fakültesi'nde öğretim görevlisi ve öğretim üyesi olarak çalıştı. 2023 yılından itibaren görevine devam etmektedir.`,
@@ -171,10 +172,17 @@ Milli Eğitim Bakanlığı'nda öğretmen olarak ve Din Kültürü ve Ahlak Bilg
       id: 18,
       name: 'Yunus Vehbi KARAMAN',
       title: 'Üye',
-      image: 'https://ihamer.org.tr/wp-content/uploads/2025/09/ihamer_5-100.jpg',
+      image: "/kurumsal/assest/yk-taslak.jpg",
       bio: `Lisans eğitimini Samsun Ondokuz Mayıs Üniversitesi Eğitim Fakültesi'nde aldı. Yüksek lisans eğitimini 2020 yılında İstanbul Sabahattin Zaim Üniversitesi Sosyoloji Bölümü'nde tamamladı.
 
 Halihazırda İstanbul Medeniyet Üniversitesi Sosyoloji Bölümü'nde doktora eğitimine devam etmektedir. Toplumsal hareketler, toplumsal değişim, eğitim, tabakalaşma ve sosyal hareketlilik alanlarına ilgi duymaktadır.`,
+    },
+    {
+      id: 19,
+      name: 'Sultan Tekin',
+      title: 'Üye',
+      image: "/kurumsal/assest/sultantekin.JPEG",
+      bio: `1988 yılında Tekirdağ’da doğdu. 2005 yılında Tekirdağ Tuğlacılar Süper Lisesi’nden mezun oldu. Aynı yıl başladığı Kocaeli Üniversitesi Matematik Öğretmenliği bölümünü 2009 yılında tamamladı. 2012 yılında Kamu Personeli Seçme Sınavı’nda 94,56 puan aldı ve Türkiye 240.sı olup kendi branşında derece yaparak İstanbul’a atandı. 2012-2014 yılları arasında Akşemsettin Kız Anadolu İmam Hatip Lisesi’nde, 2014-2023 yılları arasında Şehit Muhammed Aksu Kız Anadolu İmam Hatip Lisesi’nde görev yapmıştır. Halen Üsküdar Ali Fuat Başgil Kız Anadolu İmam Hatip Lisesi’nde matematik öğretmenliği görevine devam etmektedir. Öğrenciliğinde İmam Hatip okullarında okuyamasa da, İstanbul’a atandığı yıldan itibaren İmam Hatip okullarında görev yapmaktadır. 2024 yılında Fatih Sultan Mehmet Vakıf Üniversitesi Bilim Tarihi Tezli Yüksek Lisans programından mezun oldu.`,
     },
   ];
 
@@ -304,6 +312,7 @@ Halihazırda İstanbul Medeniyet Üniversitesi Sosyoloji Bölümü'nde doktora e
             <MemberCard key={member.id} member={member} />
           ))}
         </div>
+
 
         {/* Denetleme Kurulu Section - Daha şık bir ayraç */}
         <div className="relative my-16">
