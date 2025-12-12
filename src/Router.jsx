@@ -6,7 +6,7 @@ import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import LogoAnimation from "./components/common/LogoAnimation";
 import ScrollToTopButton from "./components/common/ScrollToTopButton";
-import ScrollToTop from "./components/common/Scrolltotop";
+import ScrollToTop from './components/common/ScrollToTop';
 import PageTransition from "./components/common/PageTransition";
 
 // --- Sayfaları Yükleme ---
