@@ -1,0 +1,8 @@
+ services:
+   hikmetinizinde:
+     build:
+       context: .
+     ports:
+       - "8224:80"
+
+
