@@ -25,37 +25,37 @@ const ClockIcon = (props) => (
 
 const programData = [
     {
-      img: "/public/kurumsal/assest/dil.jpg",
+      img: "/kurumsal/assest/dil.jpg",
       title: "Dil",
       desc: "Dil Ağırlıklı Eğitim Veren İmam Hatip Liseleri",
       link: "/dil-programlari",
     },
     {
-      img: "/public/kurumsal/assest/sanat.jpg",
+      img: "/kurumsal/assest/sanat.jpg",
       title: "Sanat",
       desc: "Çağdaş Görsel Sanatlar Programı Uygulayan İmam Hatip Liseleri",
       link: "/sanat-programlari",
     },
     {
-      img: "/public/kurumsal/assest/teknoloji.jpg",
+      img: "/kurumsal/assest/teknoloji.jpg",
       title: "Teknoloji",
       desc: "Teknoloji Ağırlıklı İmam Hatip Liseleri",
       link: "/teknoloji-programlari",
     },
     {
-      img: "/public/kurumsal/assest/spor.jpg",
+      img: "/kurumsal/assest/spor.jpg",
       title: "Spor",
       desc: "Spor Programı Uygulayan İmam Hatip Liseleri",
       link: "/spor-programlari",
     },
     {
-      img: "/public/kurumsal/assest/hafizlik.jpg",
+      img: "/kurumsal/assest/hafizlik.jpg",
       title: "Hafızlık",
       desc: "Hafızlık Programı Uygulayan İmam Hatip Ortaokulları",
       link: "/HafizlikProgramlari",
     },
     {
-      img: "/public/kurumsal/assest/uluslararası.jpg",
+      img: "/kurumsal/assest/uluslararası.jpg",
       title: "Uluslararası",
       desc: "Uluslararası İmam Hatip Liseleri",
       link: "/uluslararasi-programlar",
@@ -221,21 +221,21 @@ const MainContent = () => {
       id: "c1",
       title: `Din Eğitiminde Kur'an-ı Kerim Öğretimi Çalıştayı`,
       image:
-        "/public/kurumsal/assest/Din Eğitiminde Kur'an-ı Kerim Öğretimi Çalıştayı.png",
+        "/kurumsal/assest/Din Eğitiminde Kur'an-ı Kerim Öğretimi Çalıştayı.png",
       pdfUrl: "https://onder.org.tr/data/uploads/document/688876fabd9df.pdf",
     },
     {
       id: "c2",
       title: "Uluslararası İmam Hatip Okulları Çalıştayı",
       image:
-        '/public/kurumsal/assest/Uluslararası İmam Hatip Okulları Çalıştayı.png',
+        '/kurumsal/assest/Uluslararası İmam Hatip Okulları Çalıştayı.png',
       pdfUrl: "https://onder.org.tr/data/uploads/document/6888771e45f22.pdf",
     },
     {
       id: "c3",
       title: "İmam Hatip Okullarında Arapça Öğretimi Çalıştayı",
       image:
-        '/public/kurumsal/assest/İmam Hatip Okullarında Arapça Öğretimi Çalıştayı.png',
+        '/kurumsal/assest/İmam Hatip Okullarında Arapça Öğretimi Çalıştayı.png',
       pdfUrl: "https://onder.org.tr/data/uploads/document/68887744526ce.pdf",
     },
   ];
@@ -245,14 +245,14 @@ const MainContent = () => {
       id: "b1",
       title: "Bilgi Notu 1",
       image:
-        "/public/kurumsal/assest/bilgi-1.jpeg",
+        "/kurumsal/assest/bilgi-1.jpeg",
       pdfUrl: "https://onder.org.tr/data/uploads/document/690db5e698cf2.pdf",
     },
     {
       id: "b2",
       title: "Bilgi Notu 2",
       image:
-        "/public/kurumsal/assest/bilgi-2.jpeg",
+        "/kurumsal/assest/bilgi-2.jpeg",
       pdfUrl: " https://onder.org.tr/data/uploads/document/690db6105f192.pdf",
     },
   ];

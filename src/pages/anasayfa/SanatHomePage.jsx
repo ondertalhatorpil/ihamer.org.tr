@@ -79,7 +79,7 @@ const SanatHomePage = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-teal-800 to-amber-600 opacity-90 group-hover:opacity-95 transition-opacity" />
               <div className="relative p-12 min-h-[350px] flex flex-col justify-center items-center text-white">
                 {/* <Music className="w-16 h-16 mb-6 group-hover:scale-110 transition-transform" /> */}
-                <img src="/public/kurumsal/assest/musiki1.png" alt="kanun" className="w-46 h-46 mb-6 group-hover:scale-110 transition-transform" />
+                <img src="/kurumsal/assest/musiki1.png" alt="kanun" className="w-46 h-46 mb-6 group-hover:scale-110 transition-transform" />
                 <h2 className="text-3xl font-bold mb-4 text-center">
                   Musiki Programı
                 </h2>
@@ -100,7 +100,7 @@ const SanatHomePage = () => {
             >
                <div className="absolute inset-0 bg-gradient-to-br from-teal-800 to-amber-600 opacity-90 group-hover:opacity-95 transition-opacity" />
               <div className="relative p-12 min-h-[350px] flex flex-col justify-center items-center text-white">
-              <img src="/public/kurumsal/assest/görsellogo1.png" alt="çini" className="w-36 h-36 mb-6 group-hover:scale-110 transition-transform" />
+              <img src="/kurumsal/assest/görsellogo1.png" alt="çini" className="w-36 h-36 mb-6 group-hover:scale-110 transition-transform" />
                 <h2 className="text-3xl font-bold mb-4 text-center">
                   Geleneksel Ve Çağdaş Görsel Sanatlar Programı
                 </h2>

@@ -41,7 +41,7 @@ const HafizlikHomePage = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-amber-600 to-teal-800 opacity-90 group-hover:opacity-95 transition-opacity" />
             <div className="relative p-12 min-h-[400px] flex flex-col justify-center items-center text-white">
-            <img src="/public/kurumsal/assest/kuran.png" alt="kanun" className="w-46 h-46 mb-6 group-hover:scale-110 transition-transform" />
+            <img src="/kurumsal/assest/kuran.png" alt="kanun" className="w-46 h-46 mb-6 group-hover:scale-110 transition-transform" />
               <h2 className="text-3xl font-bold mb-4">Hafız Yetiştiren İHO</h2>
               <p className="text-center text-teal-100 mb-6 max-w-md">
                 Ortaokul düzeyinde, örgün eğitimle birlikte hafızlık projesi yürüten okullarımız.
@@ -59,7 +59,7 @@ const HafizlikHomePage = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-teal-800 to-amber-600 opacity-90 group-hover:opacity-95 transition-opacity" />
             <div className="relative p-12 min-h-[400px] flex flex-col justify-center items-center text-white">
-            <img src="/public/kurumsal/assest/kuran.png" alt="kanun" className="w-46 h-46 mb-6 group-hover:scale-110 transition-transform" />
+            <img src="/kurumsal/assest/kuran.png" alt="kanun" className="w-46 h-46 mb-6 group-hover:scale-110 transition-transform" />
               <h2 className="text-3xl font-bold mb-4">Hafız Pekiştiren AİHL</h2>
               <p className="text-center text-amber-100 mb-6 max-w-md">
                 Lise düzeyinde, hafızlığı pekiştirme ve ilahiyat odaklı eğitim veren okullarımız.

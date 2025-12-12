@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const sliderImages = [
-  "/public/kurumsal/assest/hikmetinİzindeAfisSlider.jpg",
-  "/public/kurumsal/assest/slider-1.jpeg",
-  "/public/kurumsal/assest/slider-2.jpeg",
-  "/public/kurumsal/assest/slider-3.jpeg",
-  "/public/kurumsal/assest/slider-4.jpeg",
-  "/public/kurumsal/assest/slider-5.jpeg",
-  "/public/kurumsal/assest/slider-6.jpeg",
+  "/kurumsal/assest/slider-0.jpg",
+  "/kurumsal/assest/slider-1.jpeg",
+  "/kurumsal/assest/slider-2.jpeg",
+  "/kurumsal/assest/slider-3.jpeg",
+  "/kurumsal/assest/slider-4.jpeg",
+  "/kurumsal/assest/slider-5.jpeg",
+  "/kurumsal/assest/slider-6.jpeg",
 
 ];
 

@@ -5,13 +5,13 @@ const DocumentSection = () => {
     {
       id: 1,
       title: 'Bilgi Notu 1',
-      image: '/public/kurumsal/assest/bilgi-1.jpeg',
+      image: '/kurumsal/assest/bilgi-1.jpeg',
       pdfUrl: 'https://onder.org.tr/data/uploads/document/6888734124141.pdf'
     },
     {
       id: 2,
       title: 'Bilgi Notu 2',
-      image: '/public/kurumsal/assest/bilgi-2.jpeg',
+      image: '/kurumsal/assest/bilgi-2.jpeg',
       pdfUrl: 'https://onder.org.tr/data/uploads/document/688873661a30d.pdf'
     }
   ];

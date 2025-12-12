@@ -13,7 +13,7 @@ import { Link, useLocation } from "react-router-dom";
 
 // --- Logo ve link sabitleri ---
 
-const LOGO_SRC = "/public/kurumsal/assest/tamlogo.png";
+const LOGO_SRC = "/kurumsal/assest/tamlogo.png";
 
 const LOGO_LINK = "/";
 
