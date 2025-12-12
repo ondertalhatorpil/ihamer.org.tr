@@ -97,7 +97,7 @@ const Footer = () => {
                 href="/kvkk"
                 className="transition-all hover:text-white hover:pl-1.5"
               >
-                KVK Politikası
+                KVKK Politikası
               </a>
             </li>
           </ul>

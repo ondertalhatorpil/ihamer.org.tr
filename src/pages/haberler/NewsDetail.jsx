@@ -242,32 +242,9 @@ const NewsDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="min-h-screen  overflow-x-hidden">
       {/* Wrapper Section */}
-      <div 
-        // bg-center sınıfı resmin ortasını odaklar
-        className="w-full px-5 h-[220px] relative flex flex-col md:justify-start md:items-start justify-center items-center bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('/public/kurumsal/assest/wrapper-2.png')"
-        }}
-      >
-        {/* Overlay - DEĞİŞTİRİLDİ: Soldan sağa gradient (Solda koyu, sağa doğru şeffaflaşan) */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/90 via-black/50 to-transparent"></div>
-        
-        {/* Content */}
-        <div className="relative z-[2] text-white md:text-left text-center">
-          <p className="text-white text-4xl font-black mt-2.5 text-center md:text-left mb-7 mt-14">Haberler</p>
-          <h1 className="mt-2">
-            <a href="/" className="text-white no-underline font-bold text-xl hover:opacity-80 transition-opacity">
-              <span>Anasayfa</span>
-              <i className="fas fa-angle-right text-[0.8rem] mx-2"></i>
-            </a>
-            <a href="/haberler" className="text-white no-underline font-bold hover:opacity-80 text-xl">
-              <span>Haberler</span>
-            </a>
-          </h1>
-        </div>
-      </div>
+     
 
       {/* News Detail */}
       <div className="container mx-auto px-4 py-12">
