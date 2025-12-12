@@ -1,30 +1,16 @@
-  FROM node:18-alpine
+FROM node:20-alpine
 
-  WORKDIR /app
+WORKDIR /app
 
-  COPY package*.json ./
+COPY package*.json ./
 
-  RUN npm install
+RUN npm install
 
-  COPY . .
+COPY . .
 
-  RUN npm run build
+RUN npm run build
 
-  RUN npm install -g serve
+RUN npm install -g serve
 
-  CMD ["serve", "-s", "build", "-l", "80"]
-
-
-
-
-  # FROM node:18-alpine
-
-  # WORKDIR /app
-
-  # COPY package*.json ./
-
-  # RUN npm install
-
-  # COPY . .
-
-  # CMD ["sh", "-c", "npm start -- --host 0.0.0.0"]
+# Vite 'dist' klasörüne build eder, 'build' değil!
+CMD ["serve", "-s", "dist", "-l", "80"]
