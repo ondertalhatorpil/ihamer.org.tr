@@ -1,5 +1,5 @@
  services:
-   hikmetinizinde:
+   ihamerorgtr:
      build:
        context: .
      ports:
