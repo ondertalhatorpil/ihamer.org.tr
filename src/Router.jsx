@@ -38,6 +38,10 @@ const TeknolojiHomePage = lazy(() => import("./pages/anasayfa/TeknolojiHomePage.
 const TeknolojiListPage = lazy(() => import("./pages/anasayfa/TeknolojiListPage.jsx"), 1500);
 const KvkkPolitikası = lazy(() => import("./components/common/kvkk.jsx"), 1500);
 
+// Analytics Ana Sayfası
+import YokAtlasAnalytics from './pages/YokAtlasAnalytics';
+import UniversityDetail from './pages/YokAtlasAnalytics/components/UniversityDetail';
+import DepartmentDetail from './pages/YokAtlasAnalytics/components/DepartmentDetail';
 
 const Router = () => {
   return (
@@ -58,7 +62,18 @@ const Router = () => {
             <Route path="/calistay" element={<CalistayPage />} />
             <Route path="/haberler" element={<NewsPage />} />
             <Route path="/haber/:newsId" element={<NewsDetail />} />
-            
+
+           {/* --- ANALYTICS ROTALARI --- */}
+
+{/* 1. Ana Dashboard */}
+<Route path="/analytics" element={<YokAtlasAnalytics />} />
+
+{/* 2. Üniversite Detay (DİKKAT: Element yine YokAtlasAnalytics olmalı) */}
+<Route path="/analytics/university/:universityName" element={<YokAtlasAnalytics />} />
+
+{/* 3. Bölüm Detay (DİKKAT: Element yine YokAtlasAnalytics olmalı) */}
+<Route path="/analytics/department/:departmentName" element={<YokAtlasAnalytics />} />
+
             {/* Hafızlık Programları Rotaları */}
             <Route path="/HafizlikProgramlari" element={<HafizlikLayout />}>
               <Route index element={<HafizlikHomePage />} />
