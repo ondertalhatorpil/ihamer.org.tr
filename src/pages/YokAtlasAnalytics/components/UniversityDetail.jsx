@@ -22,8 +22,10 @@ const UniversityDetail = ({ data }) => {
   
   // Üniversiteye ait tüm kayıtları filtrele
   const universityRecords = useMemo(() => {
-    return data.filter(d => d.universiteName === decodeURIComponent(universityName));
-  }, [data, universityName]);
+return data.filter(d => 
+  d.universiteName === decodeURIComponent(universityName) && 
+  d.data2025 // Sadece 2025 verisi olanlar
+);  }, [data, universityName]);
 
   // İstatistikleri hesapla
   const stats = useMemo(() => {

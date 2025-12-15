@@ -57,11 +57,17 @@ export function getGeneralStatistics(data) {
     stats2024: calculateYearStats(data, 2024),
     stats2025: calculateYearStats(data, 2025),
     
-    // Tip dağılımı
+    // Tip dağılımı (2025 yılı öğrenci sayıları)
     byType: {
-      Devlet: validData.filter(d => d.universityType === 'Devlet').length,
-      Vakıf: validData.filter(d => d.universityType === 'Vakıf').length,
-      KKTC: validData.filter(d => d.universityType === 'KKTC').length
+      Devlet: validData
+        .filter(d => d.universityType === 'Devlet' && d.data2025)
+        .reduce((sum, d) => sum + d.data2025.sayi, 0),
+      Vakıf: validData
+        .filter(d => d.universityType === 'Vakıf' && d.data2025)
+        .reduce((sum, d) => sum + d.data2025.sayi, 0),
+      KKTC: validData
+        .filter(d => d.universityType === 'KKTC' && d.data2025)
+        .reduce((sum, d) => sum + d.data2025.sayi, 0)
     }
   };
 }
@@ -73,7 +79,8 @@ export function getUniversityStatistics(data) {
   const universities = {};
   
   data.forEach(record => {
-    if (!hasAnyData(record)) return;
+    // Sadece 2025 verisi olanları işle
+    if (!record.data2025) return;
     
     const uniName = record.universiteName;
     
