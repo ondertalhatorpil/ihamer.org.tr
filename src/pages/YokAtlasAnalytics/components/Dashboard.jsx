@@ -41,7 +41,7 @@ const Dashboard = ({ data }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title={
-            <Tooltip text="2025 yılında üniversitelere yerleşen toplam İmam Hatip mezunu öğrenci sayısı.">
+            <Tooltip className="z-999" text="2025 yılında üniversitelere yerleşen toplam İmam Hatip mezunu öğrenci sayısı.">
               Toplam İH Öğrenci (2025)
             </Tooltip>
           }

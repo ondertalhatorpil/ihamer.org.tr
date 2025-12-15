@@ -11,7 +11,7 @@ import {
   BarChart3,
   Calendar
 } from 'lucide-react';
-import { YearlyTrendChart, ComparisonBarChart } from './TrendChart';
+import {  ComparisonBarChart } from './TrendChart';
 import Tooltip from './Tooltip';
 import { formatNumber, formatPercent } from '../utils/helpers';
 import { getDepartmentCategory } from '../utils/dataProcessor';
@@ -101,7 +101,6 @@ return data.filter(d =>
     );
   }
 
-  // Renk belirleme
   const typeColor = stats.universityType === 'Devlet' ? 'blue' : stats.universityType === 'Vakıf' ? 'violet' : 'orange';
   const typeBgClass = stats.universityType === 'Devlet' ? 'bg-blue-100 text-blue-700' : stats.universityType === 'Vakıf' ? 'bg-violet-100 text-violet-700' : 'bg-orange-100 text-orange-700';
 
@@ -452,15 +451,15 @@ return data.filter(d =>
 // Helper function
 function getCategoryColor(category) {
   const colors = {
-    'Mühendislik': '#3b82f6', // blue-500
-    'Sağlık Bilimleri': '#10b981', // emerald-500
-    'İlahiyat': '#8b5cf6', // violet-500
-    'Eğitim': '#f59e0b', // amber-500
-    'Sosyal Bilimler': '#06b6d4', // cyan-500
-    'Hukuk': '#ef4444', // red-500
-    'İşletme/İktisat': '#ec4899', // pink-500
-    'Mimarlık/Tasarım': '#14b8a6', // teal-500
-    'Diğer': '#6b7280' // gray-500
+    'Mühendislik': '#3b82f6', 
+    'Sağlık Bilimleri': '#10b981', 
+    'İlahiyat': '#8b5cf6', 
+    'Eğitim': '#f59e0b', 
+    'Sosyal Bilimler': '#06b6d4', 
+    'Hukuk': '#ef4444',
+    'İşletme/İktisat': '#ec4899',
+    'Mimarlık/Tasarım': '#14b8a6', 
+    'Diğer': '#6b7280' 
   };
   return colors[category] || '#6b7280';
 }

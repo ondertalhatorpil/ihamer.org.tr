@@ -29,7 +29,7 @@ const Tooltip = ({ text, children, position = 'top' }) => {
         className={`absolute ${positionClasses[position] || positionClasses.top} 
         w-max max-w-[250px] px-3 py-2 bg-slate-800 text-white text-xs font-medium rounded-lg shadow-xl 
         opacity-0 invisible group-hover:opacity-100 group-hover:visible 
-        transition-all duration-200 z-[60] pointer-events-none text-center leading-relaxed whitespace-normal break-words`}
+        transition-all duration-200 z-[999] pointer-events-none text-center leading-relaxed whitespace-normal break-words`}
       >
         {text}
         
