@@ -102,7 +102,7 @@ export default function ImamHatipTimeline() {
         </h1>
       </div>
       <p className="text-white/80 text-xs md:text-base font-light max-w-2xl pl-0 md:pl-14">
-        İmam Hatip Araştırma ve Eğitim Merkezi Tarihçesi
+        İmam Hatip Okulları Tarihçesi 
       </p>
     </div>
   </div>

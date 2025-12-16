@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 
 // Statik bileşenler
 import Header from "./components/common/Header";
@@ -40,76 +40,85 @@ const KvkkPolitikası = lazy(() => import("./components/common/kvkk.jsx"), 1500)
 
 // Analytics Ana Sayfası
 import YokAtlasAnalytics from './pages/YokAtlasAnalytics';
-import UniversityDetail from './pages/YokAtlasAnalytics/components/UniversityDetail';
-import DepartmentDetail from './pages/YokAtlasAnalytics/components/DepartmentDetail';
+
+// --- LAYOUT CONTENT COMPONENT ---
+const AppContent = () => {
+  const location = useLocation();
+  
+  // '/analytics' ile başlayan rotalarda true döner
+  const isAnalyticsPage = location.pathname.startsWith('/analytics');
+
+  return (
+    <>
+      {/* Analytics sayfasında değilsek Header'ı göster */}
+      {!isAnalyticsPage && <Header />}
+      
+      <ScrollToTop />
+      <PageTransition imageUrl="https://ihamer.org.tr/wp-content/uploads/2022/01/Ihamer-Kahverengi.png" />
+      
+      <Suspense fallback={<LogoAnimation />}>
+        <Routes>
+          <Route path="/kvkk" element={<KvkkPolitikası />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/hakkimizda" element={<HakkımızdaPage />} />
+          <Route path="/yonetim" element={<YönetimPage />} />
+          <Route path="/kurumsal/tarihce" element={<TarihcePage />} />
+          <Route path="/iletisim" element={<IletisimPage />} />
+          <Route path="/bilgi" element={<BilgiPage />} />
+          <Route path="/calistay" element={<CalistayPage />} />
+          <Route path="/haberler" element={<NewsPage />} />
+          <Route path="/haber/:newsId" element={<NewsDetail />} />
+
+          {/* --- ANALYTICS ROTALARI --- */}
+          <Route path="/analytics" element={<YokAtlasAnalytics />} />
+          <Route path="/analytics/university/:universityName" element={<YokAtlasAnalytics />} />
+          <Route path="/analytics/department/:departmentName" element={<YokAtlasAnalytics />} />
+
+          {/* Hafızlık Programları Rotaları */}
+          <Route path="/HafizlikProgramlari" element={<HafizlikLayout />}>
+            <Route index element={<HafizlikHomePage />} />
+            <Route path="iho" element={<HafizlikEgitimiPage />} />
+            <Route path="iho-okul-listesi" element={<IhoOkulListesiPage />} />
+            <Route path="aihl" element={<AihlEgitimiPage />} />
+            <Route path="aihl-okul-listesi" element={<AihlListPage />} />
+          </Route>
+
+          {/* Sanat Programları Rotaları */}
+          <Route path="/sanat-programlari" element={<SanatHomePage />} />
+          <Route path="/sanat-programlari/musiki" element={<MusikiListPage />} />
+          <Route path="/sanat-programlari/gorsel-sanatlar" element={<GorselSanatListPage />} />
+
+          {/* Spor Programları Rotaları */}
+          <Route path="/spor-programlari" element={<SporHomePage />} />
+          <Route path="/spor-programlari/okullar" element={<SporListPage />} />
+
+          {/* Dil Programları Rotaları */}
+          <Route path="/dil-programlari" element={<DilHomePage />} />
+          <Route path="/dil-programlari/okullar" element={<DilListPage />} />
+
+          {/* Uluslararası Programlar Rotaları */}
+          <Route path="/uluslararasi-programlar" element={<UluslararasiHomePage />} />
+          <Route path="/uluslararasi-programlar/okullar" element={<UluslararasiListPage />} />
+
+          {/* Teknoloji Programları Rotaları */}
+          <Route path="/teknoloji-programlari" element={<TeknolojiHomePage />} />
+          <Route path="/teknoloji-programlari/okullar" element={<TeknolojiListPage />} />
+        </Routes>
+      </Suspense>
+      
+      <ScrollToTopButton />
+      
+      {/* Analytics sayfasında değilsek Footer'ı göster */}
+      {!isAnalyticsPage && <Footer />}
+    </>
+  );
+};
 
 const Router = () => {
   return (
-    <>
-      <BrowserRouter>
-        <Header />
-        <ScrollToTop />
-        <PageTransition imageUrl="https://ihamer.org.tr/wp-content/uploads/2022/01/Ihamer-Kahverengi.png" />
-        <Suspense fallback={<LogoAnimation />}>
-          <Routes>
-            <Route path="/kvkk" element={<KvkkPolitikası />} />
-            <Route path="/" element={<HomePage />} />
-            <Route path="/hakkimizda" element={<HakkımızdaPage />} />
-            <Route path="/yonetim" element={<YönetimPage />} />
-            <Route path="/kurumsal/tarihce" element={<TarihcePage />} />
-            <Route path="/iletisim" element={<IletisimPage />} />
-            <Route path="/bilgi" element={<BilgiPage />} />
-            <Route path="/calistay" element={<CalistayPage />} />
-            <Route path="/haberler" element={<NewsPage />} />
-            <Route path="/haber/:newsId" element={<NewsDetail />} />
-
-           {/* --- ANALYTICS ROTALARI --- */}
-
-{/* 1. Ana Dashboard */}
-<Route path="/analytics" element={<YokAtlasAnalytics />} />
-
-{/* 2. Üniversite Detay (DİKKAT: Element yine YokAtlasAnalytics olmalı) */}
-<Route path="/analytics/university/:universityName" element={<YokAtlasAnalytics />} />
-
-{/* 3. Bölüm Detay (DİKKAT: Element yine YokAtlasAnalytics olmalı) */}
-<Route path="/analytics/department/:departmentName" element={<YokAtlasAnalytics />} />
-
-            {/* Hafızlık Programları Rotaları */}
-            <Route path="/HafizlikProgramlari" element={<HafizlikLayout />}>
-              <Route index element={<HafizlikHomePage />} />
-              <Route path="iho" element={<HafizlikEgitimiPage />} />
-              <Route path="iho-okul-listesi" element={<IhoOkulListesiPage />} />
-              <Route path="aihl" element={<AihlEgitimiPage />} />
-              <Route path="aihl-okul-listesi" element={<AihlListPage />} />
-            </Route>
-
-            {/* Sanat Programları Rotaları */}
-            <Route path="/sanat-programlari" element={<SanatHomePage />} />
-            <Route path="/sanat-programlari/musiki" element={<MusikiListPage />} />
-            <Route path="/sanat-programlari/gorsel-sanatlar" element={<GorselSanatListPage />} />
-
-            {/* Spor Programları Rotaları */}
-            <Route path="/spor-programlari" element={<SporHomePage />} />
-            <Route path="/spor-programlari/okullar" element={<SporListPage />} />
-            
-            {/* Dil Programları Rotaları */}
-            <Route path="/dil-programlari" element={<DilHomePage />} />
-            <Route path="/dil-programlari/okullar" element={<DilListPage />} />
-            
-            {/* Uluslararası Programlar Rotaları */}
-            <Route path="/uluslararasi-programlar" element={<UluslararasiHomePage />} />
-            <Route path="/uluslararasi-programlar/okullar" element={<UluslararasiListPage />} />
-            
-            {/* Teknoloji Programları Rotaları */}
-            <Route path="/teknoloji-programlari" element={<TeknolojiHomePage />} />
-            <Route path="/teknoloji-programlari/okullar" element={<TeknolojiListPage />} />
-            
-          </Routes>
-        </Suspense>
-        <ScrollToTopButton />
-        <Footer />
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 };
 

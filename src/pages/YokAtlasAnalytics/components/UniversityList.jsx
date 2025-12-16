@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Building2, 
   MapPin, 
-  BookOpen, 
   Filter, 
   ArrowUpDown, 
   ArrowUp, 
@@ -12,49 +11,36 @@ import {
 } from 'lucide-react';
 import { getUniversityStatistics } from '../utils/statistics';
 import { formatNumber, formatPercent, getUniversityTypeBadge } from '../utils/helpers';
-import { TrendIndicator } from './TrendChart';
+import { TrendIndicator } from './TrendChart'; // TrendIndicator bileşenini import etmeyi unutma
 
 const UniversityList = ({ data }) => {
   const navigate = useNavigate();
-  const [sortBy, setSortBy] = useState('students'); // students (default), name, rate, departments
-  const [sortOrder, setSortOrder] = useState('desc'); // desc (default for numbers)
-  const [selectedType, setSelectedType] = useState('all'); // all, Devlet, Vakıf, KKTC
+  const [sortBy, setSortBy] = useState('students');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [selectedType, setSelectedType] = useState('all');
 
-  // Üniversite istatistiklerini hesapla
+  // İstatistik Hesaplama
   const universities = useMemo(() => getUniversityStatistics(data), [data]);
 
-  // Filtrele ve sırala
+  // Filtreleme ve Sıralama Mantığı
   const filteredAndSorted = useMemo(() => {
     let filtered = universities;
 
-    // Tip filtreleme
+    // Tip Filtreleme
     if (selectedType !== 'all') {
       filtered = filtered.filter(u => u.type === selectedType);
     }
 
     // Sıralama
-    const sorted = [...filtered].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       let compareA, compareB;
 
       switch(sortBy) {
-        case 'name':
-          compareA = a.name;
-          compareB = b.name;
-          break;
-        case 'students':
-          compareA = a.totalStudents2025;
-          compareB = b.totalStudents2025;
-          break;
-        case 'rate':
-          compareA = parseFloat(a.avgRate2025) || 0;
-          compareB = parseFloat(b.avgRate2025) || 0;
-          break;
-        case 'departments':
-          compareA = a.departmentCount;
-          compareB = b.departmentCount;
-          break;
-        default:
-          return 0;
+        case 'name': compareA = a.name; compareB = b.name; break;
+        case 'students': compareA = a.totalStudents2025; compareB = b.totalStudents2025; break;
+        case 'rate': compareA = parseFloat(a.avgRate2025) || 0; compareB = parseFloat(b.avgRate2025) || 0; break;
+        case 'departments': compareA = a.departmentCount; compareB = b.departmentCount; break;
+        default: return 0;
       }
 
       if (typeof compareA === 'string') {
@@ -62,13 +48,9 @@ const UniversityList = ({ data }) => {
           ? compareA.localeCompare(compareB, 'tr')
           : compareB.localeCompare(compareA, 'tr');
       } else {
-        return sortOrder === 'asc'
-          ? compareA - compareB
-          : compareB - compareA;
+        return sortOrder === 'asc' ? compareA - compareB : compareB - compareA;
       }
     });
-
-    return sorted;
   }, [universities, selectedType, sortBy, sortOrder]);
 
   const handleSort = (field) => {
@@ -81,125 +63,88 @@ const UniversityList = ({ data }) => {
   };
 
   const getSortIcon = (field) => {
-    if (sortBy !== field) return <ArrowUpDown className="w-4 h-4 text-slate-300" />;
+    if (sortBy !== field) return <ArrowUpDown className="w-3.5 h-3.5 text-slate-300 opacity-50" />;
     return sortOrder === 'asc' 
-      ? <ArrowUp className="w-4 h-4 text-blue-600" /> 
-      : <ArrowDown className="w-4 h-4 text-blue-600" />;
-  };
-
-  // Tip filtre butonları için yardımcı fonksiyon
-  const getTypeColorClass = (type) => {
-    switch(type) {
-      case 'Devlet': return 'bg-blue-600 border-blue-600 text-white';
-      case 'Vakıf': return 'bg-violet-600 border-violet-600 text-white';
-      case 'KKTC': return 'bg-amber-500 border-amber-500 text-white';
-      default: return 'bg-slate-800 border-slate-800 text-white';
-    }
+      ? <ArrowUp className="w-3.5 h-3.5 text-blue-600" /> 
+      : <ArrowDown className="w-3.5 h-3.5 text-blue-600" />;
   };
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-12 animate-fade-in">
       
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      {/* --- HEADER & FILTER SECTION --- */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
+        
+        {/* Sol Taraf: Başlık */}
         <div>
-          <h1 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-             <Building2 className="w-6 h-6 text-blue-500" />
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+             <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+               <Building2 className="w-6 h-6" />
+             </div>
              Üniversiteler
-             <span className="text-sm font-normal text-slate-400 bg-slate-100 px-2 py-1 rounded-full border border-slate-200">
-                {filteredAndSorted.length} kurum
-             </span>
           </h1>
-          <p className="text-slate-500 mt-1">
-            Üniversitelerin İmam Hatip mezunu yerleştirme performansları.
+          <p className="text-slate-500 mt-2 text-sm ml-1">
+            Toplam <span className="font-bold text-slate-800">{filteredAndSorted.length}</span> üniversite listeleniyor
           </p>
         </div>
-      </div>
 
-      {/* Filter Section */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
-        <div className="flex items-center gap-2 mb-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <Filter className="w-3 h-3" /> Kurum Türü Filtrele
-        </div>
-        <div className="flex flex-wrap gap-2">
+        {/* Sağ Taraf: Tip Filtreleri (Tabs) */}
+        <div className="bg-slate-100/80 p-1.5 rounded-xl flex overflow-x-auto custom-scrollbar">
           {['all', 'Devlet', 'Vakıf', 'KKTC'].map(type => {
-            const count = type === 'all' 
-                ? universities.length 
-                : universities.filter(u => u.type === type).length;
-            
-            const isActive = selectedType === type;
-            const label = type === 'all' ? 'Tümü' : type;
-
-            return (
+             const isActive = selectedType === type;
+             const label = type === 'all' ? 'Tümü' : type;
+             
+             return (
               <button 
                 key={type}
                 onClick={() => setSelectedType(type)}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border flex items-center gap-2
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap
                   ${isActive 
-                    ? `${getTypeColorClass(type)} shadow-md transform scale-105` 
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                    ? 'bg-white text-slate-800 shadow-sm ring-1 ring-black/5' 
+                    : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
                   }`}
               >
                 {label}
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full 
-                    ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                    {count}
-                </span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-            <thead>
-                <tr className="bg-slate-50/50 border-b border-slate-100" onClick={() => navigate(`/analytics/university/${encodeURIComponent(uni.name)}`)}>
-                <th 
-                    onClick={() => handleSort('name')} 
-                    className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
-                >
-                    <div className="flex items-center gap-2">
-                        Üniversite {getSortIcon('name')}
-                    </div>
-                </th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">
-                    Tip
-                </th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Şehir
-                </th>
-                <th 
-                    onClick={() => handleSort('departments')} 
-                    className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors text-center"
-                >
-                    <div className="flex items-center justify-center gap-2">
-                        Bölüm {getSortIcon('departments')}
-                    </div>
-                </th>
-                <th 
-                    onClick={() => handleSort('students')} 
-                    className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors text-right"
-                >
-                    <div className="flex items-center justify-end gap-2">
-                        Öğrenci (2025) {getSortIcon('students')}
-                    </div>
-                </th>
-                <th 
-                    onClick={() => handleSort('rate')} 
-                    className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors text-right"
-                >
-                    <div className="flex items-center justify-end gap-2">
-                        Ort. Oran (2025) {getSortIcon('rate')}
-                    </div>
-                </th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
-                    Trend
-                </th>
+      {/* --- TABLE SECTION --- */}
+      <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden relative">
+        <div className="overflow-x-auto max-h-[70vh] custom-scrollbar">
+            <table className="w-full text-left border-collapse relative">
+            
+            {/* Sticky Header */}
+            <thead className="sticky top-0 z-20">
+                <tr className="bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+                  {[
+                    { id: 'name', label: 'Üniversite Adı', align: 'left' },
+                    { id: 'type', label: 'Tip', align: 'center' },
+                    { id: 'city', label: 'Şehir', align: 'left' },
+                    { id: 'departments', label: 'Bölüm Sayısı', align: 'center' },
+                    { id: 'students', label: 'Öğrenci (2025)', align: 'right' },
+                    { id: 'rate', label: 'Ort. Oran', align: 'right' },
+                    { id: 'trend', label: 'Trend', align: 'right' },
+                  ].map((col) => (
+                    <th 
+                        key={col.id}
+                        onClick={() => col.id !== 'type' && col.id !== 'city' && col.id !== 'trend' && handleSort(col.id)} 
+                        className={`p-5 text-xs font-bold text-slate-500 uppercase tracking-wider 
+                            ${col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}
+                            ${col.id !== 'type' && col.id !== 'city' && col.id !== 'trend' ? 'cursor-pointer hover:bg-slate-50 hover:text-blue-600 transition-colors group' : ''}
+                        `}
+                    >
+                        <div className={`flex items-center gap-2 ${col.align === 'center' ? 'justify-center' : col.align === 'right' ? 'justify-end' : 'justify-start'}`}>
+                            {col.label}
+                            {col.id !== 'type' && col.id !== 'city' && col.id !== 'trend' && getSortIcon(col.id)}
+                        </div>
+                    </th>
+                  ))}
                 </tr>
             </thead>
+            
             <tbody className="divide-y divide-slate-50">
                 {filteredAndSorted.map((uni, index) => {
                     const badge = getUniversityTypeBadge(uni.type);
@@ -208,52 +153,54 @@ const UniversityList = ({ data }) => {
                     <tr 
                         key={index}
                         onClick={() => navigate(`/analytics/university/${encodeURIComponent(uni.name)}`)} 
-                        className="hover:bg-blue-50/30 transition-colors cursor-pointer group"
+                        className="hover:bg-blue-50/40 transition-colors cursor-pointer group"
                     >
-                        <td className="p-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-white group-hover:text-blue-500 transition-colors shadow-sm">
-                                    <School className="w-4 h-4" />
+                        <td className="p-5">
+                            <div className="flex items-center gap-4">
+                                <div className="p-2 bg-slate-50 rounded-xl text-slate-400 group-hover:bg-white group-hover:text-blue-600 group-hover:shadow-sm transition-all">
+                                    <School className="w-5 h-5" />
                                 </div>
-                                <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors line-clamp-1" title={uni.name}>
-                                    {uni.name}
-                                </span>
+                                <div>
+                                    <div className="font-bold text-slate-800 text-sm group-hover:text-blue-700 transition-colors line-clamp-1">
+                                        {uni.name}
+                                    </div>
+                                </div>
                             </div>
                         </td>
-                        <td className="p-4 text-center">
+                        <td className="p-5 text-center">
                             <span 
-                                className="px-2 py-0.5 rounded text-[10px] font-bold border inline-block whitespace-nowrap"
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold border inline-block whitespace-nowrap"
                                 style={{ 
-                                    backgroundColor: `${badge.color}15`, // %15 opacity
+                                    backgroundColor: `${badge.color}10`, // %10 Opaklık
                                     color: badge.color,
-                                    borderColor: `${badge.color}30`
+                                    borderColor: `${badge.color}20`
                                 }}
                             >
                                 {badge.label}
                             </span>
                         </td>
-                        <td className="p-4">
-                            <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                <MapPin className="w-3.5 h-3.5 text-slate-300" />
+                        <td className="p-5">
+                            <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
+                                <MapPin className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-400 transition-colors" />
                                 {uni.city}
                             </div>
                         </td>
-                        <td className="p-4 text-center">
-                            <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-sm font-medium">
+                        <td className="p-5 text-center">
+                            <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-sm font-bold tabular-nums">
                                 {uni.departmentCount}
                             </span>
                         </td>
-                        <td className="p-4 text-right">
-                            <div className="font-bold text-slate-800 text-lg tabular-nums">
+                        <td className="p-5 text-right">
+                            <div className="font-bold text-slate-800 text-base tabular-nums tracking-tight">
                                 {formatNumber(uni.totalStudents2025)}
                             </div>
                         </td>
-                        <td className="p-4 text-right">
+                        <td className="p-5 text-right">
                             <div className="font-medium text-slate-600 tabular-nums">
                                 {formatPercent(uni.avgRate2025)}
                             </div>
                         </td>
-                        <td className="p-4 text-right">
+                        <td className="p-5 text-right">
                              <TrendIndicator 
                                 data2023={{ oran: parseFloat(uni.avgRate2023) }}
                                 data2024={{ oran: parseFloat(uni.avgRate2024) }}
@@ -268,16 +215,19 @@ const UniversityList = ({ data }) => {
             </table>
         </div>
 
+        {/* Empty State */}
         {filteredAndSorted.length === 0 && (
-            <div className="p-12 text-center">
-                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">
                     <Filter className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-700">Sonuç Bulunamadı</h3>
-                <p className="text-slate-500 mt-1">Seçili filtrelere uygun üniversite bulunmamaktadır.</p>
+                <h3 className="text-lg font-bold text-slate-700">Kayıt Bulunamadı</h3>
+                <p className="text-slate-500 mt-2 max-w-xs mx-auto">
+                    Seçili filtrelere uygun üniversite bulunmamaktadır.
+                </p>
                 <button 
                     onClick={() => setSelectedType('all')}
-                    className="mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
+                    className="mt-6 px-6 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-sm font-bold hover:bg-blue-100 transition-colors"
                 >
                     Filtreleri Temizle
                 </button>
