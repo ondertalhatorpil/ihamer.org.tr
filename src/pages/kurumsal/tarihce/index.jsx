@@ -81,12 +81,7 @@ export default function ImamHatipTimeline() {
       <svg className="w-3 h-3 md:w-4 md:h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
-      <a
-        href="/kurumsal"
-        className="text-white/80 hover:text-white transition-colors duration-300 group"
-      >
-        <span className="group-hover:underline text-xs md:text-sm">Kurumsal</span>
-      </a>
+        <span className="group-hover:underline text-xs md:text-sm text-white">Kurumsal</span>
       <svg className="w-3 h-3 md:w-4 md:h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
       </svg>
