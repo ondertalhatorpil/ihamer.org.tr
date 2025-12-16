@@ -54,7 +54,7 @@ const AppContent = () => {
       {!isAnalyticsPage && <Header />}
       
       <ScrollToTop />
-      <PageTransition imageUrl="https://ihamer.org.tr/wp-content/uploads/2022/01/Ihamer-Kahverengi.png" />
+      <PageTransition imageUrl="https://ihamer.org.tr/kurumsal/assest/tamlogo.png" />
       
       <Suspense fallback={<LogoAnimation />}>
         <Routes>

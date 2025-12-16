@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -220,7 +220,7 @@ return data.filter(d =>
             </div>
           </div>
           <div>
-            <div className="text-sm font-medium text-slate-500">En Popüler Kategori</div>
+            <div className="text-sm font-medium text-slate-500">En Popüler Bölüm</div>
             <div className="text-2xl font-bold text-slate-800 mt-1 truncate" title={Object.entries(stats.byCategory).sort((a, b) => b[1].students - a[1].students)[0]?.[0]}>
               {Object.entries(stats.byCategory).sort((a, b) => b[1].students - a[1].students)[0]?.[0] || '-'}
             </div>
