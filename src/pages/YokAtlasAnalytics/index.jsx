@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Menu, 
-  X, 
-  ChevronRight, 
-  LayoutDashboard, 
-  School, 
-  BookOpen, 
-  BarChart2, 
-  Scale,
-  Home
+  Menu, X, ChevronRight, LayoutDashboard, 
+  School, BookOpen, BarChart2, Scale, Home, ArrowLeft
 } from 'lucide-react';
 
 import Dashboard from './components/Dashboard';
@@ -17,15 +10,26 @@ import UniversityList from './components/UniversityList';
 import DepartmentList from './components/DepartmentList';
 import Statistics from './components/Statistics';
 import ComparisonTool from './components/ComparisonTool';
-import Filters from './components/Filters';
 import UniversityDetail from './components/UniversityDetail';
 import DepartmentDetail from './components/DepartmentDetail';
 
 import { processRawData } from './utils/dataProcessor';
-import { applyFilters, applySearchFilter, exportToCSV } from './utils/helpers';
 import './styles/globals.css';
-
 import rawData from './data.json';
+
+
+import Logo from '../../assets/images/tam logo.png';
+
+
+const SimpleFooter = () => (
+  <footer className="w-full py-8 mt-auto border-t border-slate-100 bg-white">
+    <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center gap-2">
+      <p className="text-sm font-medium text-slate-400">
+        © 2025 İHAMER Analitik. Tüm hakları saklıdır.
+      </p>
+    </div>
+  </footer>
+);
 
 const YokAtlasAnalytics = () => {
   const { universityName, departmentName } = useParams();
@@ -35,7 +39,6 @@ const YokAtlasAnalytics = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [processedData, setProcessedData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [filters, setFilters] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -71,30 +74,13 @@ const YokAtlasAnalytics = () => {
     setIsMobileMenuOpen(false); 
   }, [universityName, departmentName, location.pathname]);
 
-  // Filtreleme
-  useEffect(() => {
-    if (processedData.length === 0) return;
-    if (currentPage === 'universityDetail' || currentPage === 'departmentDetail') return;
 
-    let filtered = processedData;
-    if (filters.searchTerm) {
-      filtered = applySearchFilter(filtered, filters.searchTerm);
-    }
-    filtered = applyFilters(filtered, filters);
-    setFilteredData(filtered);
-  }, [filters, processedData, currentPage]);
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
-  };
 
   const handleMenuClick = (pageId) => {
-
     if (pageId === 'home') {
       navigate('/');
       return;
     }
-
     navigate('/analytics');
     setCurrentPage(pageId);
     setIsMobileMenuOpen(false);
@@ -117,10 +103,10 @@ const YokAtlasAnalytics = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-[50vh] w-full items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-lg font-medium text-slate-600">Veriler Yükleniyor...</p>
+      <div className="flex h-screen w-full items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-4 animate-pulse">
+          <div className="h-10 w-10 rounded-full border-2 border-[#B38F65] border-t-transparent animate-spin"></div>
+          <p className="text-sm font-medium text-slate-400 tracking-wider">VERİLER YÜKLENİYOR</p>
         </div>
       </div>
     );
@@ -129,119 +115,136 @@ const YokAtlasAnalytics = () => {
   const isDetailPage = currentPage === 'universityDetail' || currentPage === 'departmentDetail';
 
   const menuItems = [
-    { id: 'home', label: 'Anasayfa', icon: <Home size={18} /> }, // Yeni eklenen
-    { id: 'dashboard', label: 'Genel Bakış', icon: <LayoutDashboard size={18} /> },
-    { id: 'universities', label: 'Üniversiteler', icon: <School size={18} /> },
-    { id: 'departments', label: 'Bölümler', icon: <BookOpen size={18} /> },
-    { id: 'statistics', label: 'İstatistikler', icon: <BarChart2 size={18} /> },
-    { id: 'comparison', label: 'Karşılaştır', icon: <Scale size={18} /> },
+    { id: 'dashboard', label: 'Genel Bakış' },
+    { id: 'universities', label: 'Üniversiteler' },
+    { id: 'departments', label: 'Bölümler' },
+    { id: 'statistics', label: 'İstatistikler' },
+    { id: 'comparison', label: 'Karşılaştır' },
   ];
 
- return (
-    <div className="flex flex-col h-[calc(100vh-80px)] font-sans text-slate-900 relative">
+  return (
+    <div className="flex flex-col min-h-screen bg-slate-50/50 font-sans text-slate-900 relative overflow-x-hidden">
       
-      {/* --- DESKTOP MENU --- */}
-      {/* Container şeffaf ve tam genişlikte, içerik ortalanmış */}
-      <div className="hidden md:flex items-center justify-center w-full py-6">
-        
-        {/* Sadece NAV elementinin arkaplanı ve border'ı var (Hap Görünümü) */}
-        <nav className="flex items-center gap-1 p-1.5 bg-slate-100 border border-slate-200 rounded-full shadow-sm">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleMenuClick(item.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-full transition-all duration-200
-                ${currentPage === item.id 
-                  ? 'bg-white text-blue-700 shadow-sm ring-1 ring-black/5' // Aktif Sayfa
-                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50' // Pasif Sayfa
-                }`}
+      {/* --- HEADER --- */}
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          
+          <div className="h-16 flex items-center justify-between">
+            
+            {/* LOGO ALANI (SADECE RESİM) */}
+            <div 
+              className="flex items-center cursor-pointer hover:opacity-80 transition-opacity" 
+              onClick={() => navigate('/')}
             >
-              <span>{item.icon}</span>
-              {item.label}
+               <img 
+                 src={Logo} 
+                 alt="İHAMER Logo" 
+                 className="h-12 w-auto object-contain" 
+               />
+            </div>
+
+            {/* SAĞ TARAFTAKİ BUTONLAR (AYNI KALDI) */}
+            <div className="hidden md:flex items-center">
+                <button 
+                  onClick={() => navigate('/')}
+                  className="text-sm font-medium text-slate-500 hover:text-[#B38F65] transition-colors flex items-center gap-2"
+                >
+                  <Home size={16} />
+                  Anasayfa'ya Dön
+                </button>
+            </div>
+
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <Menu size={24} />
             </button>
-          ))}
-        </nav>
-      </div>
+          </div>
 
-      {/* --- MOBILE HEADER --- */}
-      <div className="md:hidden flex items-center justify-between bg-white px-4 py-3 border-b border-slate-200 sticky top-0 z-30">
-        <span className="font-bold text-slate-700 text-lg">İHAMER Analitik</span>
-        <button 
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="p-2 bg-slate-100 rounded-lg text-slate-600 hover:bg-slate-200"
-        >
-          <Menu size={24} />
-        </button>
-      </div>
+          {/* TAB NAVİGASYON (AYNI KALDI) */}
+          <div className="hidden md:flex items-center gap-8 -mb-px overflow-x-auto no-scrollbar">
+            {menuItems.map((item) => {
+              const isActive = currentPage === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleMenuClick(item.id)}
+                  className={`
+                    py-3 text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap
+                    ${isActive 
+                      ? 'border-[#B38F65] text-[#B38F65]' 
+                      : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'}
+                  `}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </header>
 
-
-      {/* --- MOBILE POPUP MENU --- */}
+      {/* --- MOBİL MENÜ DRAWER --- */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:hidden">
+        <div className="fixed inset-0 z-[100] md:hidden">
+          {/* Backdrop */}
           <div 
-            className="absolute inset-0 bg-blue-900/30 backdrop-blur-md transition-all duration-300"
+            className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="relative w-full max-w-xs bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-scale-up border border-white/50">
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
-              <span className="text-lg font-bold text-slate-800">Menü</span>
-              <button 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 transition-colors"
-              >
+          
+          {/* Drawer Content */}
+          <div className="absolute right-0 top-0 bottom-0 w-64 bg-white shadow-2xl animate-slide-in-right flex flex-col">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+              <span className="font-bold text-slate-800">Menü</span>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 bg-slate-50 rounded-full text-slate-500">
                 <X size={20} />
               </button>
             </div>
-            <div className="px-4 pb-6 space-y-2">
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-1">
               {menuItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => handleMenuClick(item.id)}
-                  className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-200 font-medium
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors
                     ${currentPage === item.id 
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                    }`}
+                      ? 'bg-[#B38F65]/10 text-[#B38F65]' 
+                      : 'text-slate-600 hover:bg-slate-50'}
+                  `}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={currentPage === item.id ? 'opacity-100' : 'opacity-70'}>
-                      {item.icon}
-                    </div>
-                    <span>{item.label}</span>
-                  </div>
-                  {currentPage !== item.id && <ChevronRight size={16} className="text-slate-300" />}
+                  {item.label}
+                  {currentPage === item.id && <div className="w-1.5 h-1.5 rounded-full bg-[#B38F65]" />}
                 </button>
               ))}
+              
+              <div className="h-px bg-slate-100 my-4" />
+              
+              <button 
+                onClick={() => navigate('/')}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50"
+              >
+                <ArrowLeft size={18} />
+                Anasayfa'ya Dön
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* --- MAIN CONTENT (Full Width) --- */}
-      <div className="flex-1 flex flex-col w-full h-full relative overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 scroll-smooth w-full">
-          {/* İçerik Container'ını ortalayarak maksimum genişlik veriyoruz */}
-          <div className="max-w-7xl mx-auto space-y-6 w-full">
-            
-            {/* Filtreler */}
-            {!isDetailPage && currentPage !== 'dashboard' && currentPage !== 'comparison' && (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5 animate-fade-in-up w-full">
-                 <Filters 
-                    data={processedData} 
-                    onFilterChange={handleFilterChange}
-                    initialFilters={filters}
-                 />
-              </div>
-            )}
+      {/* --- ANA İÇERİK --- */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">      
 
-            {/* Sayfa İçeriği */}
-            <div className="animate-fade-in pb-10 w-full">
-              {renderPage()}
-            </div>
+        {/* Sayfa İçeriği */}
+        <div className="animate-fade-in min-h-[60vh]">
+          {renderPage()}
+        </div>
 
-          </div>
-        </main>
-      </div>
+      </main>
+
+      {/* --- YENİ BASİT FOOTER --- */}
+      <SimpleFooter />
     </div>
   );
 };

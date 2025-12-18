@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { MultiLineChart } from './TrendChart';
 import { formatNumber, formatPercent, getUniversityTypeBadge } from '../utils/helpers';
 import { hasAnyData } from '../utils/dataProcessor';
-import { Search, X, Plus, BarChart2, ArrowRight } from 'lucide-react';
+import { Search, X, Plus, BarChart2, ArrowRight, BarChart3 } from 'lucide-react';
 
 const ComparisonTool = ({ data }) => {
   const [selectedRecords, setSelectedRecords] = useState([]);
@@ -72,28 +72,35 @@ const ComparisonTool = ({ data }) => {
   }));
 
   return (
-    <div className="space-y-8 pb-12 animate-fade-in">
+    <div className="space-y-6 md:space-y-8 pb-12 animate-fade-in w-full overflow-x-hidden">
       
-      {/* Header */}
-      <div className="border-b border-slate-200/60 pb-6">
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Karşılaştırma Aracı</h1>
-        <p className="text-slate-500 mt-2">
+      {/* --- HEADER --- */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+             <div className="p-2 bg-[#B38F65]/10 text-[#B38F65] rounded-xl">
+                 <BarChart3 className="w-5 h-5 md:w-6 md:h-6" />
+             </div>
+             Karşılaştırma Aracı
+        </h1>
+        <p className="text-slate-500 text-xs md:text-sm ml-1 md:ml-0">
           Kurumları veya bölümleri yan yana getirerek detaylı performans analizi yapın.
         </p>
       </div>
 
-      {/* Control Panel */}
-      <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-visible z-30">
+      {/* --- CONTROL PANEL --- */}
+      <div className="bg-white p-4 md:p-6 rounded-[2rem] shadow-sm border border-slate-100 relative overflow-visible z-30">
         <div className="flex flex-col md:flex-row gap-4">
             
             {/* Toggle Switch */}
-            <div className="bg-slate-100 p-1.5 rounded-2xl flex shrink-0">
+            <div className="bg-slate-100 p-1.5 rounded-2xl flex shrink-0 w-full md:w-auto">
                 {[{id: 'university', label: 'Üniversite', icon: '🏛️'}, {id: 'department', label: 'Bölüm', icon: '📚'}].map(type => (
                     <button 
                         key={type.id}
                         onClick={() => { setComparisonType(type.id); setSelectedRecords([]); setSearchTerm(''); }}
-                        className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2
-                            ${comparisonType === type.id ? 'bg-white text-slate-800 shadow-md scale-100' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 scale-95'}
+                        className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2
+                            ${comparisonType === type.id 
+                                ? 'bg-white text-slate-800 shadow-sm ring-1 ring-black/5' 
+                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}
                         `}
                     >
                         <span>{type.icon}</span> {type.label}
@@ -102,35 +109,35 @@ const ComparisonTool = ({ data }) => {
             </div>
 
             {/* Search Input */}
-            <div className="relative flex-1 group">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+            <div className="relative flex-1 group w-full">
+                <Search className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#B38F65] transition-colors w-5 h-5" />
                 <input
                     type="text"
                     placeholder={comparisonType === 'university' ? "Karşılaştırmak için üniversite arayın..." : "Karşılaştırmak için bölüm arayın..."}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full h-[52px] pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-slate-800 placeholder:text-slate-400 font-medium"
+                    className="w-full h-[48px] md:h-[52px] pl-11 md:pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#B38F65]/50 focus:border-[#B38F65] transition-all text-slate-800 placeholder:text-slate-400 font-medium text-sm md:text-base"
                 />
                 
                 {/* Search Dropdown */}
                 {searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50 animate-scale-up">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-scale-up">
                         <div className="p-2 max-h-[300px] overflow-y-auto custom-scrollbar">
                             {searchResults.map((result, index) => (
                                 <button 
                                     key={index} 
                                     onClick={() => handleSelectRecord(result)}
-                                    className="w-full flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors group text-left"
+                                    className="w-full flex items-center justify-between p-3 hover:bg-[#B38F65]/5 rounded-xl cursor-pointer transition-colors group text-left"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                        <div className="w-8 h-8 rounded-lg bg-[#B38F65]/10 text-[#B38F65] flex items-center justify-center font-bold text-xs group-hover:bg-[#B38F65] group-hover:text-white transition-colors">
                                             <Plus size={16} />
                                         </div>
                                         <div>
-                                            <div className="font-bold text-slate-700 text-sm">
+                                            <div className="font-bold text-slate-700 text-xs md:text-sm">
                                                 {comparisonType === 'university' ? result.name : result.bolum}
                                             </div>
-                                            <div className="text-xs text-slate-400">
+                                            <div className="text-[10px] md:text-xs text-slate-400">
                                                 {comparisonType === 'university' ? result.type : result.universiteName}
                                             </div>
                                         </div>
@@ -143,18 +150,15 @@ const ComparisonTool = ({ data }) => {
             </div>
         </div>
 
-        {/* Selected Chips - MOBİL İYİLEŞTİRMESİ YAPILDI */}
+        {/* Selected Chips - MOBİL YATAY KAYDIRMA */}
         {selectedRecords.length > 0 && (
             <div className="mt-6 pt-6 border-t border-slate-100">
-                {/* MOBİL: Flex + Overflow-X (Yatay kaydırma) 
-                   DESKTOP: Grid (Düzenli ızgara)
-                */}
-                <div className="flex md:grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 overflow-x-auto pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 custom-scrollbar snap-x">
+                <div className="flex md:grid md:grid-cols-2 xl:grid-cols-4 gap-3 overflow-x-auto pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 custom-scrollbar snap-x">
                     {selectedRecords.map((record, index) => (
                         <div 
                             key={index} 
-                            // Min-width: Mobilde kartların sıkışmasını engeller, sabit genişlik verir.
-                            className="relative bg-white border-2 border-slate-100 p-4 rounded-2xl group hover:border-blue-100 transition-colors min-w-[260px] md:min-w-0 snap-center"
+                            // Mobilde min-width ile kartların sıkışmasını engelliyoruz
+                            className="relative bg-white border-2 border-slate-100 p-4 rounded-2xl group hover:border-[#B38F65]/30 transition-colors min-w-[240px] md:min-w-0 snap-center shrink-0"
                         >
                             <button 
                                 className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-slate-200 text-slate-500 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all shadow-sm z-10 border-2 border-white"
@@ -163,27 +167,27 @@ const ComparisonTool = ({ data }) => {
                                 <X size={14} />
                             </button>
                             <div className="pr-2">
-                                 <div className="text-xs font-bold text-blue-600 mb-1 flex items-center gap-1">
-                                    <span className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-[10px]">{String.fromCharCode(65 + index)}</span>
+                                 <div className="text-[10px] md:text-xs font-bold text-[#B38F65] mb-1 flex items-center gap-1">
+                                    <span className="w-5 h-5 rounded-full bg-[#B38F65]/10 flex items-center justify-center text-[10px]">{String.fromCharCode(65 + index)}</span>
                                     Veri Seti
                                  </div>
-                                 <div className="font-bold text-slate-800 text-sm line-clamp-1" title={comparisonType === 'university' ? record.name : record.bolum}>
+                                 <div className="font-bold text-slate-800 text-xs md:text-sm line-clamp-1" title={comparisonType === 'university' ? record.name : record.bolum}>
                                     {comparisonType === 'university' ? record.name : record.bolum}
                                  </div>
-                                 <div className="text-xs text-slate-400 mt-1 line-clamp-1">
+                                 <div className="text-[10px] md:text-xs text-slate-400 mt-1 line-clamp-1">
                                     {comparisonType === 'university' ? `${record.records.length} bölüm verisi` : record.universiteName}
                                  </div>
                             </div>
                         </div>
                     ))}
                     
-                    {/* Mobilde sağda biraz boşluk bırakmak için dummy div (UX) */}
-                    <div className="md:hidden min-w-[1px]"></div>
+                    {/* Mobilde sağda biraz boşluk bırakmak için */}
+                    <div className="md:hidden min-w-[1px] shrink-0"></div>
                 </div>
                 
-                {/* Mobil Kaydırma İpucu (Sadece mobilde görünür) */}
+                {/* Mobil Kaydırma İpucu */}
                 {selectedRecords.length > 1 && (
-                    <div className="md:hidden flex items-center justify-center gap-1 text-[10px] font-medium text-slate-400 mt-1 animate-pulse">
+                    <div className="md:hidden flex items-center justify-center gap-1 text-[10px] font-medium text-slate-400 mt-0 animate-pulse">
                         Kaydırın <ArrowRight size={10} />
                     </div>
                 )}
@@ -195,24 +199,24 @@ const ComparisonTool = ({ data }) => {
       {selectedRecords.length >= 2 ? (
         <div className="animate-fade-in space-y-6">
           {/* Main Chart */}
-          <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-            <h3 className="font-bold text-slate-800 text-lg mb-8 flex items-center gap-2">
-                <BarChart2 className="w-5 h-5 text-slate-400" />
+          <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-100">
+            <h3 className="font-bold text-slate-800 text-base md:text-lg mb-6 md:mb-8 flex items-center gap-2">
+                <BarChart2 className="w-5 h-5 text-[#B38F65]" />
                 Trend Analizi (2023-2025)
             </h3>
-            <div className="h-[450px]">
+            <div className="h-[350px] md:h-[450px]">
                 <MultiLineChart data={chartData} lines={chartLines} />
             </div>
           </div>
         </div>
       ) : (
         /* Empty State */
-        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-100 text-center">
-            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                <BarChart2 className="w-8 h-8 text-slate-300" />
+        <div className="flex flex-col items-center justify-center py-16 md:py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-100 text-center mx-4 md:mx-0">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                <BarChart2 className="w-6 h-6 md:w-8 md:h-8 text-slate-300" />
             </div>
-            <h3 className="text-lg font-bold text-slate-700">Henüz Yeterli Veri Yok</h3>
-            <p className="text-slate-400 max-w-sm mx-auto mt-2 text-sm">
+            <h3 className="text-base md:text-lg font-bold text-slate-700">Yeterli Veri Seçilmedi</h3>
+            <p className="text-slate-400 max-w-xs md:max-w-sm mx-auto mt-2 text-xs md:text-sm">
                 Karşılaştırma grafiğini oluşturmak için yukarıdan en az 2 farklı kayıt seçmelisiniz.
             </p>
         </div>

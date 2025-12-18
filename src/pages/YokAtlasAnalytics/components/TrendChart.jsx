@@ -135,9 +135,6 @@ export const ComparisonBarChart = ({ data, title }) => {
   );
 };
 
-/**
- * Multi-line comparison chart
- */
 export const MultiLineChart = ({ data, lines, title }) => {
   const lineColors = [colors.blue, colors.emerald, colors.amber, colors.rose, colors.violet];
 

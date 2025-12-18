@@ -41,29 +41,29 @@ const Statistics = ({ data }) => {
   );
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-6 md:space-y-8 pb-10 animate-fade-in w-full overflow-x-hidden">
       
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-             <BarChart3 className="w-6 h-6 text-blue-500" />
+      {/* --- PAGE HEADER --- */}
+      <div className="flex flex-col gap-2">
+         <h1 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+             <div className="p-2 bg-[#B38F65]/10 text-[#B38F65] rounded-xl">
+                 <BarChart3 className="w-5 h-5 md:w-6 md:h-6" />
+             </div>
              Detaylı İstatistikler
-          </h1>
-          <p className="text-slate-500 mt-1">
+         </h1>
+         <p className="text-slate-500 text-xs md:text-sm ml-1 md:ml-0">
             Şehir bazlı öğrenci dağılımı ve performans analizleri.
-          </p>
-        </div>
+         </p>
       </div>
 
-      {/* Şehir İstatistikleri Grid */}
+      {/* --- ŞEHİR İSTATİSTİKLERİ GRID --- */}
       <StatGrid>
         <StatCard
           title="Toplam Şehir"
           value={formatNumber(cityStats.length)}
           subtitle="Üniversite bulunan il"
           icon={<Map className="w-6 h-6" />}
-          color="blue"
+          color="custom" customColor="#B38F65"
         />
         
         <StatCard
@@ -71,7 +71,7 @@ const Statistics = ({ data }) => {
           value={topCities[0]?.name || '-'}
           subtitle={`${formatNumber(topCities[0]?.totalStudents2025 || 0)} öğrenci ile`}
           icon={<Users className="w-6 h-6" />}
-          color="emerald"
+          color="custom" customColor="#B38F65"
         />
         
         <StatCard
@@ -79,7 +79,7 @@ const Statistics = ({ data }) => {
           value={cityStats.sort((a, b) => parseFloat(b.avgRate2025) - parseFloat(a.avgRate2025))[0]?.name || '-'}
           subtitle={`Ortalama %${cityStats[0]?.avgRate2025 || 0}`}
           icon={<TrendingUp className="w-6 h-6" />}
-          color="amber"
+          color="custom" customColor="#B38F65"
         />
         
         <StatCard
@@ -87,19 +87,19 @@ const Statistics = ({ data }) => {
           value={cityStats.sort((a, b) => b.universities - a.universities)[0]?.name || '-'}
           subtitle={`${cityStats[0]?.universities || 0} üniversite ile`}
           icon={<Building2 className="w-6 h-6" />}
-          color="violet"
+          color="custom" customColor="#B38F65"
         />
       </StatGrid>
 
-      {/* Charts Grid */}
+      {/* --- CHARTS GRID --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart - Öğrenci Sayısı */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <Users className="w-5 h-5 text-slate-400" />
-            Şehirlere Göre Öğrenci Sayısı (Top 15)
+            <Users className="w-5 h-5 text-[#B38F65]" />
+            Şehirlere Göre Öğrenci (Top 15)
           </h3>
-          <div className="h-[350px]">
+          <div className="h-[300px] md:h-[350px]">
              <ComparisonBarChart 
                 data={topCitiesChartData}
                 title=""
@@ -108,12 +108,12 @@ const Statistics = ({ data }) => {
         </div>
 
         {/* Chart - Ortalama Oran */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-slate-400" />
+            <TrendingUp className="w-5 h-5 text-[#B38F65]" />
             Şehirlere Göre İH Oranı (Top 15)
           </h3>
-          <div className="h-[350px]">
+          <div className="h-[300px] md:h-[350px]">
             <ComparisonBarChart 
                 data={topCitiesRateChartData}
                 title=""
@@ -122,16 +122,53 @@ const Statistics = ({ data }) => {
         </div>
       </div>
 
-      {/* Şehir Detay Tablosu */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-          <div>
-             <h3 className="text-xl font-bold text-slate-800">📋 Şehir Detay Listesi</h3>
-             <p className="text-sm text-slate-500 mt-1">En çok öğrenci barındıran ilk 20 şehir</p>
-          </div>
+      {/* --- ŞEHİR DETAY LİSTESİ --- */}
+      <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+           <h3 className="text-lg md:text-xl font-bold text-slate-800">📋 Şehir Detay Listesi</h3>
+           <p className="text-xs md:text-sm text-slate-500 mt-1">En çok öğrenci barındıran ilk 20 şehir</p>
         </div>
         
-        <div className="overflow-x-auto custom-scrollbar">
+        {/* 1. MOBİL KART GÖRÜNÜMÜ */}
+        <div className="md:hidden flex flex-col p-4 gap-3 bg-slate-50/50">
+            {topCities.map((city, index) => (
+                <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <div className="flex justify-between items-start mb-3">
+                         <div className="flex items-center gap-3">
+                             <div className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold ${index < 3 ? 'bg-[#B38F65] text-white shadow-md' : 'bg-slate-100 text-slate-500'}`}>
+                                 {index + 1}
+                             </div>
+                             <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                                 <MapPin className="w-4 h-4 text-[#B38F65]" />
+                                 {city.name}
+                             </div>
+                         </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-50">
+                        <div className="bg-slate-50 p-2 rounded-xl text-center">
+                            <div className="text-[10px] text-slate-400">Öğrenci</div>
+                            <div className="text-sm font-bold text-[#B38F65]">{formatNumber(city.totalStudents2025)}</div>
+                        </div>
+                        <div className="bg-slate-50 p-2 rounded-xl text-center">
+                            <div className="text-[10px] text-slate-400">Ort. Oran</div>
+                            <div className="text-sm font-bold text-slate-700">%{city.avgRate2025}</div>
+                        </div>
+                        <div className="bg-slate-50 p-2 rounded-xl text-center">
+                            <div className="text-[10px] text-slate-400">Üniversite</div>
+                            <div className="text-sm font-bold text-slate-700">{city.universities}</div>
+                        </div>
+                        <div className="bg-slate-50 p-2 rounded-xl text-center">
+                            <div className="text-[10px] text-slate-400">Bölüm</div>
+                            <div className="text-sm font-bold text-slate-700">{city.departments}</div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        {/* 2. MASAÜSTÜ TABLO GÖRÜNÜMÜ */}
+        <div className="hidden md:block overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse">
             <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
@@ -146,17 +183,17 @@ const Statistics = ({ data }) => {
             </thead>
             <tbody className="divide-y divide-slate-50">
                 {topCities.map((city, index) => (
-                <tr key={index} className="hover:bg-blue-50/30 transition-colors group">
+                <tr key={index} className="hover:bg-[#B38F65]/5 transition-colors">
                     <td className="p-4 text-center">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded font-bold text-xs 
-                            ${index < 3 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>
+                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-lg font-bold text-xs 
+                            ${index < 3 ? 'bg-[#B38F65] text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>
                             {index + 1}
                         </span>
                     </td>
                     <td className="p-4">
                         <div className="flex items-center gap-2">
-                             <MapPin className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
-                             <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{city.name}</span>
+                             <MapPin className="w-4 h-4 text-slate-300" />
+                             <span className="font-bold text-slate-700">{city.name}</span>
                         </div>
                     </td>
                     <td className="p-4 text-center">
@@ -173,7 +210,7 @@ const Statistics = ({ data }) => {
                         </div>
                     </td>
                     <td className="p-4 text-right">
-                        <div className="font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded inline-block tabular-nums text-sm">
+                        <div className="font-medium text-[#B38F65] bg-[#B38F65]/10 px-2 py-1 rounded inline-block tabular-nums text-sm">
                             {formatPercent(city.avgRate2025)}
                         </div>
                     </td>
@@ -187,21 +224,21 @@ const Statistics = ({ data }) => {
         </div>
       </div>
 
-      {/* Bölgesel Analiz (Türkiye Coğrafi Bölgeleri) */}
-      <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-3xl p-8 border border-blue-100 flex items-center gap-6 relative overflow-hidden">
-        {/* Decorative background icon */}
-        <Globe className="absolute right-0 bottom-0 w-64 h-64 text-blue-100 -mr-16 -mb-16 opacity-50" />
+      {/* --- BÖLGESEL ANALİZ (COMING SOON) --- */}
+      <div className="bg-gradient-to-br from-[#B38F65]/5 to-slate-50 rounded-[2rem] p-6 md:p-8 border border-[#B38F65]/20 flex items-center gap-6 relative overflow-hidden">
+        {/* Dekoratif İkon */}
+        <Globe className="absolute right-0 bottom-0 w-48 h-48 md:w-64 md:h-64 text-[#B38F65]/10 -mr-10 -mb-10 pointer-events-none" />
         
         <div className="relative z-10 max-w-2xl">
-            <h2 className="text-xl font-bold text-indigo-900 flex items-center gap-2 mb-3">
-                <Globe className="w-6 h-6 text-indigo-600" />
+            <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2 mb-3">
+                <Globe className="w-5 h-5 md:w-6 md:h-6 text-[#B38F65]" />
                 Bölgesel Dağılım Analizi
             </h2>
-            <p className="text-indigo-700/80 leading-relaxed mb-4">
+            <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-4">
                 Türkiye'nin 7 coğrafi bölgesine göre öğrenci dağılımı ve tercih eğilimlerini karşılaştıran detaylı analiz modülü geliştirilme aşamasındadır.
                 Bu özellik ile Marmara, İç Anadolu gibi bölgelerin İmam Hatip mezunu yerleştirme performanslarını kıyaslayabileceksiniz.
             </p>
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-white text-indigo-600 text-xs font-bold shadow-sm border border-indigo-100">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-white text-[#B38F65] text-xs font-bold shadow-sm border border-[#B38F65]/20">
                 🚀 Yakında Eklenecek
             </span>
         </div>

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -9,9 +9,10 @@ import {
   Target, 
   School,
   BarChart3,
-  Calendar
+  Calendar,
+  ChevronRight
 } from 'lucide-react';
-import {  ComparisonBarChart } from './TrendChart';
+import { ComparisonBarChart } from './TrendChart';
 import Tooltip from './Tooltip';
 import { formatNumber, formatPercent } from '../utils/helpers';
 import { getDepartmentCategory } from '../utils/dataProcessor';
@@ -22,10 +23,11 @@ const UniversityDetail = ({ data }) => {
   
   // Üniversiteye ait tüm kayıtları filtrele
   const universityRecords = useMemo(() => {
-return data.filter(d => 
-  d.universiteName === decodeURIComponent(universityName) && 
-  d.data2025 // Sadece 2025 verisi olanlar
-);  }, [data, universityName]);
+    return data.filter(d => 
+      d.universiteName === decodeURIComponent(universityName) && 
+      d.data2025 
+    );
+  }, [data, universityName]);
 
   // İstatistikleri hesapla
   const stats = useMemo(() => {
@@ -90,285 +92,279 @@ return data.filter(d =>
 
   if (!stats) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
-        <div className="text-center">
-            <h2 className="text-xl font-bold text-slate-800">Üniversite bulunamadı</h2>
-            <button onClick={() => navigate('/analytics')} className="mt-4 text-blue-600 hover:underline">
-                Anasayfaya Dön
-            </button>
-        </div>
+      <div className="flex flex-col items-center justify-center h-[50vh] bg-white rounded-[2rem] border border-slate-100 m-4">
+        <School className="w-16 h-16 text-slate-200 mb-4" />
+        <h2 className="text-xl font-bold text-slate-800">Üniversite bulunamadı</h2>
+        <button 
+            onClick={() => navigate('/analytics/universities')} 
+            className="mt-4 text-[#B38F65] font-medium hover:underline flex items-center gap-2"
+        >
+            <ArrowLeft size={16} /> Listeye Dön
+        </button>
       </div>
     );
   }
 
-  const typeColor = stats.universityType === 'Devlet' ? 'blue' : stats.universityType === 'Vakıf' ? 'violet' : 'orange';
-  const typeBgClass = stats.universityType === 'Devlet' ? 'bg-blue-100 text-blue-700' : stats.universityType === 'Vakıf' ? 'bg-violet-100 text-violet-700' : 'bg-orange-100 text-orange-700';
-
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-6 md:space-y-8 pb-12 animate-fade-in w-full overflow-x-hidden">
       
-      {/* Header Section */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden">
-        {/* Decorative Background */}
-        <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl -mr-32 -mt-32 opacity-60 pointer-events-none bg-${typeColor}-50`}></div>
+      {/* --- HEADER --- */}
+      <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-100 relative overflow-hidden">
+        {/* Dekoratif Arkaplan */}
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl -mr-20 -mt-20 opacity-40 pointer-events-none bg-[#B38F65]/20"></div>
 
         <button 
             onClick={() => navigate(-1)} 
-            className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-6 group"
+            className="flex items-center gap-2 text-slate-500 hover:text-[#B38F65] transition-colors mb-6 group relative z-10"
         >
-            <div className="p-1.5 rounded-lg bg-slate-50 group-hover:bg-slate-200 transition-colors">
+            <div className="p-2 rounded-xl bg-slate-50 group-hover:bg-[#B38F65]/10 transition-colors">
                 <ArrowLeft className="w-4 h-4" />
             </div>
-            <span className="text-sm font-medium">Geri Dön</span>
+            <span className="text-sm font-bold">Geri Dön</span>
         </button>
 
-        <div className="relative">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border border-transparent ${typeBgClass}`}>
-                            {stats.universityType} Üniversitesi
-                        </span>
-                        <span className="flex items-center gap-1 text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-full border border-slate-100">
-                            <Calendar className="w-3 h-3" /> 2023-2025 Dönemi
-                        </span>
-                    </div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight leading-tight">
-                        {stats.universityName}
-                    </h1>
+        <div className="relative z-10">
+            <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-3 py-1 rounded-lg text-xs font-bold bg-[#B38F65] text-white shadow-sm shadow-[#B38F65]/30">
+                        {stats.universityType}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
+                        <Calendar className="w-3.5 h-3.5" /> 2023-2025
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
+                        <MapPinIcon city={stats.universityName} />
+                    </span>
                 </div>
+                <h1 className="text-2xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
+                    {stats.universityName}
+                </h1>
             </div>
         </div>
       </div>
 
-      {/* Summary Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* --- STAT CARDS GRID --- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         
-        {/* Total Students */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+        {/* Toplam Öğrenci */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+          <div className="flex justify-between items-start mb-3">
+            <div className="p-3 bg-[#B38F65]/10 text-[#B38F65] rounded-2xl">
               <Users className="w-6 h-6" />
             </div>
-            <Tooltip text="2025 yılında bu üniversiteye yerleşen toplam İH mezunu öğrenci sayısı">
-              <div className="w-6 h-6 flex items-center justify-center rounded-full text-slate-300 hover:text-blue-500 cursor-help border border-transparent hover:border-slate-100">?</div>
-            </Tooltip>
           </div>
           <div>
-            <div className="text-sm font-medium text-slate-500">Toplam İH Öğrenci (2025)</div>
+            <div className="text-sm font-medium text-slate-500">Toplam İH Öğrenci</div>
             <div className="text-3xl font-bold text-slate-800 mt-1">{formatNumber(stats.students2025)}</div>
-            <div className="text-xs font-medium text-blue-600 mt-1 bg-blue-50 inline-block px-2 py-0.5 rounded">
-              Ortalama Oran: {formatPercent(stats.avgRate2025)}
+            <div className="flex items-center gap-2 mt-2">
+                <span className="text-xs font-bold text-[#B38F65] bg-[#B38F65]/10 px-2 py-0.5 rounded-lg">
+                    Ort. %{stats.avgRate2025}
+                </span>
             </div>
           </div>
         </div>
 
-        {/* Total Departments */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-violet-50 text-violet-600 rounded-2xl group-hover:bg-violet-600 group-hover:text-white transition-colors">
+        {/* Toplam Bölüm */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+          <div className="flex justify-between items-start mb-3">
+            <div className="p-3 bg-[#B38F65]/10 text-[#B38F65] rounded-2xl">
               <BookOpen className="w-6 h-6" />
             </div>
-            <Tooltip text="Bu üniversitede veri bulunan toplam bölüm/program sayısı">
-              <div className="w-6 h-6 flex items-center justify-center rounded-full text-slate-300 hover:text-violet-500 cursor-help border border-transparent hover:border-slate-100">?</div>
-            </Tooltip>
           </div>
           <div>
             <div className="text-sm font-medium text-slate-500">Toplam Bölüm</div>
             <div className="text-3xl font-bold text-slate-800 mt-1">{formatNumber(stats.totalDepartments)}</div>
-            <div className="text-xs text-slate-400 mt-1">Farklı program</div>
+            <div className="text-xs text-slate-400 mt-2">Aktif program sayısı</div>
           </div>
         </div>
 
-        {/* Growth */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-          <div className="flex justify-between items-start mb-4">
-            <div className={`p-3 rounded-2xl transition-colors
-              ${stats.students2025 >= stats.students2023 
-                ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white' 
-                : 'bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}`}>
-              {stats.students2025 >= stats.students2023 
-                ? <TrendingUp className="w-6 h-6" /> 
-                : <TrendingDown className="w-6 h-6" />}
+        {/* Gelişim */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+          <div className="flex justify-between items-start mb-3">
+            <div className="p-3 bg-[#B38F65]/10 text-[#B38F65] rounded-2xl">
+                {stats.students2025 >= stats.students2023 ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
             </div>
-            <Tooltip text="2023-2025 arası İH öğrenci sayısındaki değişim">
-               <div className="w-6 h-6 flex items-center justify-center rounded-full text-slate-300 hover:text-emerald-500 cursor-help border border-transparent hover:border-slate-100">?</div>
-            </Tooltip>
           </div>
           <div>
-            <div className="text-sm font-medium text-slate-500">Gelişim (2023-2025)</div>
+            <div className="text-sm font-medium text-slate-500">Gelişim (2 Yıl)</div>
             <div className="flex items-baseline gap-2 mt-1">
               <div className="text-3xl font-bold text-slate-800">
                 {stats.students2025 > stats.students2023 ? '+' : ''}
                 {formatNumber(stats.students2025 - stats.students2023)}
               </div>
             </div>
-            <div className={`text-xs font-bold mt-1 inline-block px-2 py-0.5 rounded
-              ${stats.students2025 >= stats.students2023 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+            <div className={`text-xs font-bold mt-2 inline-block px-2 py-0.5 rounded-lg
+              ${stats.students2025 >= stats.students2023 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
               {stats.students2023 > 0 
-                ? `%${((stats.students2025 - stats.students2023) / stats.students2023 * 100).toFixed(1)} ${stats.students2025 > stats.students2023 ? 'artış' : 'düşüş'}` 
+                ? `%${((stats.students2025 - stats.students2023) / stats.students2023 * 100).toFixed(1)} Değişim` 
                 : 'Yeni'}
             </div>
           </div>
         </div>
 
-        {/* Popular Category */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
+        {/* Popüler Bölüm */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+          <div className="flex justify-between items-start mb-3">
+            <div className="p-3 bg-[#B38F65]/10 text-[#B38F65] rounded-2xl">
               <Target className="w-6 h-6" />
             </div>
           </div>
           <div>
-            <div className="text-sm font-medium text-slate-500">En Popüler Bölüm</div>
-            <div className="text-2xl font-bold text-slate-800 mt-1 truncate" title={Object.entries(stats.byCategory).sort((a, b) => b[1].students - a[1].students)[0]?.[0]}>
+            <div className="text-sm font-medium text-slate-500">En Popüler Alan</div>
+            <div className="text-xl font-bold text-slate-800 mt-1 truncate" title={Object.entries(stats.byCategory).sort((a, b) => b[1].students - a[1].students)[0]?.[0]}>
               {Object.entries(stats.byCategory).sort((a, b) => b[1].students - a[1].students)[0]?.[0] || '-'}
             </div>
-            <div className="text-xs text-slate-400 mt-1">
-              {formatNumber(Object.entries(stats.byCategory).sort((a, b) => b[1].students - a[1].students)[0]?.[1].students || 0)} öğrenci ile
+            <div className="text-xs text-slate-400 mt-2">
+              En çok öğrenci alan kategori
             </div>
           </div>
         </div>
       </div>
 
-      {/* Yearly Progress & Category Chart */}
+      {/* --- CHARTS SECTION --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        {/* Yearly Progress */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+        {/* Yıllık Gelişim */}
+        <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-slate-400" />
-            Yıllık Gelişim Analizi
+            <BarChart3 className="w-5 h-5 text-[#B38F65]" />
+            Yıllık Gelişim
           </h3>
-          
-          <div className="space-y-6">
-            {/* Students Count Progress */}
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">İH Öğrenci Sayısı</span>
-              <div className="flex items-center justify-between relative">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
-                {[
-                  { year: '2023', val: stats.students2023 },
-                  { year: '2024', val: stats.students2024 },
-                  { year: '2025', val: stats.students2025 }
-                ].map((item, idx) => (
-                  <div key={idx} className="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
-                    <div className="text-xs text-slate-400 font-medium mb-1">{item.year}</div>
-                    <div className={`text-lg font-bold ${idx === 2 ? 'text-blue-600' : 'text-slate-700'}`}>
-                      {formatNumber(item.val)}
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div className="space-y-4">
+            <div className="bg-slate-50 rounded-2xl p-4">
+                <div className="text-xs font-bold text-slate-400 uppercase mb-3">Öğrenci Sayısı</div>
+                <div className="flex justify-between items-center">
+                    {[{y:'2023',v:stats.students2023}, {y:'2024',v:stats.students2024}, {y:'2025',v:stats.students2025}].map((d,i) => (
+                        <div key={i} className="text-center flex-1">
+                            <div className="text-xs text-slate-400 mb-1">{d.y}</div>
+                            <div className={`text-lg md:text-xl font-bold ${i===2 ? 'text-[#B38F65]' : 'text-slate-700'}`}>{formatNumber(d.v)}</div>
+                        </div>
+                    ))}
+                </div>
             </div>
-
-            {/* Rate Progress */}
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Ortalama İH Oranı</span>
-              <div className="flex items-center justify-between relative">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
-                {[
-                  { year: '2023', val: stats.avgRate2023 },
-                  { year: '2024', val: stats.avgRate2024 },
-                  { year: '2025', val: stats.avgRate2025 }
-                ].map((item, idx) => (
-                  <div key={idx} className="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
-                    <div className="text-xs text-slate-400 font-medium mb-1">{item.year}</div>
-                    <div className={`text-lg font-bold ${idx === 2 ? 'text-violet-600' : 'text-slate-700'}`}>
-                      %{item.val}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="bg-slate-50 rounded-2xl p-4">
+                <div className="text-xs font-bold text-slate-400 uppercase mb-3">Ortalama Oran (%)</div>
+                <div className="flex justify-between items-center">
+                    {[{y:'2023',v:stats.avgRate2023}, {y:'2024',v:stats.avgRate2024}, {y:'2025',v:stats.avgRate2025}].map((d,i) => (
+                        <div key={i} className="text-center flex-1">
+                            <div className="text-xs text-slate-400 mb-1">{d.y}</div>
+                            <div className={`text-lg md:text-xl font-bold ${i===2 ? 'text-[#B38F65]' : 'text-slate-700'}`}>%{d.v}</div>
+                        </div>
+                    ))}
+                </div>
             </div>
           </div>
         </div>
 
-        {/* Category Distribution Chart */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col">
+        {/* Kategori Dağılımı */}
+        <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <School className="w-5 h-5 text-slate-400" />
-            Kategori Dağılımı (2025)
+            <School className="w-5 h-5 text-[#B38F65]" />
+            Kategori Dağılımı
           </h3>
-          <div className="flex-1 min-h-[300px]">
-            <ComparisonBarChart 
-              data={categoryChartData}
-              title=""
-            />
+          <div className="flex-1 min-h-[250px]">
+            <ComparisonBarChart data={categoryChartData} title="" />
           </div>
         </div>
       </div>
 
-      {/* Top 10 Departments Table */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+      {/* --- TOP 10 DEPARTMENTS SECTION --- */}
+      <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-          <h2 className="text-xl font-bold text-slate-800">🏆 En Çok Tercih Edilen Bölümler (Top 10)</h2>
-          <p className="text-sm text-slate-500 mt-1">Bu üniversitede en çok İH öğrencisi alan bölümler</p>
+          <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2">
+            🏆 En Çok Tercih Edilenler
+          </h2>
+          <p className="text-xs md:text-sm text-slate-500 mt-1">Bu üniversitede en çok öğrenci alan 10 bölüm</p>
         </div>
-        
-        <div className="overflow-x-auto">
+
+        {/* 1. MOBILE CARD VIEW (TOP 10) */}
+        <div className="md:hidden flex flex-col p-4 gap-3 bg-slate-50/50">
+            {topDepartments.map((dept, index) => {
+                 const change = dept.data2025.sayi - (dept.data2023?.sayi || 0);
+                 const category = getDepartmentCategory(dept.bolum);
+                 const categoryColor = getCategoryColor(category);
+
+                 return (
+                    <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex justify-between items-start gap-3 mb-3">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold ${index < 3 ? 'bg-[#B38F65] text-white shadow-md shadow-[#B38F65]/20' : 'bg-slate-100 text-slate-500'}`}>
+                                    {index + 1}
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-slate-800 line-clamp-2">{dept.bolum}</h4>
+                                    <span 
+                                        className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold border"
+                                        style={{ backgroundColor: `${categoryColor}10`, color: categoryColor, borderColor: `${categoryColor}20` }}
+                                    >
+                                        {category}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-50">
+                             <div className="text-center">
+                                <div className="text-[10px] text-slate-400">Öğrenci</div>
+                                <div className="text-sm font-bold text-[#B38F65]">{formatNumber(dept.data2025.sayi)}</div>
+                             </div>
+                             <div className="text-center">
+                                <div className="text-[10px] text-slate-400">Oran</div>
+                                <div className="text-sm font-bold text-slate-700">%{dept.data2025.oran}</div>
+                             </div>
+                             <div className="text-center">
+                                <div className="text-[10px] text-slate-400">Trend</div>
+                                <div className={`text-sm font-bold ${change > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                    {change > 0 ? '+' : ''}{change}
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                 )
+            })}
+        </div>
+
+        {/* 2. DESKTOP TABLE VIEW (TOP 10) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center w-16">Sıra</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Bölüm</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">İH Öğrenci (2025)</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Oran</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Kategori</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Trend (3 Yıl)</th>
+              <tr className="bg-slate-50/80 border-b border-slate-100">
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center w-16">Sıra</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase">Bölüm</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Öğrenci (2025)</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Oran</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Kategori</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Trend (2 Yıl)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {topDepartments.map((dept, index) => {
-                const change2023 = dept.data2023 && dept.data2025
-                  ? dept.data2025.sayi - dept.data2023.sayi
-                  : null;
+                const change2023 = dept.data2023 && dept.data2025 ? dept.data2025.sayi - dept.data2023.sayi : null;
                 const category = getDepartmentCategory(dept.bolum);
                 const categoryColor = getCategoryColor(category);
                 
                 return (
-                  <tr key={index} className="hover:bg-blue-50/30 transition-colors group">
+                  <tr key={index} className="hover:bg-[#B38F65]/5 transition-colors">
                     <td className="p-4 text-center">
-                      <span className={`inline-flex items-center justify-center w-6 h-6 rounded font-bold text-xs 
-                        ${index < 3 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>
+                      <span className={`inline-flex items-center justify-center w-6 h-6 rounded-lg font-bold text-xs 
+                        ${index < 3 ? 'bg-[#B38F65] text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>
                         {index + 1}
                       </span>
                     </td>
-                    <td className="p-4">
-                      <div className="font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
-                        {dept.bolum}
-                      </div>
-                    </td>
+                    <td className="p-4 font-semibold text-slate-700">{dept.bolum}</td>
+                    <td className="p-4 text-center font-bold text-slate-800">{formatNumber(dept.data2025.sayi)}</td>
+                    <td className="p-4 text-center text-sm font-medium text-slate-600">%{dept.data2025.oran}</td>
                     <td className="p-4 text-center">
-                      <div className="font-bold text-slate-800 text-lg tabular-nums">{formatNumber(dept.data2025.sayi)}</div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-sm font-medium tabular-nums">
-                        {formatPercent(dept.data2025.oran)}
-                      </span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <span 
-                        className="px-2 py-1 rounded-lg text-xs font-bold border inline-block"
-                        style={{ 
-                          backgroundColor: `${categoryColor}10`,
-                          color: categoryColor,
-                          borderColor: `${categoryColor}30`
-                        }}
-                      >
+                      <span className="px-2 py-1 rounded-lg text-xs font-bold border inline-block"
+                        style={{ backgroundColor: `${categoryColor}10`, color: categoryColor, borderColor: `${categoryColor}20` }}>
                         {category}
                       </span>
                     </td>
                     <td className="p-4 text-center">
-                      {change2023 !== null ? (
-                        <span className={`inline-flex items-center gap-1 text-sm font-bold
-                          ${change2023 > 0 ? 'text-emerald-600' : change2023 < 0 ? 'text-rose-600' : 'text-slate-400'}`}>
-                          {change2023 > 0 ? <TrendingUp className="w-4 h-4" /> : change2023 < 0 ? <TrendingDown className="w-4 h-4" /> : '•'} 
+                       {change2023 !== null ? (
+                        <span className={`inline-flex items-center gap-1 text-sm font-bold ${change2023 > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
+                          {change2023 > 0 ? <TrendingUp size={14} /> : change2023 < 0 ? <TrendingDown size={14} /> : ''} 
                           {Math.abs(change2023)}
                         </span>
-                      ) : (
-                        <span className="text-slate-300">-</span>
-                      )}
+                      ) : '-'}
                     </td>
                   </tr>
                 );
@@ -378,22 +374,57 @@ return data.filter(d =>
         </div>
       </div>
 
-      {/* All Departments Table */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+      {/* --- ALL DEPARTMENTS SECTION --- */}
+      <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-          <h2 className="text-xl font-bold text-slate-800">📋 Tüm Bölümler Listesi</h2>
-          <p className="text-sm text-slate-500 mt-1">Bu üniversitedeki tüm bölümlerin yıllık değişimi ({universityRecords.length})</p>
+          <h2 className="text-lg md:text-xl font-bold text-slate-800">📋 Tüm Bölümler</h2>
+          <p className="text-xs md:text-sm text-slate-500 mt-1">Toplam {universityRecords.length} bölüm listeleniyor</p>
         </div>
         
-        <div className="overflow-x-auto max-h-[600px] custom-scrollbar">
+        {/* 1. MOBILE CARD VIEW (ALL) */}
+        <div className="md:hidden flex flex-col p-4 gap-3 bg-slate-50/50">
+            {universityRecords.map((dept, index) => {
+                 const category = getDepartmentCategory(dept.bolum);
+                 const categoryColor = getCategoryColor(category);
+
+                 return (
+                    <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex flex-col gap-2 mb-3">
+                             <h4 className="text-sm font-bold text-slate-800">{dept.bolum}</h4>
+                             <span className="self-start px-2 py-0.5 rounded text-[10px] font-bold border"
+                                style={{ backgroundColor: `${categoryColor}10`, color: categoryColor, borderColor: `${categoryColor}20` }}>
+                                {category}
+                             </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-50">
+                             <div className="text-center p-2 bg-slate-50 rounded-lg">
+                                <div className="text-[10px] text-slate-400 mb-0.5">2023</div>
+                                <div className="text-xs font-bold text-slate-600">{dept.data2023?.sayi || '-'}</div>
+                             </div>
+                             <div className="text-center p-2 bg-slate-50 rounded-lg">
+                                <div className="text-[10px] text-slate-400 mb-0.5">2024</div>
+                                <div className="text-xs font-bold text-slate-600">{dept.data2024?.sayi || '-'}</div>
+                             </div>
+                             <div className="text-center p-2 bg-[#B38F65]/10 rounded-lg border border-[#B38F65]/20">
+                                <div className="text-[10px] text-[#B38F65] mb-0.5">2025</div>
+                                <div className="text-sm font-bold text-[#B38F65]">{dept.data2025?.sayi || '-'}</div>
+                             </div>
+                        </div>
+                    </div>
+                 )
+            })}
+        </div>
+
+        {/* 2. DESKTOP TABLE VIEW (ALL) */}
+        <div className="hidden md:block overflow-x-auto max-h-[600px] custom-scrollbar">
           <table className="w-full text-left border-collapse relative">
             <thead className="sticky top-0 bg-white shadow-sm z-10">
               <tr className="border-b border-slate-100">
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Bölüm</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Kategori</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">2023</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">2024</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center bg-blue-50/50">2025</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase">Bölüm</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Kategori</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">2023</th>
+                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">2024</th>
+                <th className="p-4 text-xs font-bold text-[#B38F65] uppercase text-center bg-[#B38F65]/5">2025</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -403,38 +434,21 @@ return data.filter(d =>
                 
                 return (
                   <tr key={index} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4">
-                      <div className="font-medium text-slate-700">{dept.bolum}</div>
-                    </td>
+                    <td className="p-4 font-medium text-slate-700">{dept.bolum}</td>
                     <td className="p-4 text-center">
-                      <span 
-                        className="px-2 py-0.5 rounded text-[10px] font-bold border inline-block"
-                        style={{ 
-                          backgroundColor: `${categoryColor}10`,
-                          color: categoryColor,
-                          borderColor: `${categoryColor}30`
-                        }}
-                      >
+                      <span className="px-2 py-1 rounded-lg text-xs font-bold border inline-block"
+                        style={{ backgroundColor: `${categoryColor}10`, color: categoryColor, borderColor: `${categoryColor}20` }}>
                         {category}
                       </span>
                     </td>
                     <td className="p-4 text-center text-sm text-slate-500 tabular-nums">
-                      {dept.data2023 
-                        ? `${formatNumber(dept.data2023.sayi)} (%${dept.data2023.oran})`
-                        : <span className="text-slate-300">-</span>
-                      }
+                      {dept.data2023 ? `${formatNumber(dept.data2023.sayi)} (%${dept.data2023.oran})` : '-'}
                     </td>
                     <td className="p-4 text-center text-sm text-slate-500 tabular-nums">
-                      {dept.data2024 
-                        ? `${formatNumber(dept.data2024.sayi)} (%${dept.data2024.oran})`
-                        : <span className="text-slate-300">-</span>
-                      }
+                      {dept.data2024 ? `${formatNumber(dept.data2024.sayi)} (%${dept.data2024.oran})` : '-'}
                     </td>
-                    <td className="p-4 text-center text-sm font-bold text-slate-800 tabular-nums bg-blue-50/30">
-                      {dept.data2025 
-                        ? `${formatNumber(dept.data2025.sayi)} (%${dept.data2025.oran})`
-                        : <span className="text-slate-300">-</span>
-                      }
+                    <td className="p-4 text-center text-sm font-bold text-slate-800 tabular-nums bg-[#B38F65]/5 border-l border-[#B38F65]/10">
+                      {dept.data2025 ? `${formatNumber(dept.data2025.sayi)} (%${dept.data2025.oran})` : '-'}
                     </td>
                   </tr>
                 );
@@ -448,7 +462,16 @@ return data.filter(d =>
   );
 };
 
-// Helper function
+// Basit İkon Bileşeni (MapPin yerine kullanılabilir)
+const MapPinIcon = ({ city }) => (
+    <>
+        <School className="w-3.5 h-3.5" /> 
+        {/* Şehir bilgisi veride her zaman olmayabilir, üniversite adından çıkarılabilir veya static kalabilir */}
+        Türkiye
+    </>
+);
+
+// Kategori Renkleri (Sabit kalabilir veya Gold uyumlu pastel tonlar seçilebilir)
 function getCategoryColor(category) {
   const colors = {
     'Mühendislik': '#3b82f6', 

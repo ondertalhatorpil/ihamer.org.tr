@@ -9,7 +9,8 @@ import {
   MapPin, 
   School,
   BarChart3,
-  Calendar
+  Calendar,
+  ChevronRight
 } from 'lucide-react';
 import { MultiLineChart } from './TrendChart';
 import Tooltip from './Tooltip';
@@ -139,193 +140,172 @@ const DepartmentDetail = ({ data }) => {
 
   if (!stats) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
-        <div className="text-center">
-            <h2 className="text-xl font-bold text-slate-800">Bölüm bulunamadı</h2>
-            <button onClick={() => navigate('/analytics')} className="mt-4 text-blue-600 hover:underline">
-                Anasayfaya Dön
-            </button>
-        </div>
+      <div className="flex flex-col items-center justify-center h-[50vh] bg-white rounded-[2rem] border border-slate-100 m-4">
+        <School className="w-16 h-16 text-slate-200 mb-4" />
+        <h2 className="text-xl font-bold text-slate-800">Bölüm bulunamadı</h2>
+        <button 
+            onClick={() => navigate('/analytics/departments')} 
+            className="mt-4 text-[#B38F65] font-medium hover:underline flex items-center gap-2"
+        >
+            <ArrowLeft size={16} /> Listeye Dön
+        </button>
       </div>
     );
   }
 
+  const categoryColor = getCategoryColor(stats.category);
+
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-6 md:space-y-8 pb-12 animate-fade-in w-full overflow-x-hidden">
       
-      {/* Header Section */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden">
-        {/* Decorative Background Element */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-60 pointer-events-none"></div>
+      {/* --- HEADER --- */}
+      <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-100 relative overflow-hidden">
+        {/* Decorative Background */}
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl -mr-20 -mt-20 opacity-40 pointer-events-none bg-[#B38F65]/20"></div>
 
         <button 
             onClick={() => navigate(-1)} 
-            className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-6 group"
+            className="flex items-center gap-2 text-slate-500 hover:text-[#B38F65] transition-colors mb-6 group relative z-10"
         >
-            <div className="p-1.5 rounded-lg bg-slate-50 group-hover:bg-slate-200 transition-colors">
+            <div className="p-2 rounded-xl bg-slate-50 group-hover:bg-[#B38F65]/10 transition-colors">
                 <ArrowLeft className="w-4 h-4" />
             </div>
-            <span className="text-sm font-medium">Geri Dön</span>
+            <span className="text-sm font-bold">Geri Dön</span>
         </button>
 
-        <div className="relative">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <span 
-                            className="px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm"
-                            style={{ backgroundColor: getCategoryColor(stats.category) }}
-                        >
-                            {stats.category}
-                        </span>
-                        <span className="flex items-center gap-1 text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-full border border-slate-100">
-                            <Calendar className="w-3 h-3" /> 2023-2025 Dönemi
-                        </span>
-                    </div>
-                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight leading-tight">
-                        {stats.departmentName}
-                    </h1>
+        <div className="relative z-10">
+            <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                    <span 
+                        className="px-3 py-1 rounded-lg text-xs font-bold text-white shadow-sm"
+                        style={{ backgroundColor: categoryColor }}
+                    >
+                        {stats.category}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
+                        <Calendar className="w-3.5 h-3.5" /> 2023-2025
+                    </span>
                 </div>
+                <h1 className="text-2xl md:text-4xl font-extrabold text-slate-800 tracking-tight leading-tight">
+                    {stats.departmentName}
+                </h1>
             </div>
         </div>
       </div>
 
-      {/* Summary Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* --- STAT CARDS GRID --- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         
-        {/* Total Students Card */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+        {/* Toplam Öğrenci */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+            <div className="flex justify-between items-start mb-3">
+                <div className="p-3 bg-[#B38F65]/10 text-[#B38F65] rounded-2xl">
                     <Users className="w-6 h-6" />
                 </div>
-                <Tooltip text="2025 yılında bu bölüme yerleşen toplam İH mezunu öğrenci sayısı">
-                    <div className="w-6 h-6 flex items-center justify-center rounded-full text-slate-300 hover:text-blue-500 cursor-help border border-transparent hover:border-slate-100">?</div>
-                </Tooltip>
             </div>
             <div>
-                <div className="text-sm font-medium text-slate-500">Toplam İH Öğrenci (2025)</div>
+                <div className="text-sm font-medium text-slate-500">Toplam İH Öğrenci</div>
                 <div className="text-3xl font-bold text-slate-800 mt-1">{formatNumber(stats.students2025)}</div>
-                <div className="text-xs font-medium text-blue-600 mt-1 bg-blue-50 inline-block px-2 py-0.5 rounded">
-                    Ortalama Oran: {formatPercent(stats.avgRate2025)}
+                <div className="flex items-center gap-2 mt-2">
+                    <span className="text-xs font-bold text-[#B38F65] bg-[#B38F65]/10 px-2 py-0.5 rounded-lg">
+                        Ort. %{stats.avgRate2025}
+                    </span>
                 </div>
             </div>
         </div>
 
-        {/* University Count Card */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-violet-50 text-violet-600 rounded-2xl group-hover:bg-violet-600 group-hover:text-white transition-colors">
+        {/* Üniversite Sayısı */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+            <div className="flex justify-between items-start mb-3">
+                <div className="p-3 bg-[#B38F65]/10 text-[#B38F65] rounded-2xl">
                     <School className="w-6 h-6" />
                 </div>
-                <Tooltip text="Bu bölümün bulunduğu üniversite sayısı">
-                    <div className="w-6 h-6 flex items-center justify-center rounded-full text-slate-300 hover:text-violet-500 cursor-help border border-transparent hover:border-slate-100">?</div>
-                </Tooltip>
             </div>
             <div>
                 <div className="text-sm font-medium text-slate-500">Üniversite Sayısı</div>
                 <div className="text-3xl font-bold text-slate-800 mt-1">{formatNumber(stats.totalUniversities)}</div>
-                <div className="text-xs text-slate-400 mt-1">Farklı kurum</div>
+                <div className="text-xs text-slate-400 mt-2">Farklı kurum</div>
             </div>
         </div>
 
-        {/* Growth Card */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex justify-between items-start mb-4">
-                <div className={`p-3 rounded-2xl transition-colors
-                    ${stats.students2025 >= stats.students2023 
-                        ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white' 
-                        : 'bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}`}>
-                    {stats.students2025 >= stats.students2023 
-                        ? <TrendingUp className="w-6 h-6" /> 
-                        : <TrendingDown className="w-6 h-6" />}
+        {/* Gelişim */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+            <div className="flex justify-between items-start mb-3">
+                <div className="p-3 bg-[#B38F65]/10 text-[#B38F65] rounded-2xl">
+                    {stats.students2025 >= stats.students2023 ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
                 </div>
             </div>
             <div>
-                <div className="text-sm font-medium text-slate-500">Gelişim (2023-2025)</div>
+                <div className="text-sm font-medium text-slate-500">Gelişim (2 Yıl)</div>
                 <div className="flex items-baseline gap-2 mt-1">
                     <div className="text-3xl font-bold text-slate-800">
                          {stats.students2025 > stats.students2023 ? '+' : ''}
                          {formatNumber(stats.students2025 - stats.students2023)}
                     </div>
                 </div>
-                <div className={`text-xs font-bold mt-1 inline-block px-2 py-0.5 rounded
-                     ${stats.students2025 >= stats.students2023 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                <div className={`text-xs font-bold mt-2 inline-block px-2 py-0.5 rounded-lg
+                     ${stats.students2025 >= stats.students2023 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
                     {stats.students2023 > 0 
-                        ? `%${((stats.students2025 - stats.students2023) / stats.students2023 * 100).toFixed(1)}` 
+                        ? `%${((stats.students2025 - stats.students2023) / stats.students2023 * 100).toFixed(1)} Değişim` 
                         : 'Yeni'}
                 </div>
             </div>
         </div>
 
-        {/* Popular City Card */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:bg-amber-600 group-hover:text-white transition-colors">
+        {/* Popüler Şehir */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+            <div className="flex justify-between items-start mb-3">
+                <div className="p-3 bg-[#B38F65]/10 text-[#B38F65] rounded-2xl">
                     <MapPin className="w-6 h-6" />
                 </div>
             </div>
             <div>
-                <div className="text-sm font-medium text-slate-500">En Popüler Şehir</div>
-                <div className="text-3xl font-bold text-slate-800 mt-1 truncate" title={Object.entries(stats.byCity).sort((a, b) => b[1].students - a[1].students)[0]?.[0]}>
+                <div className="text-sm font-medium text-slate-500">Popüler Şehir</div>
+                <div className="text-xl font-bold text-slate-800 mt-1 truncate" title={Object.entries(stats.byCity).sort((a, b) => b[1].students - a[1].students)[0]?.[0]}>
                     {Object.entries(stats.byCity).sort((a, b) => b[1].students - a[1].students)[0]?.[0] || '-'}
                 </div>
-                <div className="text-xs text-slate-400 mt-1">
-                    {formatNumber(Object.entries(stats.byCity).sort((a, b) => b[1].students - a[1].students)[0]?.[1].students || 0)} öğrenci ile
+                <div className="text-xs text-slate-400 mt-2">
+                    En çok tercih edilen il
                 </div>
             </div>
         </div>
       </div>
 
-      {/* Yearly Progress & Type Distribution Grid */}
+      {/* --- CHARTS & DISTRIBUTION --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* Yearly Progress */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+        {/* Yıllık Gelişim (Text Based) */}
+        <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
             <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-slate-400" />
-                Yıllık Gelişim Analizi
+                <BarChart3 className="w-5 h-5 text-[#B38F65]" />
+                Yıllık Gelişim
             </h3>
             
-            <div className="space-y-6">
-                {/* Students Count Progress */}
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">İH Öğrenci Sayısı</span>
-                    <div className="flex items-center justify-between relative">
-                        {/* Connecting Line */}
-                        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
-                        
-                        {[
-                            { year: '2023', val: stats.students2023 },
-                            { year: '2024', val: stats.students2024 },
-                            { year: '2025', val: stats.students2025 }
-                        ].map((item, idx) => (
-                            <div key={idx} className="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
-                                <div className="text-xs text-slate-400 font-medium mb-1">{item.year}</div>
-                                <div className={`text-lg font-bold ${idx === 2 ? 'text-blue-600' : 'text-slate-700'}`}>
-                                    {formatNumber(item.val)}
+            <div className="space-y-4">
+                {/* Öğrenci Sayısı */}
+                <div className="bg-slate-50 rounded-2xl p-4">
+                    <div className="text-xs font-bold text-slate-400 uppercase mb-3">İH Öğrenci Sayısı</div>
+                    <div className="flex justify-between items-center">
+                        {[{y:'2023',v:stats.students2023}, {y:'2024',v:stats.students2024}, {y:'2025',v:stats.students2025}].map((d,i) => (
+                            <div key={i} className="text-center flex-1">
+                                <div className="text-xs text-slate-400 mb-1">{d.y}</div>
+                                <div className={`text-lg md:text-xl font-bold ${i===2 ? 'text-[#B38F65]' : 'text-slate-700'}`}>
+                                    {formatNumber(d.v)}
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Rate Progress */}
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-3">Ortalama İH Oranı</span>
-                    <div className="flex items-center justify-between relative">
-                        {/* Connecting Line */}
-                        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10"></div>
-                        
-                        {[
-                            { year: '2023', val: stats.avgRate2023 },
-                            { year: '2024', val: stats.avgRate2024 },
-                            { year: '2025', val: stats.avgRate2025 }
-                        ].map((item, idx) => (
-                            <div key={idx} className="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-center min-w-[80px]">
-                                <div className="text-xs text-slate-400 font-medium mb-1">{item.year}</div>
-                                <div className={`text-lg font-bold ${idx === 2 ? 'text-violet-600' : 'text-slate-700'}`}>
-                                    %{item.val}
+                {/* Ortalama Oran */}
+                <div className="bg-slate-50 rounded-2xl p-4">
+                    <div className="text-xs font-bold text-slate-400 uppercase mb-3">Ortalama Oran (%)</div>
+                    <div className="flex justify-between items-center">
+                         {[{y:'2023',v:stats.avgRate2023}, {y:'2024',v:stats.avgRate2024}, {y:'2025',v:stats.avgRate2025}].map((d,i) => (
+                            <div key={i} className="text-center flex-1">
+                                <div className="text-xs text-slate-400 mb-1">{d.y}</div>
+                                <div className={`text-lg md:text-xl font-bold ${i===2 ? 'text-[#B38F65]' : 'text-slate-700'}`}>
+                                    %{d.v}
                                 </div>
                             </div>
                         ))}
@@ -334,25 +314,23 @@ const DepartmentDetail = ({ data }) => {
             </div>
         </div>
 
-        {/* Type Distribution */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col">
+        {/* Üniversite Türüne Göre Dağılım */}
+        <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col">
             <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <Building2 className="w-5 h-5 text-slate-400" />
-                Üniversite Türüne Göre (2025)
+                <Building2 className="w-5 h-5 text-[#B38F65]" />
+                Üniversite Türüne Göre
             </h3>
             
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {Object.entries(stats.byType).map(([type, data]) => (
-                    <div key={type} className="flex flex-col justify-center items-center bg-slate-50 rounded-2xl p-4 border border-slate-100 hover:bg-white hover:shadow-md transition-all">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 text-lg
-                            ${type === 'Devlet' ? 'bg-blue-100 text-blue-600' : 
-                              type === 'Vakıf' ? 'bg-violet-100 text-violet-600' : 'bg-orange-100 text-orange-600'}`}>
+                    <div key={type} className="flex flex-col justify-center items-center bg-slate-50 rounded-2xl p-4 border border-slate-100 hover:bg-[#B38F65]/5 transition-all">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3 text-xl bg-white shadow-sm">
                             {type === 'Devlet' ? '🏛️' : type === 'Vakıf' ? '🏢' : '🌍'}
                         </div>
-                        <h4 className="font-bold text-slate-700">{type}</h4>
-                        <div className="text-2xl font-bold text-slate-800 my-1">{formatNumber(data.students)}</div>
-                        <div className="text-xs text-slate-400 bg-white px-2 py-1 rounded-full border border-slate-100">
-                            {data.count} üniversite
+                        <h4 className="font-bold text-slate-700 text-sm">{type}</h4>
+                        <div className="text-xl font-bold text-[#B38F65] my-1">{formatNumber(data.students)}</div>
+                        <div className="text-[10px] text-slate-400 px-2 py-0.5 rounded-full border border-slate-200">
+                            {data.count} Üniv.
                         </div>
                     </div>
                 ))}
@@ -360,11 +338,13 @@ const DepartmentDetail = ({ data }) => {
         </div>
       </div>
 
-      {/* Charts Section */}
+      {/* --- CHART SECTION (Line Chart) --- */}
       {trendChartLines.length > 0 && (
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
            <h3 className="text-lg font-bold text-slate-800 mb-6">📈 Top 5 Üniversite Trendi</h3>
-           <div className="h-[400px]">
+           <div className="h-[350px] md:h-[400px]">
+             {/* Not: MultiLineChart bileşeninin renklerini içeriden veya props ile düzenlemek gerekebilir.
+                 Burada genel container stilini güncelledik. */}
              <MultiLineChart 
                 data={trendChartData}
                 lines={trendChartLines}
@@ -374,54 +354,96 @@ const DepartmentDetail = ({ data }) => {
         </div>
       )}
 
-      {/* Top 10 Table Section */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-            <div>
-                <h2 className="text-xl font-bold text-slate-800">🏆 Top 10 Üniversite</h2>
-                <p className="text-sm text-slate-500 mt-1">En çok İH öğrencisi alan üniversiteler</p>
-            </div>
+      {/* --- TOP 10 UNIVERSITIES --- */}
+      <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+            <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2">
+                🏆 Top 10 Üniversite
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 mt-1">En çok öğrenci alan kurumlar</p>
         </div>
         
-        <div className="overflow-x-auto">
+        {/* 1. MOBILE CARD VIEW */}
+        <div className="md:hidden flex flex-col p-4 gap-3 bg-slate-50/50">
+            {topUniversities.map((uni, index) => {
+                 const change = uni.data2025.sayi - (uni.data2023?.sayi || 0);
+                 const badge = getUniversityTypeBadge(uni.universityType);
+                 const city = extractCity(uni.universiteName);
+
+                 return (
+                    <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex justify-between items-start gap-3 mb-3">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold ${index < 3 ? 'bg-[#B38F65] text-white shadow-md shadow-[#B38F65]/20' : 'bg-slate-100 text-slate-500'}`}>
+                                    {index + 1}
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-slate-800 line-clamp-2">{uni.universiteName}</h4>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-[10px] text-slate-500">{city}</span>
+                                        <span 
+                                            className="px-1.5 py-0.5 rounded text-[10px] font-bold border"
+                                            style={{ backgroundColor: `${badge.color}10`, color: badge.color, borderColor: `${badge.color}30` }}
+                                        >
+                                            {badge.label}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-50">
+                             <div className="text-center">
+                                <div className="text-[10px] text-slate-400">Öğrenci</div>
+                                <div className="text-sm font-bold text-[#B38F65]">{formatNumber(uni.data2025.sayi)}</div>
+                             </div>
+                             <div className="text-center">
+                                <div className="text-[10px] text-slate-400">Oran</div>
+                                <div className="text-sm font-bold text-slate-700">%{uni.data2025.oran}</div>
+                             </div>
+                             <div className="text-center">
+                                <div className="text-[10px] text-slate-400">Trend</div>
+                                <div className={`text-sm font-bold ${change > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                    {change > 0 ? '+' : ''}{change}
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                 )
+            })}
+        </div>
+
+        {/* 2. DESKTOP TABLE VIEW */}
+        <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
                 <thead>
-                    <tr className="bg-slate-50 border-b border-slate-100">
+                    <tr className="bg-slate-50/80 border-b border-slate-100">
                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-16 text-center">Sıra</th>
                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Üniversite</th>
                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Şehir</th>
-                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">İH Öğrenci (2025)</th>
+                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Öğrenci (2025)</th>
                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Oran</th>
                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Trend (3 Yıl)</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                     {topUniversities.map((uni, index) => {
-                        const change2023 = uni.data2023 && uni.data2025
-                        ? uni.data2025.sayi - uni.data2023.sayi
-                        : null;
+                        const change2023 = uni.data2023 && uni.data2025 ? uni.data2025.sayi - uni.data2023.sayi : null;
                         const badge = getUniversityTypeBadge(uni.universityType);
                         
                         return (
-                        <tr key={index} className="hover:bg-blue-50/30 transition-colors group">
+                        <tr key={index} className="hover:bg-[#B38F65]/5 transition-colors">
                             <td className="p-4 text-center">
-                                <span className={`inline-flex items-center justify-center w-6 h-6 rounded font-bold text-xs 
-                                    ${index < 3 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>
+                                <span className={`inline-flex items-center justify-center w-6 h-6 rounded-lg font-bold text-xs 
+                                    ${index < 3 ? 'bg-[#B38F65] text-white shadow-sm' : 'bg-slate-100 text-slate-500'}`}>
                                     {index + 1}
                                 </span>
                             </td>
                             <td className="p-4">
-                                <div className="font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
-                                    {uni.universiteName}
-                                </div>
+                                <div className="font-semibold text-slate-700">{uni.universiteName}</div>
                                 <div className="mt-1">
                                     <span 
                                         className="text-[10px] px-2 py-0.5 rounded font-medium border"
-                                        style={{ 
-                                            backgroundColor: `${badge.color}15`, // %10 opacity
-                                            color: badge.color,
-                                            borderColor: `${badge.color}30`
-                                        }}
+                                        style={{ backgroundColor: `${badge.color}15`, color: badge.color, borderColor: `${badge.color}30` }}
                                     >
                                         {badge.label}
                                     </span>
@@ -442,12 +464,10 @@ const DepartmentDetail = ({ data }) => {
                                 {change2023 !== null ? (
                                     <span className={`inline-flex items-center gap-1 text-sm font-bold
                                         ${change2023 > 0 ? 'text-emerald-600' : change2023 < 0 ? 'text-rose-600' : 'text-slate-400'}`}>
-                                        {change2023 > 0 ? <TrendingUp className="w-4 h-4" /> : change2023 < 0 ? <TrendingDown className="w-4 h-4" /> : '•'} 
+                                        {change2023 > 0 ? <TrendingUp size={14} /> : change2023 < 0 ? <TrendingDown size={14} /> : '•'} 
                                         {Math.abs(change2023)}
                                     </span>
-                                ) : (
-                                    <span className="text-slate-300">-</span>
-                                )}
+                                ) : '-'}
                             </td>
                         </tr>
                         );
@@ -457,21 +477,55 @@ const DepartmentDetail = ({ data }) => {
         </div>
       </div>
 
-      {/* All Universities Table */}
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+      {/* --- ALL UNIVERSITIES LIST --- */}
+      <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-            <h2 className="text-xl font-bold text-slate-800">📋 Tüm Üniversiteler</h2>
-            <p className="text-sm text-slate-500 mt-1">Bu bölümün bulunduğu tüm üniversitelerin listesi ({departmentRecords.length})</p>
+            <h2 className="text-lg md:text-xl font-bold text-slate-800">📋 Tüm Üniversiteler</h2>
+            <p className="text-xs md:text-sm text-slate-500 mt-1">Toplam {departmentRecords.length} üniversite listeleniyor</p>
         </div>
         
-        <div className="overflow-x-auto max-h-[600px] custom-scrollbar">
+        {/* 1. MOBILE CARD VIEW (ALL) */}
+        <div className="md:hidden flex flex-col p-4 gap-3 bg-slate-50/50">
+            {departmentRecords.map((uni, index) => {
+                 const badge = getUniversityTypeBadge(uni.universityType);
+
+                 return (
+                    <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <div className="flex flex-col gap-2 mb-3">
+                             <h4 className="text-sm font-bold text-slate-800">{uni.universiteName}</h4>
+                             <span className="self-start px-2 py-0.5 rounded text-[10px] font-bold border"
+                                style={{ backgroundColor: `${badge.color}10`, color: badge.color, borderColor: `${badge.color}30` }}>
+                                {badge.label}
+                             </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-50">
+                             <div className="text-center p-2 bg-slate-50 rounded-lg">
+                                <div className="text-[10px] text-slate-400 mb-0.5">2023</div>
+                                <div className="text-xs font-bold text-slate-600">{uni.data2023?.sayi || '-'}</div>
+                             </div>
+                             <div className="text-center p-2 bg-slate-50 rounded-lg">
+                                <div className="text-[10px] text-slate-400 mb-0.5">2024</div>
+                                <div className="text-xs font-bold text-slate-600">{uni.data2024?.sayi || '-'}</div>
+                             </div>
+                             <div className="text-center p-2 bg-[#B38F65]/10 rounded-lg border border-[#B38F65]/20">
+                                <div className="text-[10px] text-[#B38F65] mb-0.5">2025</div>
+                                <div className="text-sm font-bold text-[#B38F65]">{uni.data2025?.sayi || '-'}</div>
+                             </div>
+                        </div>
+                    </div>
+                 )
+            })}
+        </div>
+
+        {/* 2. DESKTOP TABLE VIEW (ALL) */}
+        <div className="hidden md:block overflow-x-auto max-h-[600px] custom-scrollbar">
             <table className="w-full text-left border-collapse relative">
                 <thead className="sticky top-0 bg-white shadow-sm z-10">
                     <tr className="border-b border-slate-100">
-                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Üniversite</th>
-                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">2023</th>
-                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">2024</th>
-                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-center bg-blue-50/50">2025</th>
+                        <th className="p-4 text-xs font-bold text-slate-500 uppercase">Üniversite</th>
+                        <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">2023</th>
+                        <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">2024</th>
+                        <th className="p-4 text-xs font-bold text-[#B38F65] uppercase text-center bg-[#B38F65]/5">2025</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -485,22 +539,13 @@ const DepartmentDetail = ({ data }) => {
                                 <span className="text-[10px] text-slate-400">{badge.label}</span>
                             </td>
                             <td className="p-4 text-center text-sm text-slate-500 tabular-nums">
-                                {uni.data2023 
-                                    ? `${formatNumber(uni.data2023.sayi)} (%${uni.data2023.oran})`
-                                    : <span className="text-slate-300">-</span>
-                                }
+                                {uni.data2023 ? `${formatNumber(uni.data2023.sayi)} (%${uni.data2023.oran})` : '-'}
                             </td>
                             <td className="p-4 text-center text-sm text-slate-500 tabular-nums">
-                                {uni.data2024 
-                                    ? `${formatNumber(uni.data2024.sayi)} (%${uni.data2024.oran})`
-                                    : <span className="text-slate-300">-</span>
-                                }
+                                {uni.data2024 ? `${formatNumber(uni.data2024.sayi)} (%${uni.data2024.oran})` : '-'}
                             </td>
-                            <td className="p-4 text-center text-sm font-bold text-slate-800 tabular-nums bg-blue-50/30">
-                                {uni.data2025 
-                                    ? `${formatNumber(uni.data2025.sayi)} (%${uni.data2025.oran})`
-                                    : <span className="text-slate-300">-</span>
-                                }
+                            <td className="p-4 text-center text-sm font-bold text-slate-800 tabular-nums bg-[#B38F65]/5 border-l border-[#B38F65]/10">
+                                {uni.data2025 ? `${formatNumber(uni.data2025.sayi)} (%${uni.data2025.oran})` : '-'}
                             </td>
                         </tr>
                         );
@@ -514,18 +559,18 @@ const DepartmentDetail = ({ data }) => {
   );
 };
 
-// Helper for Category Colors (Hex codes to match inline styles for strict color coding)
+// Helper for Category Colors 
 function getCategoryColor(category) {
   const colors = {
-    'Mühendislik': '#3b82f6', // blue-500
-    'Sağlık Bilimleri': '#10b981', // emerald-500
-    'İlahiyat': '#8b5cf6', // violet-500
-    'Eğitim': '#f59e0b', // amber-500
-    'Sosyal Bilimler': '#06b6d4', // cyan-500
-    'Hukuk': '#ef4444', // red-500
-    'İşletme/İktisat': '#ec4899', // pink-500
-    'Mimarlık/Tasarım': '#14b8a6', // teal-500
-    'Diğer': '#6b7280' // gray-500
+    'Mühendislik': '#3b82f6', 
+    'Sağlık Bilimleri': '#10b981', 
+    'İlahiyat': '#8b5cf6', 
+    'Eğitim': '#f59e0b', 
+    'Sosyal Bilimler': '#06b6d4', 
+    'Hukuk': '#ef4444', 
+    'İşletme/İktisat': '#ec4899', 
+    'Mimarlık/Tasarım': '#14b8a6', 
+    'Diğer': '#6b7280' 
   };
   return colors[category] || '#6b7280';
 }

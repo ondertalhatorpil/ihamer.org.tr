@@ -1,214 +1,280 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  TrendingUp, TrendingDown, Users, Building2, BookOpen, 
-  MapPin, Info, Award, BarChart3, Calendar, ArrowRight 
+import {
+    TrendingUp, Users, Building2, BookOpen,
+    MapPin, Award, BarChart3, ArrowRight, ArrowUpRight, Info
 } from 'lucide-react';
 import { getGeneralStatistics, getTopRecords, getTrendingRecords } from '../utils/statistics';
-import { formatNumber, formatPercent } from '../utils/helpers';
-import StatCard, { ComparisonStatCard } from './StatCard'; // StatCard bileşenini import ettiğinden emin ol
-import Tooltip from './Tooltip';
+import { formatNumber } from '../utils/helpers';
+import StatCard, { ComparisonStatCard } from '../components/StatCard';
+import Tooltip from '../components/Tooltip';
+
+const AnimatedCounter = ({ value, formatter }) => {
+    const [displayValue, setDisplayValue] = useState(0);
+
+    useEffect(() => {
+        let numericValue = 0;
+        if (typeof value === 'string') {
+            numericValue = parseInt(value.replace(/\./g, '').replace(/,/g, ''), 10);
+        } else {
+            numericValue = value;
+        }
+
+        if (!numericValue || isNaN(numericValue)) numericValue = 0;
+
+        let start = 0;
+        const end = numericValue;
+
+        if (end === 0) {
+            setDisplayValue(0);
+            return;
+        }
+
+        const duration = 1000; // 1 saniye
+        const steps = 60; // 60 kare
+        const increment = end / steps;
+        const intervalTime = duration / steps;
+
+        const timer = setInterval(() => {
+            start += increment;
+            if (start >= end) {
+                setDisplayValue(end);
+                clearInterval(timer);
+            } else {
+                setDisplayValue(start);
+            }
+        }, intervalTime);
+
+        return () => clearInterval(timer);
+    }, [value]);
+
+    return <>{formatter ? formatter(Math.floor(displayValue)) : Math.floor(displayValue)}</>;
+};
 
 const Dashboard = ({ data }) => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  // İstatistikler
-  const stats = useMemo(() => getGeneralStatistics(data), [data]);
-  const topByStudents = useMemo(() => getTopRecords(data, 'students', 20, 2025, 10, 0), [data]);
-  const topByRate = useMemo(() => getTopRecords(data, 'rate', 10, 2025, 10, 50), [data]);
-  const rising = useMemo(() => getTrendingRecords(data, 'rising', 10, 5), [data]);
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => setIsMounted(true), []);
 
-  return (
-    <div className="space-y-8 pb-12 animate-fade-in">
-      
-      {/* --- HEADER --- */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 ">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Genel Bakış</h1>
-        </div>
-        <div className="flex items-center gap-2 bg-white text-sm font-medium text-slate-600">
-          <Calendar className="w-4 h-4 text-slate-400" />
-          <span>Veri Dönemi(Lisans):</span>
-          <span className="text-slate-900 font-bold">2023 - 2025</span>
-        </div>
-      </div>
+    const stats = useMemo(() => getGeneralStatistics(data), [data]);
+    const topByStudents = useMemo(() => getTopRecords(data, 'students', 10, 2025, 10, 0), [data]);
+    const topByRate = useMemo(() => getTopRecords(data, 'rate', 5, 2025, 10, 50), [data]);
+    const rising = useMemo(() => getTrendingRecords(data, 'rising', 5, 5), [data]);
 
-      {/* --- KPI CARDS (Üst İstatistikler) --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          icon={<Users className="w-6 h-6" />}
-          title="Toplam İH Öğrenci"
-          value={formatNumber(stats.stats2025.totalStudents)}
-          subtitle={`Ortalama Oran: %${stats.stats2025.averageRate}`}
-          trend={stats.stats2025.totalStudents > stats.stats2023.totalStudents ? 'up' : 'down'}
-          color="blue"
-          tooltipText="2025 yılında yerleşen toplam İmam Hatip mezunu sayısı"
-        />
-        <StatCard
-          icon={<MapPin className="w-6 h-6" />}
-          title="Toplam Kayıt"
-          value={formatNumber(stats.totalRecords)}
-          subtitle={`${formatNumber(stats.validRecords)} aktif veri`}
-          color="indigo"
-          tooltipText="Analiz edilen toplam program satırı"
-        />
-        <StatCard
-          icon={<Building2 className="w-6 h-6" />}
-          title="Üniversite"
-          value={formatNumber(stats.uniqueUniversities)}
-          subtitle="Aktif kurum"
-          color="violet"
-        />
-        <StatCard
-          icon={<BookOpen className="w-6 h-6" />}
-          title="Bölüm"
-          value={formatNumber(stats.uniqueDepartments)}
-          subtitle="Farklı program türü"
-          color="emerald"
-        />
-      </div>
+    return (
+        <div className="space-y-4 md:space-y-8 pb-8 animate-fade-in">
 
-      {/* --- COMPARISON SECTION (Yıl Karşılaştırması) --- */}
-      <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50/50 rounded-full blur-3xl -mr-32 -mt-32 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
-        
-        <div className="flex items-center justify-between mb-8 relative z-10">
-            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-500" />
-                Dönemsel Performans (2023 vs 2025)
-            </h2>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
-            <ComparisonStatCard
-                title="Toplam Öğrenci Hacmi"
-                current={stats.stats2025.totalStudents}
-                previous={stats.stats2023.totalStudents}
-            />
-            <ComparisonStatCard
-                title="Veri Kapsamı (Program)"
-                current={stats.stats2025.recordCount}
-                previous={stats.stats2023.recordCount}
-            />
-            <ComparisonStatCard
-                title="Ortalama Yerleşme Oranı"
-                current={parseFloat(stats.stats2025.averageRate)}
-                previous={parseFloat(stats.stats2023.averageRate)}
-                unit="%"
-            />
-        </div>
-      </div>
-
-      {/* --- LISTELER (Grid Layout) --- */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        
-        {/* SOL KOLON: En Çok Tercih Edilenler */}
-        <div className="xl:col-span-2 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col h-[600px]">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <Award className="w-5 h-5 text-amber-500" />
-                        En Çok Tercih Edilenler
-                    </h2>
-                    <p className="text-sm text-slate-500">Öğrenci sayısına göre sıralı (Top 20)</p>
-                </div>
-                <button 
-                  onClick={() => navigate('/analytics/universities')}
-                  className="text-sm font-semibold text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
-                >
-                  Tümü <ArrowRight size={14} />
-                </button>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+                <StatCard
+                    icon={<Users className="w-5 h-5 md:w-6 md:h-6" />}
+                    title="Toplam Öğr."
+                    value={<AnimatedCounter value={stats.stats2025.totalStudents} formatter={formatNumber} />}
+                    subtitle={`Ort: %${stats.stats2025.averageRate}`}
+                    trend={stats.stats2025.totalStudents > stats.stats2023.totalStudents ? 'up' : 'down'}
+                    color="custom"
+                    customColor="#B38F65"
+                    tooltipText="2025 yılında üniversitelere yerleşen toplam İmam Hatip mezunu öğrenci sayısı" />
+                <StatCard
+                    icon={<MapPin className="w-5 h-5 md:w-6 md:h-6" />}
+                    title="Kayıt"
+                    value={<AnimatedCounter value={stats.totalRecords} formatter={formatNumber} />}
+                    subtitle={`${formatNumber(stats.validRecords)} aktif`}
+                    color="custom"
+                    customColor="#B38F65"
+                    tooltipText="YÖK Atlas'tan çekilen toplam program kaydı. 8.278'inde İH öğrenci bulunuyor"
+                />
+                <StatCard
+                    icon={<Building2 className="w-5 h-5 md:w-6 md:h-6" />}
+                    title="Üniversite"
+                    value={<AnimatedCounter value={stats.uniqueUniversities} formatter={formatNumber} />}
+                    subtitle="Kurum"
+                    color="custom"
+                    customColor="#B38F65"
+                    tooltipText="İH öğrencisi bulunan üniversite sayısı (Devlet, Vakıf, KKTC dahil)"
+                />
+                <StatCard
+                    icon={<BookOpen className="w-5 h-5 md:w-6 md:h-6" />}
+                    title="Bölüm"
+                    value={<AnimatedCounter value={stats.uniqueDepartments} formatter={formatNumber} />}
+                    subtitle="Program"
+                    color="custom"
+                    customColor="#B38F65"
+                    tooltipText="İH öğrencisi bulunan farklı bölüm/program sayısı"
+                />
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {topByStudents.map((record, index) => (
-                    <div 
-                        key={index}
-                        onClick={() => navigate(`/analytics/university/${encodeURIComponent(record.universiteName)}`)}
-                        className="group flex items-center gap-4 p-4 rounded-2xl border border-slate-100 hover:border-blue-200 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer bg-slate-50/30"
-                    >
-                        <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm
-                            ${index < 3 ? 'bg-amber-100 text-amber-700' : 'bg-white text-slate-500 border border-slate-200'}`}>
-                            {index + 1}
+            {/* --- KARŞILAŞTIRMA (BANNER) --- */}
+            <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-gradient-to-br from-white via-slate-50 to-[#B38F65]/10 p-5 md:p-10 border border-[#B38F65]/20 shadow-sm group">
+                <div className="relative z-10 mb-6 md:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <h2 className="flex items-center gap-2 text-base md:text-xl font-extrabold tracking-tight text-[#B38F65]">
+                        <BarChart3 className="h-5 w-5 md:h-6 md:w-6" />
+                        Dönemsel Performans
+                    </h2>
+                    <span className="rounded-full bg-[#B38F65]/10 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-semibold tracking-wide text-[#B38F65] ring-1 ring-[#B38F65]/20">
+                        2023 vs 2025
+                    </span>
+                </div>
+                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8">
+                    <ComparisonStatCard
+                        title="Toplam Öğrenci"
+                        // HESAPLAMA İÇİN: Ham veriyi gönderiyoruz
+                        current={stats.stats2025.totalStudents}
+                        previous={stats.stats2023.totalStudents}
+                        // GÖRÜNTÜLEME İÇİN: Animasyonlu bileşeni gönderiyoruz
+                        customCurrent={<AnimatedCounter value={stats.stats2025.totalStudents} formatter={formatNumber} />}
+                    />
+                    <ComparisonStatCard
+                        title="Veri Kapsamı"
+                        current={stats.stats2025.recordCount}
+                        previous={stats.stats2023.recordCount}
+                        customCurrent={<AnimatedCounter value={stats.stats2025.recordCount} formatter={formatNumber} />}
+                    />
+                    <ComparisonStatCard
+                        title="Ort. Yerleşme"
+                        current={stats.stats2025.averageRate}
+                        previous={stats.stats2023.averageRate}
+                        unit="%"
+                    // Yüzdeler küçük olduğu için animasyon gerekmez ama istenirse eklenebilir
+                    />
+                </div>
+            </div>
+
+            {/* --- ALT LİSTELER --- */}
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-8 items-start">
+
+                {/* En Çok Tercih Edilenler */}
+                <div className="xl:col-span-7 bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 p-4 md:p-6">
+                    <div className="flex items-center justify-between mb-4 md:mb-6 pb-3 border-b border-slate-50">
+                        <div>
+                            <h2 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <Award className="w-4 h-4 md:w-5 md:h-5 text-[#B38F65]" />
+                                En Çok Tercih Edilenler
+                            </h2>
+                            <p className="text-[10px] md:text-xs text-slate-500 mt-0.5">Öğrenci sayısına göre ilk 10</p>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-slate-800 text-sm truncate group-hover:text-blue-700 transition-colors">
-                                {record.universiteName}
-                            </h4>
-                            <p className="text-xs text-slate-500 truncate mt-0.5">{record.bolum}</p>
-                            <span className="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-500">
-                                {record.universityType}
-                            </span>
+                        <button
+                            onClick={() => navigate('/analytics/universities')}
+                            className="text-[10px] md:text-xs font-bold text-[#B38F65] bg-[#B38F65]/10 hover:bg-[#B38F65]/20 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                        >
+                            Tümü <ArrowRight size={12} />
+                        </button>
+                    </div>
+
+                    <div className="flex flex-col gap-2 md:gap-3">
+                        {topByStudents.map((record, index) => (
+                            <div
+                                key={index}
+                                onClick={() => navigate(`/analytics/university/${encodeURIComponent(record.universiteName)}`)}
+                                className="group flex items-center p-2.5 md:p-3 rounded-xl hover:bg-[#B38F65]/5 border border-transparent hover:border-[#B38F65]/20 cursor-pointer transition-all"
+                            >
+                                <div className={`
+                        w-6 h-6 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-xs md:text-sm font-bold mr-3 shrink-0
+                        ${index < 3 ? 'bg-[#B38F65] text-white shadow-sm shadow-[#B38F65]/30' : 'bg-slate-100 text-slate-500'}
+                    `}>
+                                    {index + 1}
+                                </div>
+
+                                <div className="flex-1 min-w-0 mr-2 md:mr-4">
+                                    <h4 className="font-bold text-slate-800 text-xs md:text-sm truncate group-hover:text-[#B38F65] transition-colors">
+                                        {record.universiteName}
+                                    </h4>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <span className="text-[10px] md:text-xs text-slate-500 truncate">{record.bolum}</span>
+                                    </div>
+                                </div>
+
+                                <div className="text-right">
+                                    <div className="text-sm md:text-lg font-bold text-[#B38F65] tabular-nums">
+                                        {formatNumber(record.data2025.sayi)}
+                                    </div>
+                                    <div className="text-[9px] md:text-[10px] text-slate-400 font-medium hidden sm:block">Öğr.</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Sağ Kolon */}
+                <div className="xl:col-span-5 flex flex-col gap-4 md:gap-6">
+                    {/* Trendler */}
+                    <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 p-4 md:p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="p-1.5 md:p-2 bg-[#B38F65]/10 rounded-lg text-[#B38F65]">
+                                <TrendingUp size={16} />
+                            </div>
+                            <div>
+                               <div className='flex'>
+                                 <h2 className="text-sm md:text-base font-bold text-slate-800 mr-2">Yükselen Trendler</h2>
+                                <Tooltip
+                                    text="Son 2 yılda İH öğrenci sayısı hızla artan popüler bölümler(Sayısal olarak değil oransal artışa göre)"
+                                    position="top"
+                                >
+                                    <Info size={14} className="text-slate-400 hover:text-[#B38F65] transition-colors" />
+                                </Tooltip>
+                               </div>
+                                <p className="text-[10px] md:text-[11px] text-slate-500">Son 3 yılda artış</p>
+
+                            </div>
                         </div>
-                        <div className="text-right">
-                            <div className="text-lg font-bold text-slate-800 tabular-nums">{formatNumber(record.data2025.sayi)}</div>
-                            <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Öğrenci</div>
+                        <div className="space-y-3 md:space-y-4">
+                            {rising.map((record, index) => (
+                                <div key={index} className="flex items-center justify-between group">
+                                    <div className="flex-1 min-w-0 pr-3">
+                                        <div className="text-xs md:text-sm font-semibold text-slate-800 truncate">{record.bolum}</div>
+                                        <div className="text-[10px] md:text-[11px] text-slate-500 truncate">{record.universiteName}</div>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-[#B38F65] bg-[#B38F65]/5 border border-[#B38F65]/10 px-2 py-1 rounded-lg">
+                                        <ArrowUpRight size={12} strokeWidth={2.5} />
+                                        <span className="text-[10px] md:text-xs font-bold">%{record.trendData.percentChange.toFixed(0)}</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    ))}
-                </div>
-            </div>
-        </div>
 
-        {/* SAĞ KOLON: Trendler ve Yüksek Oranlar */}
-        <div className="flex flex-col gap-6 h-[600px]">
-            
-            {/* Yükselen Trendler */}
-            <div className="flex-1 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden">
-                <div className="p-6 border-b border-slate-100 bg-emerald-50/30">
-                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-emerald-600" />
-                        Yükselen Trendler
-                    </h2>
-                    <p className="text-sm text-slate-500">Son 3 yılda en çok artış gösterenler</p>
-                </div>
-                <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
-                    {rising.map((record, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-50 last:border-0">
-                             <div className="flex-1 min-w-0 pr-2">
-                                <div className="text-sm font-bold text-slate-800 truncate">{record.bolum}</div>
-                                <div className="text-xs text-slate-500 truncate">{record.universiteName}</div>
-                             </div>
-                             <div className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
-                                +%{record.trendData.percentChange.toFixed(0)}
-                             </div>
+                    {/* Yoğunluk */}
+                    <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 p-4 md:p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="p-1.5 md:p-2 bg-[#B38F65]/10 rounded-lg text-[#B38F65]">
+                                <Users size={16} />
+                            </div>
+                            <div>
+<div className="flex items-center gap-1.5">
+                <h2 className="text-sm md:text-base font-bold text-slate-800">Yüksek Yoğunluk</h2>
+                <Tooltip 
+                    text="Bu oran, bölümün toplam kontenjanına göre İmam Hatip mezunu yerleşme yüzdesini ifade eder. Küçük kontenjanlı bölümlerde sayı az olsa da yüzdesel yoğunluk daha yüksek çıkabilir." 
+                    position="top"
+                >
+                    <Info size={14} className="text-slate-400 hover:text-[#B38F65] transition-colors cursor-help" />
+                </Tooltip>
+            </div>                                <p className="text-[10px] md:text-[11px] text-slate-500">Doluluk oranı</p>
+                            </div>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* En Yüksek Yoğunluk */}
-            <div className="flex-1 bg-white rounded-[2rem] shadow-sm border border-slate-100 flex flex-col overflow-hidden">
-                <div className="p-6 border-b border-slate-100 bg-violet-50/30">
-                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <Users className="w-5 h-5 text-violet-600" />
-                        En Yüksek Yoğunluk
-                    </h2>
-                    <p className="text-sm text-slate-500">Min. 50 kontenjanlı bölümler</p>
-                </div>
-                <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
-                     {topByRate.map((record, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-50 last:border-0">
-                             <div className="flex items-center gap-3 min-w-0">
-                                <span className="text-xs font-bold text-slate-400 w-4">{index + 1}</span>
-                                <div className="min-w-0">
-                                    <div className="text-sm font-bold text-slate-800 truncate">{record.universiteName}</div>
-                                    <div className="text-xs text-slate-500 truncate">{record.bolum}</div>
+                        <div className="space-y-4 md:space-y-5">
+                            {topByRate.map((record, index) => (
+                                <div key={index}>
+                                    <div className="flex justify-between items-end mb-1.5">
+                                        <div className="min-w-0 pr-2">
+                                            <div className="text-xs md:text-sm font-semibold text-slate-800 truncate">{record.universiteName}</div>
+                                            <div className="text-[10px] md:text-[11px] text-slate-500 truncate">{record.bolum}</div>
+                                        </div>
+                                        <span className="text-xs md:text-sm font-bold text-[#B38F65]">%{record.data2025.oran}</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-[#B38F65]/10 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-[#B38F65] rounded-full shadow-sm transition-all duration-1000 ease-out"
+                                            style={{ width: isMounted ? `${Math.min(record.data2025.oran, 100)}%` : '0%' }}
+                                        ></div>
+                                    </div>
                                 </div>
-                             </div>
-                             <div className="text-right pl-2">
-                                <div className="text-sm font-bold text-violet-600 tabular-nums">%{record.data2025.oran}</div>
-                             </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
-
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Dashboard;
