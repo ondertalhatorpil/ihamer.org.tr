@@ -272,7 +272,7 @@ const NewsDetail = () => {
           </div>
 
           {/* News Title */}
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+          <h1 className="text-md md:text-2xl font-bold text-gray-900 mb-4 leading-tight">
             {selectedNews.title}
           </h1>
 
@@ -327,7 +327,7 @@ const NewsDetail = () => {
                         href={section.content}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-3 px-6 py-4 bg-gray-800 text-white no-underline font-semibold rounded-lg shadow-md transition-all duration-300 hover:text-[#ae9242] hover:shadow-lg"
+                        className="inline-flex items-center gap-3 px-6 py-4 bg-gray-800 text-white no-underline font-semibold rounded-4xl shadow-md transition-all duration-300 hover:text-[#ae9242] hover:shadow-lg"
                       >
                         <LinkIcon size={20} />
                         <span className="break-all">{section.content}</span>
@@ -340,7 +340,7 @@ const NewsDetail = () => {
                   return (
                     <h2
                       key={index}
-                      className="text-2xl md:text-xl font-bold text-gray-700 mt-8 mb-4"
+                      className="text-xl md:text-xl font-bold text-gray-700 mt-8 mb-4"
                     >
                       {section.content}
                     </h2>
@@ -359,7 +359,7 @@ const NewsDetail = () => {
                 return (
                   <p
                     key={index}
-                    className="text-gray-500 leading-relaxed mb-6 text-lg"
+                    className="text-gray-500 leading-relaxed mb-6 text-sm md:text-base"
                   >
                     {section.content}
                   </p>
@@ -372,7 +372,7 @@ const NewsDetail = () => {
           <div className="mt-12 pt-8 border-t-2 border-gray-200">
             <button
               onClick={handleShare}
-              className="flex items-center gap-3 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors duration-300 shadow-md hover:shadow-lg"
+              className="flex items-center gap-3 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-4xl font-semibold transition-colors duration-300 shadow-md hover:shadow-lg"
             >
               <Share2 size={20} />
               <span>WhatsApp'ta Paylaş</span>
@@ -437,7 +437,7 @@ const NewsDetail = () => {
                     <div
                       key={index}
                       onClick={() => !galleryIsDragging && openLightbox(index)}
-                      className="min-w-[calc(100%-0.75rem)] sm:min-w-[calc(50%-0.75rem)] md:min-w-[calc(33.333%-0.75rem)] lg:min-w-[calc(25%-0.75rem)] relative h-48 rounded-lg overflow-hidden cursor-pointer group shadow-md hover:shadow-xl transition-all duration-300"
+                      className="min-w-[calc(65%-1rem)] sm:min-w-[calc(50%-1rem)] md:min-w-[calc(40%-1rem)] lg:min-w-[calc(33.333%-1rem)] group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:-translate-y-1"
                     >
                       <img
                         src={image}
@@ -577,7 +577,7 @@ const NewsDetail = () => {
                         key={item.id}
                         to={`/haber/${item.id}`}
                         onClick={(e) => newsIsDragging && e.preventDefault()}
-                        className="min-w-[calc(100%-1rem)] sm:min-w-[calc(50%-1rem)] md:min-w-[calc(40%-1rem)] lg:min-w-[calc(33.333%-1rem)] group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:-translate-y-1"
+                       className="min-w-[calc(65%-1rem)] sm:min-w-[calc(50%-1rem)] md:min-w-[calc(40%-1rem)] lg:min-w-[calc(33.333%-1rem)] group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:-translate-y-1"
                       >
                         <div className="relative h-40 overflow-hidden bg-gray-100">
                           <img
@@ -637,7 +637,7 @@ const NewsDetail = () => {
           <div className="mt-12 text-start">
             <Link
               to="/haberler"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-gray-800 hover:bg-gray-900 text-white rounded-lg font-semibold transition-colors duration-300 shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-gray-800 hover:bg-gray-900 text-white rounded-4xl font-semibold transition-colors duration-300 shadow-md hover:shadow-lg"
             >
               <ChevronLeft size={20} />
               <span>Tüm Haberlere Dön</span>
