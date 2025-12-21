@@ -458,17 +458,34 @@ const NewsDetail = () => {
                     <div
                       key={index}
                       onClick={() => !galleryIsDragging && openLightbox(index)}
-                      // AŞAĞIDAKİ SATIR GÜNCELLENDİ:
-                      // Mobilde genişliği %45 yaptık (min-w-[calc(45%-0.75rem)])
+                      // Burada mobil ve desktop genişlik ayarları (önceki isteğinizdeki gibi) korunmuştur.
                       className="min-w-[calc(45%-0.75rem)] sm:min-w-[calc(33.333%-0.75rem)] md:min-w-[calc(25%-0.75rem)] lg:min-w-[calc(20%-0.75rem)] relative h-48 rounded-lg overflow-hidden cursor-pointer group shadow-md hover:shadow-xl transition-all duration-300"
                     >
+                      {/* Ana Galeri Resmi */}
                       <img
                         src={image}
                         alt={`Galeri ${index + 1}`}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 select-none pointer-events-none"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 select-none pointer-events-none relative z-0"
                         draggable="false"
                       />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+
+                      {/* LOGO OVERLAY KATMANI */}
+                      {/* 1. absolute inset-0: Resmi tamamen kapla.
+        2. flex items-center justify-center: İçindeki logoyu tam ortaya hizala.
+        3. bg-black/0 group-hover:bg-black/30: Üzerine gelince arka planı hafifçe karart (isteğe bağlı).
+    */}
+                      <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 group-hover:bg-black/50 transition-all duration-300">
+                        {/* Logo Resmi */}
+                        <img
+                          // BURAYA KENDİ LOGO URL'NİZİ YAZIN:
+                          src="/src/assets/images/kalem.png"
+                          alt="Logo Watermark"
+                          // opacity-0: Başlangıçta görünmez.
+                          // group-hover:opacity-40: Üzerine gelince %40 opaklıkla görünür (sayıyı artırıp azaltabilirsiniz).
+                          // w-1/2: Kutusunun yarısı kadar genişlikte olsun.
+                          className="w-1/2 h-auto object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-500 select-none pointer-events-none filter drop-shadow-lg"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
