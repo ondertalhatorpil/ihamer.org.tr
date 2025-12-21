@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Calendar, Share2, ChevronLeft, ChevronRight, Link as LinkIcon } from "lucide-react";
+import {
+  Calendar,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+  Link as LinkIcon,
+} from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import newsData from "../../news.json";
 
@@ -9,7 +15,7 @@ const NewsDetail = () => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [sliderIndex, setSliderIndex] = useState(0);
   const thumbnailContainerRef = useRef(null);
-  
+
   // Touch events state'leri
   const [galleryTouchStart, setGalleryTouchStart] = useState(null);
   const [galleryTouchEnd, setGalleryTouchEnd] = useState(null);
@@ -136,7 +142,9 @@ const NewsDetail = () => {
   };
 
   const renderLinesList = (val) => {
-    const lines = String(val).split(/\r?\n/).map((l) => l.trim());
+    const lines = String(val)
+      .split(/\r?\n/)
+      .map((l) => l.trim());
     return (
       <ul className="list-disc pl-6 space-y-2 mb-6">
         {lines.map((line, idx) => {
@@ -224,10 +232,11 @@ const NewsDetail = () => {
         const containerWidth = container.offsetWidth;
         const thumbnailLeft = thumbnail.offsetLeft;
         const thumbnailWidth = thumbnail.offsetWidth;
-        const scrollPosition = thumbnailLeft - (containerWidth / 2) + (thumbnailWidth / 2);
+        const scrollPosition =
+          thumbnailLeft - containerWidth / 2 + thumbnailWidth / 2;
         container.scrollTo({
           left: scrollPosition,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     }
@@ -244,7 +253,6 @@ const NewsDetail = () => {
   return (
     <div className="min-h-screen  overflow-x-hidden">
       {/* Wrapper Section */}
-     
 
       {/* News Detail */}
       <div className="container mx-auto px-4 py-12">
@@ -318,12 +326,11 @@ const NewsDetail = () => {
             />
             <div className="relative z-10 max-w-none lg:pr-96">
               {selectedNews.sections.map((section, index) => {
-                
                 // Link Type
                 if (section.type === "link") {
                   return (
                     <div key={index} className="my-8">
-                       <a
+                      <a
                         href={section.content}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -394,33 +401,43 @@ const NewsDetail = () => {
                       onClick={prevGallerySlide}
                       className="group bg-white border border-gray-200 hover:border-[#ae9242] text-gray-600 hover:text-[#ae9242] rounded-full w-10 h-10 flex items-center justify-center shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer"
                     >
-                      <svg 
-                        className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform duration-300" 
-                        fill="none" 
-                        stroke="currentColor" 
+                      <svg
+                        className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform duration-300"
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 19l-7-7 7-7"
+                        />
                       </svg>
                     </button>
                     <button
                       onClick={nextGallerySlide}
                       className="group bg-white border border-gray-200 hover:border-[#ae9242] text-gray-600 hover:text-[#ae9242] rounded-full w-10 h-10 flex items-center justify-center shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer"
                     >
-                      <svg 
-                        className="w-5 h-5 group-hover:translate-x-0.5 transition-transform duration-300" 
-                        fill="none" 
-                        stroke="currentColor" 
+                      <svg
+                        className="w-5 h-5 group-hover:translate-x-0.5 transition-transform duration-300"
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
                       </svg>
                     </button>
                   </div>
                 )}
               </div>
 
-              <div 
+              <div
                 className="overflow-hidden touch-pan-y"
                 onTouchStart={onGalleryTouchStart}
                 onTouchMove={onGalleryTouchMove}
@@ -429,15 +446,21 @@ const NewsDetail = () => {
                 <div
                   className="flex gap-4"
                   style={{
-                    transform: `translateX(calc(-${gallerySliderIndex * (100 / 4)}% + ${galleryIsDragging ? galleryDragOffset : 0}px))`,
-                    transition: galleryIsDragging ? 'none' : 'transform 500ms ease-in-out',
+                    transform: `translateX(calc(-${
+                      gallerySliderIndex * (100 / 4)
+                    }% + ${galleryIsDragging ? galleryDragOffset : 0}px))`,
+                    transition: galleryIsDragging
+                      ? "none"
+                      : "transform 500ms ease-in-out",
                   }}
                 >
                   {selectedNews.gallery.map((image, index) => (
                     <div
                       key={index}
                       onClick={() => !galleryIsDragging && openLightbox(index)}
-                      className="min-w-[calc(65%-1rem)] sm:min-w-[calc(50%-1rem)] md:min-w-[calc(40%-1rem)] lg:min-w-[calc(33.333%-1rem)] group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:-translate-y-1"
+                      // AŞAĞIDAKİ SATIR GÜNCELLENDİ:
+                      // Mobilde genişliği %45 yaptık (min-w-[calc(45%-0.75rem)])
+                      className="min-w-[calc(45%-0.75rem)] sm:min-w-[calc(33.333%-0.75rem)] md:min-w-[calc(25%-0.75rem)] lg:min-w-[calc(20%-0.75rem)] relative h-48 rounded-lg overflow-hidden cursor-pointer group shadow-md hover:shadow-xl transition-all duration-300"
                     >
                       <img
                         src={image}
@@ -478,8 +501,12 @@ const NewsDetail = () => {
               >
                 <div
                   style={{
-                    transform: `translateX(${lightboxIsDragging ? lightboxDragOffset : 0}px)`,
-                    transition: lightboxIsDragging ? 'none' : 'transform 300ms ease-out',
+                    transform: `translateX(${
+                      lightboxIsDragging ? lightboxDragOffset : 0
+                    }px)`,
+                    transition: lightboxIsDragging
+                      ? "none"
+                      : "transform 300ms ease-out",
                   }}
                 >
                   <img
@@ -506,8 +533,8 @@ const NewsDetail = () => {
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 flex gap-3 p-4 bg-black/50 rounded-lg backdrop-blur-sm overflow-x-auto max-w-[90vw] scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent"
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: 'rgba(255,255,255,0.3) transparent'
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(255,255,255,0.3) transparent",
                 }}
               >
                 {selectedNews.gallery.map((image, index) => (
@@ -547,17 +574,22 @@ const NewsDetail = () => {
                 className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 group bg-white border border-gray-200 hover:border-[#ae9242] text-gray-600 hover:text-[#ae9242] rounded-full w-10 h-10 flex items-center justify-center shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer"
                 aria-label="Önceki"
               >
-                <svg 
-                  className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform duration-300" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform duration-300"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
 
-              <div 
+              <div
                 className="overflow-hidden touch-pan-y"
                 onTouchStart={onNewsTouchStart}
                 onTouchMove={onNewsTouchMove}
@@ -566,8 +598,12 @@ const NewsDetail = () => {
                 <div
                   className="flex gap-4"
                   style={{
-                    transform: `translateX(calc(-${sliderIndex * (100 / 3)}% + ${newsIsDragging ? newsDragOffset : 0}px))`,
-                    transition: newsIsDragging ? 'none' : 'transform 500ms ease-in-out',
+                    transform: `translateX(calc(-${
+                      sliderIndex * (100 / 3)
+                    }% + ${newsIsDragging ? newsDragOffset : 0}px))`,
+                    transition: newsIsDragging
+                      ? "none"
+                      : "transform 500ms ease-in-out",
                   }}
                 >
                   {allNews
@@ -577,7 +613,7 @@ const NewsDetail = () => {
                         key={item.id}
                         to={`/haber/${item.id}`}
                         onClick={(e) => newsIsDragging && e.preventDefault()}
-                       className="min-w-[calc(65%-1rem)] sm:min-w-[calc(50%-1rem)] md:min-w-[calc(40%-1rem)] lg:min-w-[calc(33.333%-1rem)] group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:-translate-y-1"
+                        className="min-w-[calc(65%-1rem)] sm:min-w-[calc(50%-1rem)] md:min-w-[calc(40%-1rem)] lg:min-w-[calc(33.333%-1rem)] group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:-translate-y-1"
                       >
                         <div className="relative h-40 overflow-hidden bg-gray-100">
                           <img
@@ -614,20 +650,25 @@ const NewsDetail = () => {
                     ))}
                 </div>
               </div>
-              
+
               {/* DİĞER HABERLER SAĞ BUTON */}
               <button
                 onClick={nextSlide}
                 className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 group bg-white border border-gray-200 hover:border-[#ae9242] text-gray-600 hover:text-[#ae9242] rounded-full w-10 h-10 flex items-center justify-center shadow-sm transition-all duration-300 hover:shadow-md cursor-pointer"
                 aria-label="Sonraki"
               >
-                <svg 
-                  className="w-5 h-5 group-hover:translate-x-0.5 transition-transform duration-300" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-5 h-5 group-hover:translate-x-0.5 transition-transform duration-300"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
             </div>
