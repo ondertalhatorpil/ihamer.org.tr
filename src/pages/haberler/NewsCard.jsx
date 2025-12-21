@@ -18,6 +18,19 @@ const NewsCard = ({ item }) => {
           alt={item.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
+
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 group-hover:bg-black/60 transition-all duration-300">
+          {/* Logo Resmi */}
+          <img
+            // BURAYA KENDİ LOGO URL'NİZİ YAZIN:
+            src="/src/assets/images/kalem.png"
+            alt="Logo Watermark"
+            // opacity-0: Başlangıçta görünmez.
+            // group-hover:opacity-40: Üzerine gelince %40 opaklıkla görünür (sayıyı artırıp azaltabilirsiniz).
+            // w-1/2: Kutusunun yarısı kadar genişlikte olsun.
+            className="w-1/2 h-auto object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-500 select-none pointer-events-none filter drop-shadow-lg"
+          />
+        </div>
       </div>
 
       <div className="p-5">
