@@ -645,7 +645,7 @@ const NewsDetail = () => {
                         {/* Logo Resmi */}
                         <img
                           // BURAYA KENDİ LOGO URL'NİZİ YAZIN:
-                          src="/src/assets/images/kalem.png"
+                          src="/kurumsal/assest/kalem.png"
                           alt="Logo Watermark"
                           // opacity-0: Başlangıçta görünmez.
                           // group-hover:opacity-40: Üzerine gelince %40 opaklıkla görünür (sayıyı artırıp azaltabilirsiniz).
