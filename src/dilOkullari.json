@@ -102,8 +102,7 @@
     ],
     "farsca": [
       { "id": 1, "name": "Hacıveyiszade AİHL", "city": "Konya" },
-      { "id": 2, "name": "Van AİHL", "city": "Van" },
-      { "id": 3, "name": "Zeytinburnu Merkezefendi AİHL", "city": "İstanbul" }
+      { "id": 2, "name": "Van AİHL", "city": "Van" }
     ],
     "fransizca": [
       { "id": 1, "name": "Bakırköy AİHL", "city": "İstanbul" },
