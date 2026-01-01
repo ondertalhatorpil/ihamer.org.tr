@@ -89,7 +89,7 @@ const IhamerAboutSection = () => {
                   d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                 />
               </svg>
-              <span className="group-hover:underline text-xs md:text-sm">
+              <span className="text-xs md:text-sm">
                 Anasayfa
               </span>
             </a>
@@ -107,7 +107,7 @@ const IhamerAboutSection = () => {
               />
             </svg>
             <a>
-              <span className="group-hover:underline text-xs md:text-sm text-white">
+              <span className="text-xs md:text-sm text-white">
                 Kurumsal
               </span>
             </a>
@@ -220,14 +220,14 @@ const IhamerAboutSection = () => {
               <h2 className="text-[2.5rem] font-bold text-[#1a3a5d] mb-[25px]">
                 Biz Kimiz
               </h2>
-              <p className="text-[1.1rem] leading-[1.9] mb-[1.5em] italic">
+              <p className="text-justify text-[1.1rem] leading-[1.9] mb-[1.5em] italic">
                 <strong>İmam Hatip Araştırmaları Merkezi (İHAMER)</strong>, 2023
                 yılında ÖNDER İmam Hatipliler Derneği çatısı altında, Türkiye
                 genelindeki İmam Hatip okullarına yönelik akademik ve ilmî
                 faaliyetlere destek sunmak ve imam hatip modelini geliştirmek
                 için kurulmuştur.
               </p>
-              <p className="text-[1.1rem] leading-[1.9] mb-[1.5em] italic">
+              <p className="text-justify text-[1.1rem] leading-[1.9] mb-[1.5em] italic">
                 Merkezimiz, İmam Hatip okullarının niteliklerini geliştirmek
                 için sürekli yayın ve kitap faaliyetleri yürütür. Seminerler,
                 sempozyumlar ve atölye çalışmaları düzenler. Ayrıca İmam
@@ -245,13 +245,13 @@ const IhamerAboutSection = () => {
               <h2 className="text-[2.5rem] font-bold text-[#1a3a5d] mb-[25px]">
                 Misyonumuz
               </h2>
-              <p className="text-[1.1rem] leading-[1.9] mb-[1.5em] italic">
+              <p className="text-[1.1rem]  text-justify leading-[1.9] mb-[1.5em] italic">
                 Türkiye’nin ve Ümmet Coğrafyası’nın istikbalinde söz sahibi
                 olacak İmam Hatip okulları ve mensuplarının milli, manevi,
                 ahlaki ve kültürel olarak tekamülüne katkı sağlayacak akademik
                 çalışmalar ve kültür faaliyetlerinde bulunmaktır.
               </p>
-              <h2 className="text-[2.5rem] font-bold text-[#1a3a5d] mb-[25px]">
+              <h2 className="text-[2.5rem]  text-justify font-bold text-[#1a3a5d] mb-[25px]">
                 Vizyonumuz
               </h2>
               <p className="text-[1.1rem] leading-[1.9] mb-[1.5em] italic">
@@ -278,8 +278,7 @@ const IhamerAboutSection = () => {
                 <div className="elegant-value-item-v2">
                   <h4 className={valueTitleClasses}>Basiret</h4>
                   <p className="text-[1.05rem] leading-[1.7] m-0 italic">
-                    “Olayları zahirine göre değil, hakikatine göre
-                    değerlendirir.”
+                    “Olayları zahirine göre değil, hakikatine göre değerlendirir.”
                   </p>
                 </div>
                 <div className="elegant-value-item-v2">

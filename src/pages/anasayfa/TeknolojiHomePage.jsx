@@ -36,7 +36,7 @@ const TeknolojiHomePage = () => {
               Yabancı Dil Hazırlık ve Fen Bilimleri Programı Teknoloji Anadolu İmam Hatip Liseleri
             </h2>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Teknoloji Anadolu İmam Hatip Liseleri, hızla değişen ve küreselleşen dünyada 
               yabancı dil becerisiyle uluslararası düzeyde rekabet edebilen ve dijital 
               becerileriyle teknoloji üretebilen, uzmanlaştığı alana yönelik öğrendiği teknik 
@@ -45,7 +45,7 @@ const TeknolojiHomePage = () => {
               hedeflemektedir.
             </p>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Temel derslerde Fen Liseleri ile aynı öğretim programları ve haftalık ders 
               saatleri ile eğitim veren bu okullarda öğrencilerin bilim, teknoloji, mühendislik, 
               sanat ve matematik disiplinleri arasındaki ayrımı ortadan kaldıran, proje tabanlı 
@@ -60,7 +60,7 @@ const TeknolojiHomePage = () => {
                   <h3 className="font-semibold text-blue-900 mb-2">
                     Atölye Çalışmaları ve Yarışmalar
                   </h3>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-justify text-gray-700 text-sm">
                     Teknoloji Anadolu İmam Hatip Liselerinde Matematik, Fizik, Kimya, Biyoloji, 
                     Dijital Teknoloji ve Robotik Kodlama vb. alanlarda atölye çalışmalarıyla 
                     öğrencilerin inovasyon becerilerinin geliştirilmesi, TÜBİTAK ve TEKNOFEST 
@@ -73,14 +73,14 @@ const TeknolojiHomePage = () => {
               </div>
             </div>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 mt-6 leading-relaxed">
               Teknoloji Anadolu İmam Hatip Liselerinde teknoloji ve akademi alanında iyi 
               yetişmiş, dijital çağda ülkemize katkı sunabilecek bilgi, beceri ve deneyim 
               sahibi, millî ve manevi değerlerine bağlı bireyler yetişmesine imkân 
               sağlanmaktadır.
             </p>
 
-            <p className="text-gray-700 leading-relaxed font-semibold">
+            <p className="text-justify text-gray-700 leading-relaxed font-semibold">
               Bilim ve medeniyet tarihimizde öne çıkan bilim insanları ve düşünürlerin 
               hayatları, eserleri ve etkilerini öğrenerek geçmişinden aldığı ilhamla geleceğini 
               tasarlayan özgüvenli bilim insanı adaylarının, teknoloji ve akademi alanında iyi 

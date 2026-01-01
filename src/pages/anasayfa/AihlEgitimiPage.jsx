@@ -40,7 +40,7 @@ const AihlEgitimiPage = () => {
               Pekiştirme Anadolu İmam Hatip Liseleri
             </h3>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Sadece hafız öğrencilerin eğitim gördüğü bu programlarda, öğrenciler liseye geçiş sınavı, ortaokul başarı puanı ve okullardaki meslek dersleri öğretmenleri, akademisyenler ile müftülüklerden katılan uzmanlardan oluşan bir heyet tarafından yapılan hafızlık mülakatları sonucunda okullara kabul edilmektedir.
             </p>
 
@@ -83,7 +83,7 @@ const AihlEgitimiPage = () => {
               Eğitim ve İş Birliği
             </h3>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Ayrıca, İlahiyat ve din hizmetleri alanını tercih edecek hafız öğrenciler için özel program ve projeler hayata geçirilmekte; fakültelerle iş birliği içinde ilave mesleki programlar ve takviye dersler uygulanmaktadır.
             </p>
 
@@ -131,7 +131,7 @@ const AihlEgitimiPage = () => {
               Hedef
             </h3>
 
-            <p className="text-gray-700 leading-relaxed font-semibold">
+            <p className="text-justify text-gray-700 leading-relaxed font-semibold">
               Bu programlar aracılığıyla, hem topluma öncülük edebilecek hem de din görevliliği makamının hakkını verebilecek yetkin şahsiyetlerin yetiştirilmesi hedeflenmektedir.
             </p>
           </div>

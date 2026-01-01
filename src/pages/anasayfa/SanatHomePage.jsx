@@ -37,7 +37,7 @@ const SanatHomePage = () => {
               Anadolu İmam Hatip Liseleri
             </h2>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Sanat programı uygulayan Anadolu İmam Hatip Liseleri
               medeniyetimizin ihyâ ve inşâsında sorumluluk sahibi akl-ı selim,
               kalb-i selim ve zevk-i selim sahibi kültür ve sanat alanında millî
@@ -45,7 +45,7 @@ const SanatHomePage = () => {
               ahlaklı bireylerin yetiştirilmesini hedeflemektedir.
             </p>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Sanat Programı Uygulayan Anadolu İmam Hatip Liselerinde hüsn-i
               hat, ebru, tezhip, kaligrafi, resim gibi geleneksel ve çağdaş
               görsel sanatlar, ney, kanun, ud, tambur, bendir, keman ve bağlama
@@ -55,7 +55,7 @@ const SanatHomePage = () => {
               verilmektedir.
             </p>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Bu okullarda üniversitelerle iş birliği içerisinde
               akademisyenlerin ve sanatkârlar okul danışma kurullarında yer
               almaktadır. Öğrenciler eğitimleri boyunca kültür ve sanat alanında
@@ -63,7 +63,7 @@ const SanatHomePage = () => {
               imkânı elde etmektedirler.
             </p>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Müfredatları ise temel derslerde Anadolu Liseleri ile aynı öğretim
               programları ve haftalık ders saatleri olarak düzenlenmiştir.
             </p>

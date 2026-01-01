@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#191825] text-gray-300 py-12 text-[15px] leading-relaxed">
+    <footer className="bg-[#191825] text-gray-300 py-12 text-[15px] text-center md:text-start leading-relaxed">
       <div className="max-w-6xl mx-auto px-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* About Column */}
         <div className="min-w-[220px]">

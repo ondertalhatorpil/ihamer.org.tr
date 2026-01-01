@@ -25,13 +25,13 @@ const DocumentSection = () => {
           <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                <circle cx="20" cy="20" r="1" fill="white"/>
+                <circle cx="20" cy="20" r="1" fill="white" />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#grid-pattern)"/>
+            <rect width="100%" height="100%" fill="url(#grid-pattern)" />
           </svg>
         </div>
-        
+
         {/* Dekoratif element */}
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#b48f65] via-[#ae9242] to-transparent"></div>
 
@@ -46,12 +46,16 @@ const DocumentSection = () => {
               <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span className="group-hover:underline text-xs md:text-sm">Anasayfa</span>
+              <span className="text-xs md:text-sm">Anasayfa</span>
             </a>
             <svg className="w-3 h-3 md:w-4 md:h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            <span className="text-white font-medium text-xs md:text-sm">Çalıştay Raporları</span>
+            <span className="text-xs md:text-sm text-white">Raporlar</span>
+            <svg className="w-3 h-3 md:w-4 md:h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            <span className="text-white font-medium text-xs md:text-sm">Bilgi Notları</span>
           </nav>
 
           {/* Title */}
@@ -59,11 +63,11 @@ const DocumentSection = () => {
             <div className="flex items-center gap-2 md:gap-3">
               <div className="hidden md:block w-8 md:w-12 h-1 bg-gradient-to-r from-[#b48f65] to-[#ae9242] rounded-full"></div>
               <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">
-                Çalıştay Raporları
+              Bilgi Notları
               </h1>
             </div>
             <p className="text-white/80 text-xs md:text-base font-light max-w-2xl pl-0 md:pl-14">
-              İmam Hatip Araştırma ve Eğitim Merkezi Çalıştay Raporları
+              İmam Hatip Araştırma ve Eğitim Merkezi Bilgi Notları
             </p>
           </div>
         </div>
@@ -71,13 +75,13 @@ const DocumentSection = () => {
         {/* Dekoratif pattern - sağ alt köşe */}
         <div className="absolute bottom-0 right-0 w-24 h-24 md:w-48 md:h-48 opacity-10">
           <svg viewBox="0 0 200 200" className="w-full h-full">
-            <circle cx="180" cy="180" r="100" fill="none" stroke="url(#gradient)" strokeWidth="2"/>
-            <circle cx="180" cy="180" r="70" fill="none" stroke="url(#gradient)" strokeWidth="1.5"/>
-            <circle cx="180" cy="180" r="40" fill="none" stroke="url(#gradient)" strokeWidth="1"/>
+            <circle cx="180" cy="180" r="100" fill="none" stroke="url(#gradient)" strokeWidth="2" />
+            <circle cx="180" cy="180" r="70" fill="none" stroke="url(#gradient)" strokeWidth="1.5" />
+            <circle cx="180" cy="180" r="40" fill="none" stroke="url(#gradient)" strokeWidth="1" />
             <defs>
               <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#b48f65"/>
-                <stop offset="100%" stopColor="#ae9242"/>
+                <stop offset="0%" stopColor="#b48f65" />
+                <stop offset="100%" stopColor="#ae9242" />
               </linearGradient>
             </defs>
           </svg>
@@ -101,7 +105,7 @@ const DocumentSection = () => {
                     alt={`${doc.title} Kapak Resmi`}
                     className="w-full h-full object-cover"
                   />
-                  
+
                   {/* Desktop Hover Overlay */}
                   <div className="hidden md:flex absolute inset-0 bg-gray-800/70 justify-center items-center gap-8 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
                     <a

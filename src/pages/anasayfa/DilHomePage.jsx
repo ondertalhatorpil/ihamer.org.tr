@@ -11,7 +11,7 @@ const DilHomePage = () => {
           <h1 className="text-3xl md:text-4xl font-bold mb-3">
             Dil Programları
           </h1>
-          <p className="text-blue-100">
+          <p className="text-justify text-blue-100">
             Dil Ağırlıklı Eğitim Veren İmam Hatip Liseleri, öğrencilere çok
             dilli eğitim imkânı sunarak hem akademik başarılarını hem de küresel
             yetkinliklerini geliştirmektedir.
@@ -38,7 +38,7 @@ const DilHomePage = () => {
               Dil Ağırlıklı Eğitim Veren Anadolu İmam Hatip Liseleri
             </h2>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Fen ve Sosyal Bilimler Proje Anadolu İmam Hatip Liselerinin bir
               kısmında dil hazırlık eğitimi verilmektedir. Buna göre 4 yıllık
               lise eğitiminden önce başta Arapça olmak üzere 1 yıl boyunca
@@ -63,7 +63,7 @@ const DilHomePage = () => {
                   <h3 className="font-semibold text-blue-900 mb-2">
                     Çelebi Programı
                   </h3>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-justify text-gray-700 text-sm">
                     Diyanet İşleri Başkanlığı uhdesinde faaliyet gösteren
                     MÜSDAV’ın Millî Eğitim Bakanlığı Din Öğretimi Genel
                     Müdürlüğü ve Diyanet İşleri Başkanlığı Dış İlişkiler Genel

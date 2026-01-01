@@ -324,7 +324,7 @@ const NewsDetail = () => {
                 backgroundPosition: "center right",
               }}
             />
-            <div className="relative z-10 max-w-none lg:pr-96">
+            <div className="relative z-10 max-w-none lg:pr-0">
               {selectedNews.sections.map((section, index) => {
                 // Link Type
                 if (section.type === "link") {
@@ -366,7 +366,7 @@ const NewsDetail = () => {
                 return (
                   <p
                     key={index}
-                    className="text-gray-500 leading-relaxed mb-6 text-sm md:text-base"
+                    className="text-justify text-gray-500 leading-relaxed mb-6 text-sm md:text-base"
                   >
                     {section.content}
                   </p>

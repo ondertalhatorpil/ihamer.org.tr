@@ -11,7 +11,7 @@ const SporHomePage = () => {
           <h1 className="text-3xl md:text-4xl font-bold mb-3">
             Spor Programları
           </h1>
-          <p className="text-purple-100">
+          <p className="text-justify text-purple-100">
             Spor programı uygulayan Anadolu İmam Hatip Liseleri akademik ve
             sportif hedeflerle birlikte millî, mânevî, ahlâkî, insânî ve
             kültürel değerlere sahip sporcuların yetiştirilmesini
@@ -39,21 +39,21 @@ const SporHomePage = () => {
               Spor Programı Uygulayan Anadolu İmam Hatip Liseleri
             </h2>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Spor programı uygulayan Anadolu İmam Hatip Liseleri akademik ve
               sportif hedeflerle birlikte millî, mânevî, ahlâkî, insânî ve
               kültürel değerlere sahip sporcuların yetiştirilmesini
               hedeflemektedir.
             </p>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Bu okullarda güreş ve okçuluk gibi geleneksel ve millî sporları,
               futbol, basketbol, voleybol, hentbol, atletizm ve yüzme gibi
               popüler spor dalları, karate, taekwondo, kungfu, judo, wushu vb.
               Uzakdoğu sporları seçilebilmektedir.
             </p>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Lise eğitimi boyunca öğrenciler yerel, ulusal ve uluslararası
               düzeyde spor yarışmalarına, turnuvalara ve olimpiyatlara katılma
               imkânı elde etmektedirler. Bununla birlikte öğrenciler akademik ve
@@ -62,7 +62,7 @@ const SporHomePage = () => {
               Bilimleri Fakültelerine hazırlanmaktadırlar.
             </p>
 
-            <p className="text-gray-700 leading-relaxed font-semibold">
+            <p className="text-justify text-gray-700 leading-relaxed font-semibold">
               Spor programı uygulayan Anadolu İmam Hatip Liselerinden mezun olan
               öğrenciler aynı zamanda yardımcı antrenörlük belgesi almaya da hak
               kazanmaktadır.

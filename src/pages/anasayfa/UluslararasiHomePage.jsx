@@ -36,7 +36,7 @@ const UluslararasiHomePage = () => {
               Uluslararası İmam Hatip Liseleri
             </h2>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Millî Eğitim Bakanlığı 2023 Vizyon Belgesi'nde İmam Hatip Okullarının evrensel 
               karakterini güçlendirerek millî bir model olarak başka ülkelere örnek olma 
               potansiyelinin artırılması hedeflenmiştir. İlk kez 2006 yılında eğitim-öğretim 
@@ -44,13 +44,13 @@ const UluslararasiHomePage = () => {
               gelen öğrencilerin Türkiye'de eğitim görmelerine imkân sağlayan okullardır.
             </p>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Millî Eğitim Bakanlığı bünyesinde hizmet veren Uluslararası İmam Hatip Liselerinde 
               okuyan yabancı öğrenci kabul etmesi, İmam Hatip eğitim sisteminin ve kültürünün 
               dünyanın çeşitli ülkeleri açısından önemini ber açık biçimde ortaya koymaktadır.
             </p>
 
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-justify text-gray-700 leading-relaxed">
               Uluslararası İmam Hatip Liseleri, farklı kültür, dil, ırk ve kıtalarındaki 
               öğrencilere bir arada uzlaşı içerisinde yaşayarak İslâm kardeşliğini tecrübe 
               etme imkânı sunmaktadır. Yine bu okullar, Müslüman ülkeler ile eğitim ve imam 
@@ -68,7 +68,7 @@ const UluslararasiHomePage = () => {
                   <h3 className="font-semibold text-blue-900 mb-2">
                     Evrensel Pencere Türkiye
                   </h3>
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-justify text-gray-700 text-sm">
                     Evrensel Pencere Türkiye isimli Bakan Müşaviri, Fen ve Kültür dersi 
                     verilirken, Türkçe olmak üzere, öğrencilerin Türkiye'ye ve buranın 
                     kültürüne dair bilgi ve tecrübe sahibi olmalarını sağlamaktadır. 
@@ -79,7 +79,7 @@ const UluslararasiHomePage = () => {
               </div>
             </div>
 
-            <p className="text-gray-700 leading-relaxed font-semibold mt-6">
+            <p className="text-justify text-gray-700 leading-relaxed font-semibold mt-6">
               Uluslararası İmam Hatip Liselerinde eğitim gören öğrenciler, hem dini ilimlerde 
               hem de akademik başarıda yetkin bireyler olarak ülkelerine ve dünyaya hizmet 
               etmektedir.
