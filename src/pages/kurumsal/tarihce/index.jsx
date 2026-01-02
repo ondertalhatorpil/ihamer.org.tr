@@ -125,7 +125,7 @@ export default function ImamHatipTimeline() {
         
         {/* İnce Geometrik Izgara */}
         <div 
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0 opacity-[0]"
           style={{
             backgroundImage: `
               linear-gradient(to right, #b45309 1px, transparent 1px),
@@ -137,9 +137,9 @@ export default function ImamHatipTimeline() {
 
         {/* Selçuklu İslami Geometrik Pattern */}
         <div 
-          className="absolute inset-0 opacity-[0.4]"
+          className="absolute inset-0 opacity-[0.5]"
           style={{
-            backgroundImage: `url(https://ihamer.org.tr/wp-content/uploads/2024/05/background.png)`,
+            backgroundImage: `url(/kurumsal/assest/selcukluMotif.jpg)`,
             backgroundRepeat: 'repeat'
           }}
         />
