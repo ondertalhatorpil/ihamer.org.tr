@@ -38,15 +38,19 @@ const TeknolojiHomePage = lazy(() => import("./pages/anasayfa/TeknolojiHomePage.
 const TeknolojiListPage = lazy(() => import("./pages/anasayfa/TeknolojiListPage.jsx"), 1500);
 const KvkkPolitikası = lazy(() => import("./components/common/kvkk.jsx"), 1500);
 
-// Analytics Ana Sayfası
+// Analytics Sayfaları
 import YokAtlasAnalytics from './pages/YokAtlasAnalytics';
+const TezAnalyticsDashboard = lazy(() => import('./pages/YokTezAnalytics/Dashboard.jsx'), 1500);
+const TezAnalyticsList = lazy(() => import('./pages/YokTezAnalytics/TezList.jsx'), 1500);
+const AllThesesPage = lazy(() => import('./pages/YokTezAnalytics/AllThesesPage.jsx'), 1500);
+const FilteredTezList = lazy(() => import('./pages/YokTezAnalytics/FilteredTezList.jsx'), 1500);
 
 // --- LAYOUT CONTENT COMPONENT ---
 const AppContent = () => {
   const location = useLocation();
   
-  // '/analytics' ile başlayan rotalarda true döner
-  const isAnalyticsPage = location.pathname.startsWith('/analytics');
+  // '/analytics' veya '/tez-analytics' ile başlayan rotalarda Header/Footer gizle
+  const isAnalyticsPage = location.pathname.startsWith('/analytics') || location.pathname.startsWith('/tez-analytics');
 
   return (
     <>
@@ -69,10 +73,16 @@ const AppContent = () => {
           <Route path="/haberler" element={<NewsPage />} />
           <Route path="/haber/:newsId" element={<NewsDetail />} />
 
-          {/* --- ANALYTICS ROTALARI --- */}
+          {/* --- YÖK ATLAS ANALYTICS ROTALARI --- */}
           <Route path="/analytics" element={<YokAtlasAnalytics />} />
           <Route path="/analytics/university/:universityName" element={<YokAtlasAnalytics />} />
           <Route path="/analytics/department/:departmentName" element={<YokAtlasAnalytics />} />
+
+          {/* --- TEZ ANALYTICS ROTALARI --- */}
+          <Route path="/tez-analytics" element={<TezAnalyticsDashboard />} />
+          <Route path="/tez-analytics/list" element={<TezAnalyticsList />} />
+          <Route path="/tez-analytics/all" element={<AllThesesPage />} />
+          <Route path="/tez-analytics/filter/:filterType/:filterValue" element={<FilteredTezList />} />
 
           {/* Hafızlık Programları Rotaları */}
           <Route path="/HafizlikProgramlari" element={<HafizlikLayout />}>

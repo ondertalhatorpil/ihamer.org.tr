@@ -25,7 +25,7 @@ const SimpleFooter = () => (
   <footer className="w-full py-8 mt-auto border-t border-slate-100 bg-white">
     <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center gap-2">
       <p className="text-sm font-medium text-slate-400">
-        © 2025 İHAMER Analitik. Tüm hakları saklıdır.
+        © 2026 İHAMER Analitik. Tüm hakları saklıdır.
       </p>
     </div>
   </footer>
