@@ -21,7 +21,7 @@ const ScrollToTopButton = () => {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-[9999] bg-teal-700 text-white p-4 rounded-full shadow-2xl hover:bg-teal-800 transition-all duration-300 hover:scale-110"
+          className="fixed bottom-8 right-8 z-[9999] bg-[#ae9242] text-white p-4 rounded-full shadow-2xl hover:bg-[#ae8242] transition-all duration-300 hover:scale-110"
           aria-label="Yukarı Çık"
         >
           <ArrowUp className="w-6 h-6" />

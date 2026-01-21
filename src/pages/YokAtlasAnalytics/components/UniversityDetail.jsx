@@ -22,10 +22,13 @@ const UniversityDetail = ({ data }) => {
   const navigate = useNavigate();
   
   // Üniversiteye ait tüm kayıtları filtrele
+  // DÜZENLEME: (AÇIKÖĞRETİM) filtresi buraya eklendi.
+  // Böylece tüm istatistikler ve listeler otomatik olarak güncellendi.
   const universityRecords = useMemo(() => {
     return data.filter(d => 
       d.universiteName === decodeURIComponent(universityName) && 
-      d.data2025 
+      d.data2025 &&
+      !d.bolum.includes('(AÇIKÖĞRETİM)') // <-- FİLTRE BURADA
     );
   }, [data, universityName]);
 
@@ -75,6 +78,8 @@ const UniversityDetail = ({ data }) => {
   }, [universityRecords]);
 
   // En çok öğrenci alan bölümler
+  // universityRecords zaten filtrelendiği için burada ekstra filtreye gerek yok.
+  // Direkt en yüksek 10 taneyi alacaktır.
   const topDepartments = useMemo(() => {
     return [...universityRecords]
       .filter(d => d.data2025)
@@ -94,7 +99,7 @@ const UniversityDetail = ({ data }) => {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] bg-white rounded-[2rem] border border-slate-100 m-4">
         <School className="w-16 h-16 text-slate-200 mb-4" />
-        <h2 className="text-xl font-bold text-slate-800">Üniversite bulunamadı</h2>
+        <h2 className="text-xl font-bold text-slate-800">Üniversite bulunamadı veya veri yok</h2>
         <button 
             onClick={() => navigate('/analytics/universities')} 
             className="mt-4 text-[#B38F65] font-medium hover:underline flex items-center gap-2"
@@ -110,7 +115,6 @@ const UniversityDetail = ({ data }) => {
       
       {/* --- HEADER --- */}
       <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-slate-100 relative overflow-hidden">
-        {/* Dekoratif Arkaplan */}
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl -mr-20 -mt-20 opacity-40 pointer-events-none bg-[#B38F65]/20"></div>
 
         <button 
@@ -466,12 +470,11 @@ const UniversityDetail = ({ data }) => {
 const MapPinIcon = ({ city }) => (
     <>
         <School className="w-3.5 h-3.5" /> 
-        {/* Şehir bilgisi veride her zaman olmayabilir, üniversite adından çıkarılabilir veya static kalabilir */}
         Türkiye
     </>
 );
 
-// Kategori Renkleri (Sabit kalabilir veya Gold uyumlu pastel tonlar seçilebilir)
+// Kategori Renkleri
 function getCategoryColor(category) {
   const colors = {
     'Mühendislik': '#3b82f6', 

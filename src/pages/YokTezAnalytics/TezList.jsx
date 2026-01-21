@@ -327,7 +327,6 @@ const FilteredTezList = () => {
                     onClick={() => setSelectedThesis(selectedThesis === index ? null : index)}
                     className="flex items-center gap-2 text-[#B38F65] hover:text-[#8b6f47] font-semibold text-sm transition-colors mb-3"
                   >
-                    <FileText className="w-4 h-4" />
                     {selectedThesis === index ? 'Özeti Gizle' : 'Özeti Göster'}
                   </button>
                   

@@ -265,29 +265,14 @@ const Dashboard = () => {
       <style>{styles}</style>
 
       {/* MARQUEE BAR */}
-      <div className="marquee-wrap">
+    {/*   <div className="marquee-wrap">
         <div className="marquee-content">
           İMAM HATİP AKADEMİK VERİ ANALİZİ • 2026 RAPORU • İHAMER VERİTABANI • GÜNCEL İSTATİSTİKLER • AKADEMİK ÜRETİM ENDEKSİ • 
           İMAM HATİP AKADEMİK VERİ ANALİZİ • 2026 RAPORU • İHAMER VERİTABANI • GÜNCEL İSTATİSTİKLER • AKADEMİK ÜRETİM ENDEKSİ •
         </div>
-      </div>
+      </div> */}
 
       {/* HEADER */}
-      <header className="border-b-soft bg-white">
-        <div className="max-w-[1920px] mx-auto grid grid-cols-12">
-          <div className="col-span-6 md:col-span-4 border-r-soft p-6 md:p-8">
-            <h1 className="font-display text-2xl tracking-tight">İhamer<span className="text-gray-400">.Analitik</span></h1>
-          </div>
-          <div className="col-span-6 md:col-span-8 p-6 md:p-8 flex items-center justify-end">
-            <button 
-              onClick={() => navigate('/')} 
-              className="text-xs font-medium text-gray-500 hover:text-black uppercase tracking-wider transition-colors"
-            >
-              Ana Sayfa
-            </button>
-          </div>
-        </div>
-      </header>
 
       {/* HERO SECTION */}
       <section className="border-b-soft bg-white">
@@ -332,7 +317,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 border-b-soft">
           
           {/* Chart 1: Category */}
-          <div className="lg:col-span-4 border-r-soft p-10 min-h-[400px] flex flex-col bg-white">
+          <div className="lg:col-span-4 border-r-soft p-5 min-h-[400px] flex flex-col bg-white">
              <div className="flex items-center justify-between mb-8">
                 <h3 className="font-display text-2xl">İçerik Türü</h3>
              </div>
@@ -465,9 +450,6 @@ const Dashboard = () => {
             >
                Veritabanına Git <ArrowRight size={18} />
             </button>
-            <div className="mt-16 font-label text-gray-400">
-               © 2026 İHAMER Analitik Merkezi • İstanbul
-            </div>
          </div>
       </footer>
 

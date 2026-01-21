@@ -9,7 +9,10 @@ import ScrollToTopButton from "./components/common/ScrollToTopButton";
 import ScrollToTop from './components/common/ScrollToTop';
 import PageTransition from "./components/common/PageTransition";
 
-// --- Sayfaları Yükleme ---
+// Analytics Sayfaları (Importlar)
+import YokAtlasAnalytics from './pages/YokAtlasAnalytics';
+
+// --- Sayfaları Yükleme (Lazy Load) ---
 const HomePage = lazy(() => import("./pages/anasayfa"), 1500);
 const HakkımızdaPage = lazy(() => import("./pages/kurumsal/hakkımızda"), 1500);
 const YönetimPage = lazy(() => import("./pages/kurumsal/yonetim"), 1500);
@@ -38,8 +41,7 @@ const TeknolojiHomePage = lazy(() => import("./pages/anasayfa/TeknolojiHomePage.
 const TeknolojiListPage = lazy(() => import("./pages/anasayfa/TeknolojiListPage.jsx"), 1500);
 const KvkkPolitikası = lazy(() => import("./components/common/kvkk.jsx"), 1500);
 
-// Analytics Sayfaları
-import YokAtlasAnalytics from './pages/YokAtlasAnalytics';
+// Tez Analytics Lazy Load
 const TezAnalyticsDashboard = lazy(() => import('./pages/YokTezAnalytics/Dashboard.jsx'), 1500);
 const TezAnalyticsList = lazy(() => import('./pages/YokTezAnalytics/TezList.jsx'), 1500);
 const AllThesesPage = lazy(() => import('./pages/YokTezAnalytics/AllThesesPage.jsx'), 1500);
@@ -49,12 +51,14 @@ const FilteredTezList = lazy(() => import('./pages/YokTezAnalytics/FilteredTezLi
 const AppContent = () => {
   const location = useLocation();
   
-  // '/analytics' veya '/tez-analytics' ile başlayan rotalarda Header/Footer gizle
-  const isAnalyticsPage = location.pathname.startsWith('/analytics') || location.pathname.startsWith('/tez-analytics');
+  // DEĞİŞİKLİK BURADA YAPILDI:
+  // Sadece '/analytics' (YÖK Atlas) rotasında Header/Footer gizle.
+  // '/tez-analytics' koşulunu kaldırdık, böylece o sayfalarda Navbar ve Footer görünecek.
+  const isAnalyticsPage = location.pathname.startsWith('/analytics');
 
   return (
     <>
-      {/* Analytics sayfasında değilsek Header'ı göster */}
+      {/* Analytics (YÖK Atlas) sayfasında değilsek Header'ı göster */}
       {!isAnalyticsPage && <Header />}
       
       <ScrollToTop />
@@ -73,12 +77,12 @@ const AppContent = () => {
           <Route path="/haberler" element={<NewsPage />} />
           <Route path="/haber/:newsId" element={<NewsDetail />} />
 
-          {/* --- YÖK ATLAS ANALYTICS ROTALARI --- */}
+          {/* --- YÖK ATLAS ANALYTICS ROTALARI (Navbar/Footer GİZLİ) --- */}
           <Route path="/analytics" element={<YokAtlasAnalytics />} />
           <Route path="/analytics/university/:universityName" element={<YokAtlasAnalytics />} />
           <Route path="/analytics/department/:departmentName" element={<YokAtlasAnalytics />} />
 
-          {/* --- TEZ ANALYTICS ROTALARI --- */}
+          {/* --- TEZ ANALYTICS ROTALARI (Navbar/Footer GÖRÜNÜR) --- */}
           <Route path="/tez-analytics" element={<TezAnalyticsDashboard />} />
           <Route path="/tez-analytics/list" element={<TezAnalyticsList />} />
           <Route path="/tez-analytics/all" element={<AllThesesPage />} />
@@ -118,7 +122,7 @@ const AppContent = () => {
       
       <ScrollToTopButton />
       
-      {/* Analytics sayfasında değilsek Footer'ı göster */}
+      {/* Analytics (YÖK Atlas) sayfasında değilsek Footer'ı göster */}
       {!isAnalyticsPage && <Footer />}
     </>
   );
