@@ -20,16 +20,13 @@ const UniversityList = ({ data }) => {
   const [sortBy, setSortBy] = useState('students');
   const [sortOrder, setSortOrder] = useState('desc');
   const [selectedType, setSelectedType] = useState('all');
-  const [searchTerm, setSearchTerm] = useState(''); // Yeni Arama State'i
+  const [searchTerm, setSearchTerm] = useState(''); 
 
-  // İstatistik Hesaplama
   const universities = useMemo(() => getUniversityStatistics(data), [data]);
 
-  // Filtreleme ve Sıralama Mantığı
   const filteredAndSorted = useMemo(() => {
     let filtered = universities;
 
-    // Arama Filtresi (Yeni)
     if (searchTerm) {
         const lowerTerm = searchTerm.toLocaleLowerCase('tr');
         filtered = filtered.filter(u => 
@@ -38,7 +35,6 @@ const UniversityList = ({ data }) => {
         );
     }
 
-    // Tip Filtreleme
     if (selectedType !== 'all') {
       filtered = filtered.filter(u => u.type === selectedType);
     }
@@ -84,10 +80,8 @@ const UniversityList = ({ data }) => {
   return (
     <div className="space-y-6 pb-12 animate-fade-in w-full max-w-full overflow-hidden">
       
-      {/* --- HEADER & CONTROLS --- */}
       <div className="flex flex-col gap-6">
         
-        {/* Üst Satır: Başlık ve Filtreler */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
                 <h1 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
@@ -101,7 +95,6 @@ const UniversityList = ({ data }) => {
                 </p>
             </div>
 
-            {/* Tip Filtreleri (Scrollable Tabs) */}
             <div className="bg-white border border-slate-100 p-1 rounded-xl flex overflow-x-auto no-scrollbar shadow-sm w-full md:w-auto">
                 {['all', 'Devlet', 'Vakıf', 'KKTC'].map(type => {
                     const isActive = selectedType === type;
@@ -123,7 +116,6 @@ const UniversityList = ({ data }) => {
             </div>
         </div>
 
-        {/* Arama Çubuğu (Yeni ve Geniş) */}
         <div className="relative w-full">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-slate-400" />
@@ -138,10 +130,7 @@ const UniversityList = ({ data }) => {
         </div>
       </div>
 
-      {/* --- CONTENT SECTION --- */}
-      
-      {/* 1. MOBİL GÖRÜNÜM (Card List - Sadece mobilde görünür) */}
-      <div className="md:hidden flex flex-col gap-3">
+    <div className="md:hidden flex flex-col gap-3">
         {filteredAndSorted.map((uni, index) => {
             const badge = getUniversityTypeBadge(uni.type);
             return (
@@ -204,7 +193,6 @@ const UniversityList = ({ data }) => {
                     { id: 'type', label: 'Tip', align: 'center' },
                     { id: 'city', label: 'Şehir', align: 'left' },
                     { id: 'departments', label: 'Bölüm', align: 'center' },
-                    { id: 'students', label: 'Öğrenci (2025)', align: 'right' },
                     { id: 'rate', label: 'Ort. Oran', align: 'right' },
                     { id: 'trend', label: 'Trend', align: 'right' },
                   ].map((col) => (
@@ -228,7 +216,6 @@ const UniversityList = ({ data }) => {
             <tbody className="divide-y divide-slate-50">
                 {filteredAndSorted.map((uni, index) => {
                     const badge = getUniversityTypeBadge(uni.type);
-                    
                     return (
                     <tr 
                         key={index}
@@ -270,11 +257,7 @@ const UniversityList = ({ data }) => {
                                 {uni.departmentCount}
                             </span>
                         </td>
-                        <td className="p-5 text-right">
-                            <div className="font-bold text-slate-800 text-base tabular-nums tracking-tight">
-                                {formatNumber(uni.totalStudents2025)}
-                            </div>
-                        </td>
+                        
                         <td className="p-5 text-right">
                             <div className="font-medium text-slate-600 tabular-nums">
                                 {formatPercent(uni.avgRate2025)}
@@ -298,7 +281,6 @@ const UniversityList = ({ data }) => {
         </div>
       </div>
 
-      {/* Empty State */}
       {filteredAndSorted.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-[2rem] border border-slate-100 border-dashed">
               <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">

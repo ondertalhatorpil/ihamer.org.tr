@@ -235,7 +235,6 @@ export function getTopRecords(data, sortBy, limit = 20, year = 2025, minStudents
 export function getTrendingRecords(data, trendType = 'rising', limit = 20, minStudents = 5) {
   const dataWithTrends = data
     .filter(hasAnyData)
-    // Hem 2023 hem 2025'te en az minStudents öğrenci olmalı
     .filter(record => {
       const students2023 = record.data2023?.sayi || 0;
       const students2025 = record.data2025?.sayi || 0;
@@ -246,7 +245,6 @@ export function getTrendingRecords(data, trendType = 'rising', limit = 20, minSt
       trendData: calculateTrend(record)
     }))
     .filter(d => d.trendData.trend !== 'YETERSİZ_VERİ')
-    // Aşırı yüksek artışları filtrele (>500% muhtemelen kontenjan değişimi)
     .filter(d => Math.abs(d.trendData.percentChange) <= 500);
   
   let sorted;

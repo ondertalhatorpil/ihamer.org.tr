@@ -235,3 +235,101 @@ function extractCity(uniName) {
   const match = uniName.match(/\(([^)]+)\)$/);
   return match ? match[1].split('-')[0].trim() : 'Bilinmiyor';
 }
+
+// ===================================
+// 🆕 PROGRAM VARYANT YARDIMCILARI
+// ===================================
+
+/**
+ * Varyant badge metni oluştur
+ * Örnek: "+2", "+3" (Ana program hariç kaç tane daha var)
+ */
+export function getVariantBadgeText(record) {
+  if (!record.hasVariants || record.variantCount <= 1) {
+    return null;
+  }
+  
+  return `+${record.variantCount - 1}`;
+}
+
+/**
+ * Varyant badge'inin tam açıklamasını al (Tooltip için)
+ */
+export function getVariantTooltip(record) {
+  if (!record.hasVariants) {
+    return null;
+  }
+  
+  const withData = record.variants.filter(v => v.hasData).length;
+  const withoutData = record.variants.filter(v => !v.hasData).length;
+  
+  let text = `Bu bölümün ${record.variantCount} farklı programı var`;
+  
+  if (withoutData > 0) {
+    text += `\n• ${withData} programda veri mevcut`;
+    text += `\n• ${withoutData} programda veri yok`;
+  }
+  
+  return text;
+}
+
+/**
+ * Varyant sayısına göre badge rengi döndür
+ */
+export function getVariantBadgeColor(variantCount) {
+  if (variantCount <= 2) return '#B38F65'; // Gold
+  if (variantCount <= 4) return '#3b82f6'; // Blue
+  return '#8b5cf6'; // Purple (çok fazla varyant var)
+}
+
+/**
+ * Program varyantını formatla (görünür isim için)
+ */
+export function formatVariantName(variant, index) {
+  // Eğer veri yoksa
+  if (!variant.hasData) {
+    return `Program ${index + 1} (Veri Yok)`;
+  }
+  
+  // Veri varsa en güncel yılı göster
+  const latestData = variant.data2025 || variant.data2024 || variant.data2023;
+  const year = variant.data2025 ? '2025' : variant.data2024 ? '2024' : '2023';
+  
+  return `Program ${index + 1} (${latestData.sayi} öğrenci, ${year})`;
+}
+
+/**
+ * Varyantların özet bilgisini oluştur
+ * Örnek: "3 program • 2'sinde veri var"
+ */
+export function getVariantSummary(record) {
+  if (!record.hasVariants) {
+    return null;
+  }
+  
+  const withData = record.variants.filter(v => v.hasData).length;
+  const total = record.variantCount;
+  
+  if (withData === total) {
+    return `${total} program • Tümünde veri var`;
+  }
+  
+  return `${total} program • ${withData}'sinde veri var`;
+}
+
+/**
+ * Varyant bilgisini içeren kısa açıklama metni
+ */
+export function getVariantDescription(record) {
+  if (!record.hasVariants) {
+    return null;
+  }
+  
+  const withData = record.variants.filter(v => v.hasData).length;
+  
+  if (withData === record.variantCount) {
+    return `Bu bölümün tüm ${record.variantCount} programında veri mevcuttur.`;
+  }
+  
+  return `Bu bölümün ${record.variantCount} programından ${withData} tanesinde veri mevcuttur.`;
+}

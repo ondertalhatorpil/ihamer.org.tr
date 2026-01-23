@@ -42,13 +42,6 @@ export function normalizeRecord(record) {
 }
 
 /**
- * Tüm veriyi normalize et
- */
-export function processRawData(rawData) {
-  return rawData.map(normalizeRecord);
-}
-
-/**
  * Şehir ismini üniversite adından çıkar
  */
 export function extractCity(universityName) {
@@ -100,9 +93,6 @@ export function getDepartmentCategory(departmentName) {
   return 'Diğer';
 }
 
-/**
- * Yıllara göre trend hesapla
- */
 export function calculateTrend(record) {
   const rates = [
     record.data2023?.oran || null,
@@ -148,4 +138,162 @@ export function hasAnyData(record) {
   return record.data2023 !== null || 
          record.data2024 !== null || 
          record.data2025 !== null;
+}
+
+// ===================================
+// 🆕 PROGRAM VARYANT BİRLEŞTİRME
+// ===================================
+
+/**
+ * URL'den program kodunu çıkar
+ */
+export function extractProgramCode(url) {
+  if (!url) return null;
+  const match = url.match(/y=(\d+)/);
+  return match ? match[1] : null;
+}
+
+/**
+ * Aynı üniversite ve bölüm kayıtlarını grupla
+ * Key: "ÜNİVERSİTE ADI|BÖLÜM ADI"
+ */
+export function groupProgramVariants(records) {
+  const grouped = new Map();
+  
+  records.forEach(record => {
+    // Anahtar: Üniversite + Bölüm
+    const key = `${record.universiteName}|${record.bolum}`;
+    
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
+    }
+    
+    // Program kodunu ekle
+    const programCode = extractProgramCode(record.url);
+    grouped.get(key).push({
+      ...record,
+      programCode
+    });
+  });
+  
+  return grouped;
+}
+
+/**
+ * Birden fazla varyantın toplam istatistiklerini hesapla
+ */
+function calculateCombinedStats(variants) {
+  const stats = {
+    total2023: { sayi: 0, oranSum: 0, count: 0 },
+    total2024: { sayi: 0, oranSum: 0, count: 0 },
+    total2025: { sayi: 0, oranSum: 0, count: 0 }
+  };
+  
+  variants.forEach(variant => {
+    ['2023', '2024', '2025'].forEach(year => {
+      const data = variant[`data${year}`];
+      if (data) {
+        const key = `total${year}`;
+        stats[key].sayi += data.sayi;
+        stats[key].oranSum += data.oran;
+        stats[key].count += 1;
+      }
+    });
+  });
+  
+  // Ortalama oran hesapla
+  return {
+    data2023: stats.total2023.count > 0 ? {
+      sayi: stats.total2023.sayi,
+      oran: parseFloat((stats.total2023.oranSum / stats.total2023.count).toFixed(1))
+    } : null,
+    data2024: stats.total2024.count > 0 ? {
+      sayi: stats.total2024.sayi,
+      oran: parseFloat((stats.total2024.oranSum / stats.total2024.count).toFixed(1))
+    } : null,
+    data2025: stats.total2025.count > 0 ? {
+      sayi: stats.total2025.sayi,
+      oran: parseFloat((stats.total2025.oranSum / stats.total2025.count).toFixed(1))
+    } : null,
+    variantCount2023: stats.total2023.count,
+    variantCount2024: stats.total2024.count,
+    variantCount2025: stats.total2025.count
+  };
+}
+
+/**
+ * Varyantları birleştir ve ana kayıt oluştur
+ */
+export function mergeProgramVariants(records) {
+  const grouped = groupProgramVariants(records);
+  const merged = [];
+  
+  grouped.forEach((variants, key) => {
+    // Veri olan ve olmayan varyantları ayır
+    const withData = variants.filter(hasAnyData);
+    const withoutData = variants.filter(v => !hasAnyData(v));
+    
+    // Hiçbir varyantında veri yoksa atla
+    if (withData.length === 0) {
+      return;
+    }
+    
+    // En fazla veriye sahip varyantı ana program yap
+    const mainVariant = withData.reduce((prev, current) => {
+      const prevDataCount = [prev.data2023, prev.data2024, prev.data2025].filter(Boolean).length;
+      const currentDataCount = [current.data2023, current.data2024, current.data2025].filter(Boolean).length;
+      return currentDataCount > prevDataCount ? current : prev;
+    });
+    
+    // Toplam istatistikleri hesapla
+    const combinedStats = calculateCombinedStats(withData);
+    
+    // Birleştirilmiş kayıt oluştur
+    merged.push({
+      // Ana varyantın bilgileri
+      universiteName: mainVariant.universiteName,
+      universityType: mainVariant.universityType,
+      bolum: mainVariant.bolum,
+      url: mainVariant.url,
+      
+      // Birleştirilmiş veriler
+      data2023: combinedStats.data2023,
+      data2024: combinedStats.data2024,
+      data2025: combinedStats.data2025,
+      
+      // Varyant bilgileri
+      hasVariants: variants.length > 1,
+      variantCount: variants.length,
+      variants: variants.map(v => ({
+        programCode: v.programCode,
+        url: v.url,
+        hasData: hasAnyData(v),
+        data2023: v.data2023,
+        data2024: v.data2024,
+        data2025: v.data2025
+      }))
+    });
+  });
+  
+  return merged;
+}
+
+/**
+ * Tüm veriyi işle ve normalize et
+ * @param {Array} rawData - Ham veri
+ * @param {Object} options - İşleme seçenekleri
+ * @param {boolean} options.mergeVariants - Varyantları birleştir (varsayılan: true)
+ */
+export function processRawData(rawData, options = {}) {
+  const { mergeVariants = true } = options;
+  
+  // 1. Normalize et
+  let processed = rawData.map(normalizeRecord);
+  
+  // 2. Varyantları birleştir (opsiyonel)
+  if (mergeVariants) {
+    processed = mergeProgramVariants(processed);
+  }
+  
+  return processed;
 }

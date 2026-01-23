@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -10,21 +10,42 @@ import {
   School,
   BarChart3,
   Calendar,
-  ChevronRight
+  ChevronRight,
+  ChevronDown,
+  ExternalLink,
+  Info
 } from 'lucide-react';
 import { MultiLineChart } from './TrendChart';
 import Tooltip from './Tooltip';
-import { formatNumber, formatPercent, getUniversityTypeBadge } from '../utils/helpers';
+import { 
+  formatNumber, 
+  formatPercent, 
+  getUniversityTypeBadge,
+  getVariantBadgeText,
+  getVariantTooltip,
+  getVariantBadgeColor
+} from '../utils/helpers';
 import { getDepartmentCategory, extractCity } from '../utils/dataProcessor';
 
 const DepartmentDetail = ({ data }) => {
   const { departmentName } = useParams();
   const navigate = useNavigate();
   
+  // Accordion state - her üniversite için ayrı
+  const [expandedUniversities, setExpandedUniversities] = useState({});
+  
   // Bölüme ait tüm kayıtları filtrele
   const departmentRecords = useMemo(() => {
     return data.filter(d => d.bolum === decodeURIComponent(departmentName));
   }, [data, departmentName]);
+
+  // Accordion toggle
+  const toggleUniversity = (uniName) => {
+    setExpandedUniversities(prev => ({
+      ...prev,
+      [uniName]: !prev[uniName]
+    }));
+  };
 
   // İstatistikleri hesapla
   const stats = useMemo(() => {
@@ -343,8 +364,6 @@ const DepartmentDetail = ({ data }) => {
         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
            <h3 className="text-lg font-bold text-slate-800 mb-6">📈 Top 5 Üniversite Trendi</h3>
            <div className="h-[350px] md:h-[400px]">
-             {/* Not: MultiLineChart bileşeninin renklerini içeriden veya props ile düzenlemek gerekebilir.
-                 Burada genel container stilini güncelledik. */}
              <MultiLineChart 
                 data={trendChartData}
                 lines={trendChartLines}
@@ -369,6 +388,8 @@ const DepartmentDetail = ({ data }) => {
                  const change = uni.data2025.sayi - (uni.data2023?.sayi || 0);
                  const badge = getUniversityTypeBadge(uni.universityType);
                  const city = extractCity(uni.universiteName);
+                 const variantBadge = getVariantBadgeText(uni);
+                 const variantTooltip = getVariantTooltip(uni);
 
                  return (
                     <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
@@ -378,7 +399,20 @@ const DepartmentDetail = ({ data }) => {
                                     {index + 1}
                                 </div>
                                 <div>
-                                    <h4 className="text-sm font-bold text-slate-800 line-clamp-2">{uni.universiteName}</h4>
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="text-sm font-bold text-slate-800 line-clamp-2">{uni.universiteName}</h4>
+                                        {/* 🆕 VARYANT BADGE */}
+                                        {variantBadge && (
+                                            <Tooltip content={variantTooltip}>
+                                                <span 
+                                                    className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white"
+                                                    style={{ backgroundColor: getVariantBadgeColor(uni.variantCount) }}
+                                                >
+                                                    {variantBadge}
+                                                </span>
+                                            </Tooltip>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="text-[10px] text-slate-500">{city}</span>
                                         <span 
@@ -429,6 +463,8 @@ const DepartmentDetail = ({ data }) => {
                     {topUniversities.map((uni, index) => {
                         const change2023 = uni.data2023 && uni.data2025 ? uni.data2025.sayi - uni.data2023.sayi : null;
                         const badge = getUniversityTypeBadge(uni.universityType);
+                        const variantBadge = getVariantBadgeText(uni);
+                        const variantTooltip = getVariantTooltip(uni);
                         
                         return (
                         <tr key={index} className="hover:bg-[#B38F65]/5 transition-colors">
@@ -439,7 +475,20 @@ const DepartmentDetail = ({ data }) => {
                                 </span>
                             </td>
                             <td className="p-4">
-                                <div className="font-semibold text-slate-700">{uni.universiteName}</div>
+                                <div className="flex items-center gap-2">
+                                    <div className="font-semibold text-slate-700">{uni.universiteName}</div>
+                                    {/* 🆕 VARYANT BADGE */}
+                                    {variantBadge && (
+                                        <Tooltip content={variantTooltip}>
+                                            <span 
+                                                className="px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-sm"
+                                                style={{ backgroundColor: getVariantBadgeColor(uni.variantCount) }}
+                                            >
+                                                {variantBadge}
+                                            </span>
+                                        </Tooltip>
+                                    )}
+                                </div>
                                 <div className="mt-1">
                                     <span 
                                         className="text-[10px] px-2 py-0.5 rounded font-medium border"
@@ -477,51 +526,134 @@ const DepartmentDetail = ({ data }) => {
         </div>
       </div>
 
-      {/* --- ALL UNIVERSITIES LIST --- */}
+      {/* --- ALL UNIVERSITIES LIST WITH ACCORDION --- */}
       <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-100 bg-slate-50/50">
             <h2 className="text-lg md:text-xl font-bold text-slate-800">📋 Tüm Üniversiteler</h2>
             <p className="text-xs md:text-sm text-slate-500 mt-1">Toplam {departmentRecords.length} üniversite listeleniyor</p>
         </div>
         
-        {/* 1. MOBILE CARD VIEW (ALL) */}
+        {/* 1. MOBILE CARD VIEW (ALL) - WITH ACCORDION */}
         <div className="md:hidden flex flex-col p-4 gap-3 bg-slate-50/50">
             {departmentRecords.map((uni, index) => {
                  const badge = getUniversityTypeBadge(uni.universityType);
+                 const variantBadge = getVariantBadgeText(uni);
+                 const isExpanded = expandedUniversities[uni.universiteName] || false;
 
                  return (
-                    <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                        <div className="flex flex-col gap-2 mb-3">
-                             <h4 className="text-sm font-bold text-slate-800">{uni.universiteName}</h4>
-                             <span className="self-start px-2 py-0.5 rounded text-[10px] font-bold border"
-                                style={{ backgroundColor: `${badge.color}10`, color: badge.color, borderColor: `${badge.color}30` }}>
-                                {badge.label}
-                             </span>
+                    <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div className="p-4">
+                            <div className="flex flex-col gap-2 mb-3">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="text-sm font-bold text-slate-800">{uni.universiteName}</h4>
+                                        {/* 🆕 VARYANT BADGE */}
+                                        {variantBadge && (
+                                            <span 
+                                                className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white"
+                                                style={{ backgroundColor: getVariantBadgeColor(uni.variantCount) }}
+                                            >
+                                                {variantBadge}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {/* 🆕 ACCORDION BUTTON */}
+                                    {uni.hasVariants && (
+                                        <button 
+                                            onClick={() => toggleUniversity(uni.universiteName)}
+                                            className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                                        >
+                                            {isExpanded ? <ChevronDown size={16} className="text-[#B38F65]" /> : <ChevronRight size={16} className="text-slate-400" />}
+                                        </button>
+                                    )}
+                                </div>
+                                <span className="self-start px-2 py-0.5 rounded text-[10px] font-bold border"
+                                    style={{ backgroundColor: `${badge.color}10`, color: badge.color, borderColor: `${badge.color}30` }}>
+                                    {badge.label}
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-50">
+                                 <div className="text-center p-2 bg-slate-50 rounded-lg">
+                                    <div className="text-[10px] text-slate-400 mb-0.5">2023</div>
+                                    <div className="text-xs font-bold text-slate-600">{uni.data2023?.sayi || '-'}</div>
+                                 </div>
+                                 <div className="text-center p-2 bg-slate-50 rounded-lg">
+                                    <div className="text-[10px] text-slate-400 mb-0.5">2024</div>
+                                    <div className="text-xs font-bold text-slate-600">{uni.data2024?.sayi || '-'}</div>
+                                 </div>
+                                 <div className="text-center p-2 bg-[#B38F65]/10 rounded-lg border border-[#B38F65]/20">
+                                    <div className="text-[10px] text-[#B38F65] mb-0.5">2025</div>
+                                    <div className="text-sm font-bold text-[#B38F65]">{uni.data2025?.sayi || '-'}</div>
+                                 </div>
+                            </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-50">
-                             <div className="text-center p-2 bg-slate-50 rounded-lg">
-                                <div className="text-[10px] text-slate-400 mb-0.5">2023</div>
-                                <div className="text-xs font-bold text-slate-600">{uni.data2023?.sayi || '-'}</div>
-                             </div>
-                             <div className="text-center p-2 bg-slate-50 rounded-lg">
-                                <div className="text-[10px] text-slate-400 mb-0.5">2024</div>
-                                <div className="text-xs font-bold text-slate-600">{uni.data2024?.sayi || '-'}</div>
-                             </div>
-                             <div className="text-center p-2 bg-[#B38F65]/10 rounded-lg border border-[#B38F65]/20">
-                                <div className="text-[10px] text-[#B38F65] mb-0.5">2025</div>
-                                <div className="text-sm font-bold text-[#B38F65]">{uni.data2025?.sayi || '-'}</div>
-                             </div>
-                        </div>
+
+                        {/* 🆕 ACCORDION CONTENT - VARIANT LIST */}
+                        {uni.hasVariants && isExpanded && (
+                            <div className="border-t border-slate-100 bg-slate-50/50 p-4">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase mb-3 flex items-center gap-1">
+                                    <Info size={12} /> Program Varyantları ({uni.variantCount})
+                                </div>
+                                <div className="space-y-2">
+                                    {uni.variants.map((variant, vIdx) => (
+                                        <div 
+                                            key={vIdx} 
+                                            className={`p-3 rounded-xl ${variant.hasData ? 'bg-white border border-slate-200' : 'bg-slate-100/50 border border-slate-200/50'}`}
+                                        >
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-xs font-bold text-slate-700">
+                                                    Program {vIdx + 1}
+                                                </span>
+                                                {variant.hasData ? (
+                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold">
+                                                        Veri Var
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-500 font-medium">
+                                                        Veri Yok
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {variant.hasData && (
+                                                <div className="grid grid-cols-3 gap-1 text-[10px]">
+                                                    <div className="text-center p-1 bg-slate-50 rounded">
+                                                        <div className="text-slate-400">2023</div>
+                                                        <div className="font-bold text-slate-700">{variant.data2023?.sayi || '-'}</div>
+                                                    </div>
+                                                    <div className="text-center p-1 bg-slate-50 rounded">
+                                                        <div className="text-slate-400">2024</div>
+                                                        <div className="font-bold text-slate-700">{variant.data2024?.sayi || '-'}</div>
+                                                    </div>
+                                                    <div className="text-center p-1 bg-[#B38F65]/10 rounded">
+                                                        <div className="text-[#B38F65]">2025</div>
+                                                        <div className="font-bold text-[#B38F65]">{variant.data2025?.sayi || '-'}</div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <a 
+                                                href={variant.url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="mt-2 flex items-center gap-1 text-[10px] text-[#B38F65] hover:underline font-medium"
+                                            >
+                                                <ExternalLink size={10} /> YÖK Atlas'ta Görüntüle
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                  )
             })}
         </div>
 
-        {/* 2. DESKTOP TABLE VIEW (ALL) */}
+        {/* 2. DESKTOP TABLE VIEW (ALL) - WITH ACCORDION */}
         <div className="hidden md:block overflow-x-auto max-h-[600px] custom-scrollbar">
             <table className="w-full text-left border-collapse relative">
                 <thead className="sticky top-0 bg-white shadow-sm z-10">
                     <tr className="border-b border-slate-100">
+                        <th className="p-4 text-xs font-bold text-slate-500 uppercase w-8"></th>
                         <th className="p-4 text-xs font-bold text-slate-500 uppercase">Üniversite</th>
                         <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">2023</th>
                         <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">2024</th>
@@ -531,23 +663,121 @@ const DepartmentDetail = ({ data }) => {
                 <tbody className="divide-y divide-slate-50">
                     {departmentRecords.map((uni, index) => {
                         const badge = getUniversityTypeBadge(uni.universityType);
+                        const variantBadge = getVariantBadgeText(uni);
+                        const variantTooltip = getVariantTooltip(uni);
+                        const isExpanded = expandedUniversities[uni.universiteName] || false;
                         
                         return (
-                        <tr key={index} className="hover:bg-slate-50 transition-colors">
-                            <td className="p-4">
-                                <div className="font-medium text-slate-700">{uni.universiteName}</div>
-                                <span className="text-[10px] text-slate-400">{badge.label}</span>
-                            </td>
-                            <td className="p-4 text-center text-sm text-slate-500 tabular-nums">
-                                {uni.data2023 ? `${formatNumber(uni.data2023.sayi)} (%${uni.data2023.oran})` : '-'}
-                            </td>
-                            <td className="p-4 text-center text-sm text-slate-500 tabular-nums">
-                                {uni.data2024 ? `${formatNumber(uni.data2024.sayi)} (%${uni.data2024.oran})` : '-'}
-                            </td>
-                            <td className="p-4 text-center text-sm font-bold text-slate-800 tabular-nums bg-[#B38F65]/5 border-l border-[#B38F65]/10">
-                                {uni.data2025 ? `${formatNumber(uni.data2025.sayi)} (%${uni.data2025.oran})` : '-'}
-                            </td>
-                        </tr>
+                        <React.Fragment key={index}>
+                            <tr className="hover:bg-slate-50 transition-colors">
+                                <td className="p-4 text-center">
+                                    {/* 🆕 ACCORDION BUTTON */}
+                                    {uni.hasVariants ? (
+                                        <button 
+                                            onClick={() => toggleUniversity(uni.universiteName)}
+                                            className="p-1 hover:bg-slate-200 rounded transition-colors"
+                                        >
+                                            {isExpanded ? <ChevronDown size={16} className="text-[#B38F65]" /> : <ChevronRight size={16} className="text-slate-400" />}
+                                        </button>
+                                    ) : (
+                                        <div className="w-4 h-4"></div>
+                                    )}
+                                </td>
+                                <td className="p-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="font-medium text-slate-700">{uni.universiteName}</div>
+                                        {/* 🆕 VARYANT BADGE */}
+                                        {variantBadge && (
+                                            <Tooltip content={variantTooltip}>
+                                                <span 
+                                                    className="px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-sm"
+                                                    style={{ backgroundColor: getVariantBadgeColor(uni.variantCount) }}
+                                                >
+                                                    {variantBadge}
+                                                </span>
+                                            </Tooltip>
+                                        )}
+                                    </div>
+                                    <span className="text-[10px] text-slate-400">{badge.label}</span>
+                                </td>
+                                <td className="p-4 text-center text-sm text-slate-500 tabular-nums">
+                                    {uni.data2023 ? `${formatNumber(uni.data2023.sayi)} (%${uni.data2023.oran})` : '-'}
+                                </td>
+                                <td className="p-4 text-center text-sm text-slate-500 tabular-nums">
+                                    {uni.data2024 ? `${formatNumber(uni.data2024.sayi)} (%${uni.data2024.oran})` : '-'}
+                                </td>
+                                <td className="p-4 text-center text-sm font-bold text-slate-800 tabular-nums bg-[#B38F65]/5 border-l border-[#B38F65]/10">
+                                    {uni.data2025 ? `${formatNumber(uni.data2025.sayi)} (%${uni.data2025.oran})` : '-'}
+                                </td>
+                            </tr>
+
+                            {/* 🆕 ACCORDION ROW - VARIANT DETAILS */}
+                            {uni.hasVariants && isExpanded && (
+                                <tr>
+                                    <td colSpan="5" className="p-0 bg-slate-50/50">
+                                        <div className="p-6 border-t border-slate-100">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <Info size={14} className="text-[#B38F65]" />
+                                                <span className="text-xs font-bold text-slate-600">
+                                                    Program Varyantları ({uni.variantCount} adet)
+                                                </span>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                {uni.variants.map((variant, vIdx) => (
+                                                    <div 
+                                                        key={vIdx}
+                                                        className={`p-4 rounded-xl ${variant.hasData ? 'bg-white border-2 border-slate-200' : 'bg-slate-100 border border-slate-200/50'}`}
+                                                    >
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <span className="text-sm font-bold text-slate-700">
+                                                                Program {vIdx + 1}
+                                                            </span>
+                                                            {variant.hasData ? (
+                                                                <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-bold">
+                                                                    ✓ Veri Var
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-[10px] px-2 py-1 rounded-full bg-slate-200 text-slate-500 font-medium">
+                                                                    ⚠ Veri Yok
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {variant.hasData ? (
+                                                            <div className="space-y-2 text-xs">
+                                                                <div className="flex justify-between py-1">
+                                                                    <span className="text-slate-500">2023:</span>
+                                                                    <span className="font-bold text-slate-700">{variant.data2023?.sayi || '-'} öğrenci</span>
+                                                                </div>
+                                                                <div className="flex justify-between py-1">
+                                                                    <span className="text-slate-500">2024:</span>
+                                                                    <span className="font-bold text-slate-700">{variant.data2024?.sayi || '-'} öğrenci</span>
+                                                                </div>
+                                                                <div className="flex justify-between py-1 bg-[#B38F65]/10 px-2 rounded">
+                                                                    <span className="text-[#B38F65] font-bold">2025:</span>
+                                                                    <span className="font-bold text-[#B38F65]">{variant.data2025?.sayi || '-'} öğrenci</span>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="text-xs text-slate-400 italic">
+                                                                Bu program için henüz veri bulunmuyor.
+                                                            </div>
+                                                        )}
+                                                        <a 
+                                                            href={variant.url} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="mt-3 flex items-center gap-1.5 text-xs text-[#B38F65] hover:underline font-medium"
+                                                        >
+                                                            <ExternalLink size={12} /> YÖK Atlas'ta Görüntüle
+                                                        </a>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </React.Fragment>
                         );
                     })}
                 </tbody>
