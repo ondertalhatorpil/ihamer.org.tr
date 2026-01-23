@@ -401,7 +401,6 @@ const DepartmentDetail = ({ data }) => {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h4 className="text-sm font-bold text-slate-800 line-clamp-2">{uni.universiteName}</h4>
-                                        {/* 🆕 VARYANT BADGE */}
                                         {variantBadge && (
                                             <Tooltip content={variantTooltip}>
                                                 <span 
@@ -477,17 +476,6 @@ const DepartmentDetail = ({ data }) => {
                             <td className="p-4">
                                 <div className="flex items-center gap-2">
                                     <div className="font-semibold text-slate-700">{uni.universiteName}</div>
-                                    {/* 🆕 VARYANT BADGE */}
-                                    {variantBadge && (
-                                        <Tooltip content={variantTooltip}>
-                                            <span 
-                                                className="px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-sm"
-                                                style={{ backgroundColor: getVariantBadgeColor(uni.variantCount) }}
-                                            >
-                                                {variantBadge}
-                                            </span>
-                                        </Tooltip>
-                                    )}
                                 </div>
                                 <div className="mt-1">
                                     <span 

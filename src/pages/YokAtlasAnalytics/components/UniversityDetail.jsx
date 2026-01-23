@@ -335,7 +335,6 @@ const UniversityDetail = ({ data }) => {
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase">Bölüm</th>
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Öğrenci (2025)</th>
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Oran</th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Kategori</th>
                 <th className="p-4 text-xs font-bold text-slate-500 uppercase text-center">Trend (2 Yıl)</th>
               </tr>
             </thead>
@@ -356,12 +355,6 @@ const UniversityDetail = ({ data }) => {
                     <td className="p-4 font-semibold text-slate-700">{dept.bolum}</td>
                     <td className="p-4 text-center font-bold text-slate-800">{formatNumber(dept.data2025.sayi)}</td>
                     <td className="p-4 text-center text-sm font-medium text-slate-600">%{dept.data2025.oran}</td>
-                    <td className="p-4 text-center">
-                      <span className="px-2 py-1 rounded-lg text-xs font-bold border inline-block"
-                        style={{ backgroundColor: `${categoryColor}10`, color: categoryColor, borderColor: `${categoryColor}20` }}>
-                        {category}
-                      </span>
-                    </td>
                     <td className="p-4 text-center">
                        {change2023 !== null ? (
                         <span className={`inline-flex items-center gap-1 text-sm font-bold ${change2023 > 0 ? 'text-emerald-600' : 'text-slate-400'}`}>
