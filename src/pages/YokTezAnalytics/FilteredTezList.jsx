@@ -832,4 +832,6 @@ const FilteredTezList = () => {
   );
 };
 
+/* deneme */
+
 export default FilteredTezList;
