@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUpRight, ArrowRight, Minus, Square, LayoutGrid, Database, Activity } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, Activity, Users, Building2, School, BookOpen, Search, X } from 'lucide-react';
 import { 
   PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip, 
   BarChart, Bar, XAxis, YAxis, CartesianGrid 
@@ -11,13 +11,11 @@ const styles = `
   @import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
 
   :root {
-    --bg-main: #F9FAFB;      /* Cool Gray 50 */
-    --text-primary: #111827; /* Gray 900 */
-    --text-secondary: #6B7280; /* Gray 500 */
-    --border-color: #E5E7EB; /* Gray 200 */
-    --accent-color: #111827; /* Primary Accent */
-    --chart-primary: #111827;
-    --chart-secondary: #E5E7EB;
+    --bg-main: #F9FAFB;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --border-color: #E5E7EB;
+    --accent-color: #111827;
   }
 
   * {
@@ -31,21 +29,13 @@ const styles = `
     -webkit-font-smoothing: antialiased;
   }
 
-  /* UTILITY CLASSES FOR FONT WEIGHTS (Mapping old logic to Lexend) */
-  .font-display { font-weight: 600; letter-spacing: -0.02em; } /* Old Serif */
-  .font-data { font-weight: 300; } /* Old Mono */
-  .font-label { font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; }
+  /* UTILITY CLASSES */
+  .font-display { font-weight: 600; letter-spacing: -0.02em; }
+  .font-data { font-weight: 300; }
+  .font-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.70rem; }
 
-  /* GRID SYSTEM */
-  .grid-container {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    border-bottom: 1px solid var(--border-color);
-  }
-  
   .border-r-soft { border-right: 1px solid var(--border-color); }
   .border-b-soft { border-bottom: 1px solid var(--border-color); }
-  .border-t-soft { border-top: 1px solid var(--border-color); }
 
   /* ANIMATIONS */
   .reveal-up {
@@ -53,7 +43,6 @@ const styles = `
     opacity: 0;
     transform: translateY(20px);
   }
-  
   .delay-100 { animation-delay: 0.1s; }
   .delay-200 { animation-delay: 0.2s; }
   .delay-300 { animation-delay: 0.3s; }
@@ -62,66 +51,72 @@ const styles = `
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* MARQUEE */
-  .marquee-wrap {
-    overflow: hidden;
-    white-space: nowrap;
-    background: var(--text-primary);
-    color: white;
-    padding: 0.75rem 0;
-  }
-  .marquee-content {
-    display: inline-block;
-    animation: marquee 30s linear infinite;
-    font-weight: 300;
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
-  }
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-
   /* LIST INTERACTION */
-  .list-link {
+  .list-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--border-color);
     text-decoration: none;
     color: var(--text-primary);
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: white;
+    min-height: 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .list-row:hover {
+    background-color: #F8FAFC;
+    padding-left: 1.5rem;
   }
 
-  .list-link:hover {
-    background-color: #F3F4F6;
-    padding-left: 1.75rem;
+  .list-row.highlight-active {
+    background-color: #fde047; /* Yellow-300 Fosfor */
+    border-color: #eab308;
+    box-shadow: inset 0 0 0 1px #ca8a04;
   }
 
-  .list-link:hover .icon-arrow {
-    opacity: 1;
-    transform: translateX(0);
+  .list-row:last-child {
+    border-bottom: none;
   }
 
-  .icon-arrow {
-    opacity: 0;
-    transform: translateX(-5px);
-    transition: all 0.2s ease;
-    color: var(--text-secondary);
+  .rank-circle {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 1rem;
+    transition: all 0.2s;
   }
+  
+  .rank-1 { background: #111827; color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+  .rank-2 { background: #374151; color: white; }
+  .rank-3 { background: #4B5563; color: white; }
+  .rank-other { background: #F3F4F6; color: #6B7280; }
+
+  /* SCROLLBAR */
+  .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #D1D5DB; }
 
   /* BADGE */
   .badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.6rem;
     background: #F3F4F6;
-    color: var(--text-secondary);
+    color: #4B5563;
     border-radius: 6px;
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 600;
+    border: 1px solid #E5E7EB;
   }
 
   /* BUTTON */
@@ -144,12 +139,30 @@ const styles = `
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
 
-  /* SCROLLBAR */
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  /* INPUT SEARCH MINI */
+  .mini-search-input {
+    width: 100%;
+    padding: 6px 10px 6px 30px;
+    font-size: 0.8rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    background: white;
+    transition: all 0.2s;
+  }
+  .mini-search-input:focus {
+    outline: none;
+    border-color: #111827;
+    box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.05);
+  }
 `;
 
-// --- HELPER COMPONENTS ---
+// --- HELPER COMPONENTS & FUNCTIONS ---
+
+const turkishToLower = (text) => {
+  if (!text) return '';
+  return text.replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/Ş/g, 'ş')
+    .replace(/Ğ/g, 'ğ').replace(/Ü/g, 'ü').replace(/Ö/g, 'ö').replace(/Ç/g, 'ç').toLowerCase();
+};
 
 const AnimatedNumber = ({ value }) => {
   const [display, setDisplay] = useState(0);
@@ -190,6 +203,10 @@ const Dashboard = () => {
   const [indirectTheses, setIndirectTheses] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Danışman Arama State'leri
+  const [advisorSearch, setAdvisorSearch] = useState('');
+  const [highlightedAdvisorIndex, setHighlightedAdvisorIndex] = useState(-1);
+
   useEffect(() => {
     Promise.all([
       import('./data/tez.json').then(m => m.default),
@@ -216,31 +233,71 @@ const Dashboard = () => {
     }, {})).sort((a, b) => a[0] - b[0]).map(([year, count]) => ({ year, count }));
 
     const categoryData = [
-      { name: 'Doğrudan', value: directTheses.length, route: '/tez-analytics/filter/category/Doğrudan Literatür' },
-      { name: 'Dolaylı', value: indirectTheses.length, route: '/tez-analytics/filter/category/Dolaylı Literatür' }
-    ];
-
-    const doktora = allTheses.filter(t => t['Tez Türü'] === 'Doktora').length;
-    const typeData = [
-      { name: 'Doktora', value: doktora, route: '/tez-analytics/filter/type/Doktora' },
-      { name: 'Yüksek Lisans', value: allTheses.length - doktora, route: '/tez-analytics/filter/type/Yüksek Lisans' }
+      { name: 'Doğrudan', value: directTheses.length, route: '/tez-analytics/filter/category/Doğrudan' },
+      { name: 'Dolaylı', value: indirectTheses.length, route: '/tez-analytics/filter/category/Dolaylı' }
     ];
 
     const getList = (k) => Object.entries(allTheses.reduce((acc, t) => {
       const v = t[k]; if (v) acc[v] = (acc[v] || 0) + 1; return acc;
     }, {})).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
 
+    // --- DANIŞMAN ANALİZİ ---
+    const advisorMap = {};
+    allTheses.forEach(t => {
+      const advName = t['Danışman'];
+      if(advName) {
+        if(!advisorMap[advName]) {
+          advisorMap[advName] = { name: advName, count: 0, thesisIds: [] };
+        }
+        advisorMap[advName].count += 1;
+        advisorMap[advName].thesisIds.push(t['Tez No']);
+      }
+    });
+    
+    // En çok tez yönetenden aza doğru sıralama
+    const sortedAdvisors = Object.values(advisorMap).sort((a, b) => b.count - a.count);
+
     return {
       total: allTheses.length,
       uniCount: uniqueUniversities.length,
       categoryData,
-      typeData,
       yearData,
       universities: getList('Üniversite'),
       institutes: getList('Enstitü'),
-      departments: getList('Bölüm')
+      departments: getList('Bölüm'),
+      advisors: sortedAdvisors 
     };
   }, [directTheses, indirectTheses]);
+
+  // --- DANIŞMAN ARAMA VE SCROLL MANTIĞI ---
+  useEffect(() => {
+    if (!stats || !stats.advisors) return;
+
+    if (advisorSearch.trim() === '') {
+      setHighlightedAdvisorIndex(-1);
+      return;
+    }
+
+    const lowerQuery = turkishToLower(advisorSearch);
+    
+    // Arama kriterine uyan İLK danışmanı bul (Listedeki sırasına göre)
+    // Hem isme bakıyoruz hem de yönettiği tez numaralarına
+    const index = stats.advisors.findIndex(adv => 
+      turkishToLower(adv.name).includes(lowerQuery) || 
+      adv.thesisIds.some(id => id.toString().includes(lowerQuery))
+    );
+
+    if (index !== -1) {
+      setHighlightedAdvisorIndex(index);
+      // DOM elementine erişip ortaya scroll etme
+      const element = document.getElementById(`advisor-row-${index}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else {
+      setHighlightedAdvisorIndex(-1);
+    }
+  }, [advisorSearch, stats]);
 
   const handleLinkClick = (e, path) => {
     if (e.ctrlKey || e.metaKey || e.button === 1) return;
@@ -264,33 +321,20 @@ const Dashboard = () => {
     <div className="min-h-screen flex flex-col bg-[#F9FAFB]">
       <style>{styles}</style>
 
-      {/* MARQUEE BAR */}
-    {/*   <div className="marquee-wrap">
-        <div className="marquee-content">
-          İMAM HATİP AKADEMİK VERİ ANALİZİ • 2026 RAPORU • İHAMER VERİTABANI • GÜNCEL İSTATİSTİKLER • AKADEMİK ÜRETİM ENDEKSİ • 
-          İMAM HATİP AKADEMİK VERİ ANALİZİ • 2026 RAPORU • İHAMER VERİTABANI • GÜNCEL İSTATİSTİKLER • AKADEMİK ÜRETİM ENDEKSİ •
-        </div>
-      </div> */}
-
-      {/* HEADER */}
-
       {/* HERO SECTION */}
       <section className="border-b-soft bg-white">
         <div className="max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-12 min-h-[500px]">
-          {/* Sol: Büyük Yazı */}
           <div className="col-span-1 md:col-span-6 border-r-soft p-8 md:p-16 flex flex-col justify-between">
             <div>
               <p className="font-label text-gray-400 mb-6">Veri Görselleştirme Raporu 2026</p>
-              <h2 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] text-gray-900 reveal-up">
-                Akademik <br/> <span className="text-gray-300">Hafıza</span>
+              <h2 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] text-yellow-600 reveal-up">
+                Akademik <br/> <span className="text-gray-900">Hafıza</span>
               </h2>
             </div>
             <p className="font-data text-lg text-gray-500 max-w-md mt-8 reveal-up delay-100">
               Türkiye'deki İmam Hatip çalışmaları üzerine yapılan tezlerin nicel dağılımı ve akademik haritası.
             </p>
           </div>
-          
-          {/* Sağ: Sayılar */}
           <div className="col-span-1 md:col-span-6 grid grid-rows-2">
             <div className="border-b-soft p-8 md:p-12 flex flex-col justify-center reveal-up delay-200 bg-[#F9FAFB]">
               <div className="flex items-center gap-3 mb-3">
@@ -304,7 +348,7 @@ const Dashboard = () => {
                <div className="flex items-center gap-3 mb-3">
                  <span className="font-label text-gray-500">Farklı Üniversite</span>
               </div>
-              <span className="font-display text-7xl md:text-8xl text-gray-400 tracking-tighter">
+              <span className="font-display text-7xl md:text-8xl text-[#c7972f] tracking-tighter">
                 <AnimatedNumber value={stats.uniCount} />
               </span>
             </div>
@@ -319,9 +363,8 @@ const Dashboard = () => {
           {/* Chart 1: Category */}
           <div className="lg:col-span-4 border-r-soft p-5 min-h-[400px] flex flex-col bg-white">
              <div className="flex items-center justify-between mb-8">
-                <h3 className="font-display text-2xl">İçerik Türü</h3>
+                <h3 className="font-display text-yellow-900 text-2xl">İçerik Türü</h3>
              </div>
-             
              <div className="flex-1 relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsPie>
@@ -336,7 +379,7 @@ const Dashboard = () => {
                       className="cursor-pointer outline-none"
                     >
                       {stats.categoryData.map((entry, index) => (
-                        <Cell key={index} fill={index === 0 ? '#111827' : '#E5E7EB'} />
+                        <Cell key={index} fill={index === 0 ? '#111827' : '#c7972f'} />
                       ))}
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
@@ -347,23 +390,13 @@ const Dashboard = () => {
                    <span className="font-label text-gray-400">Kayıt</span>
                 </div>
              </div>
-             
-             {/* Legend */}
-             <div className="mt-6 flex justify-center gap-6">
-                {stats.categoryData.map((item, idx) => (
-                   <div key={idx} className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${idx === 0 ? 'bg-gray-900' : 'bg-gray-200'}`}></div>
-                      <span className="text-sm font-medium text-gray-600">{item.name}</span>
-                   </div>
-                ))}
-             </div>
           </div>
 
           {/* Chart 2: Yıllar (Bar) */}
           <div className="lg:col-span-8 p-10 min-h-[400px] bg-white">
              <div className="flex justify-between items-end mb-10">
                <div>
-                  <h3 className="font-display text-2xl">Yıllık Gelişim</h3>
+                  <h3 className="font-display text-yellow-900 text-2xl">Yıllık Gelişim</h3>
                   <p className="text-sm text-gray-500 font-light mt-1">Tezlerin yıllara göre dağılım grafiği</p>
                </div>
              </div>
@@ -371,20 +404,14 @@ const Dashboard = () => {
                 <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={stats.yearData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
-                      <XAxis 
-                        dataKey="year" 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fontFamily: 'Lexend', fontSize: 12, fill: '#9CA3AF' }}
-                        dy={10}
-                      />
+                      <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 12, fill: '#9CA3AF' }} dy={10} />
                       <YAxis hide />
                       <Tooltip cursor={{fill: '#F9FAFB'}} content={<CustomTooltip />} />
                       <Bar 
                         dataKey="count" 
                         fill="#E5E7EB" 
                         radius={[4, 4, 0, 0]}
-                        activeBar={{ fill: '#111827' }}
+                        activeBar={{ fill: '#c7972f' }}
                         onClick={(data) => navigate(`/tez-analytics/filter/year/${data.year}`)}
                         className="cursor-pointer transition-all duration-300"
                       />
@@ -392,63 +419,131 @@ const Dashboard = () => {
                 </ResponsiveContainer>
              </div>
           </div>
-
         </div>
 
         {/* LISTS SECTION */}
-        <div className="grid grid-cols-1 md:grid-cols-3 bg-white">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 bg-white border-b-soft">
            {[
-             { title: 'Üniversiteler', data: stats.universities, type: 'university' },
-             { title: 'Enstitüler', data: stats.institutes, type: 'institute' },
-             { title: 'Bölümler', data: stats.departments, type: 'department' }
-           ].map((section, idx) => (
-             <div key={idx} className={`border-b-soft ${idx !== 2 ? 'md:border-r-soft' : ''}`}>
-                <div className="p-6 border-b-soft bg-gray-50/50">
-                   <h4 className="font-display text-lg">{section.title}</h4>
-                   <p className="font-label text-gray-400 mt-1">En Yüksek Kayıtlar</p>
-                </div>
-                <div className="max-h-[500px] overflow-y-auto no-scrollbar">
-                   {section.data.map((item, i) => (
-                     <a
-                       key={i}
-                       href={`/tez-analytics/filter/${section.type}/${encodeURIComponent(item.name)}`}
-                       onClick={(e) => handleLinkClick(e, `/tez-analytics/filter/${section.type}/${encodeURIComponent(item.name)}`)}
-                       className="list-link group"
-                     >
-                        <div className="flex items-center gap-4 min-w-0">
-                           <span className={`
-                              font-data text-xs w-6 h-6 flex items-center justify-center rounded-full 
-                              ${i < 3 ? 'bg-gray-900 text-white font-medium' : 'bg-gray-100 text-gray-500'}
-                           `}>
-                              {i + 1}
-                           </span>
-                           <span className="text-sm text-gray-700 font-light truncate pr-4 group-hover:text-black group-hover:font-normal transition-all">
-                              {item.name}
-                           </span>
+             { title: 'Üniversiteler', data: stats.universities, type: 'university', icon: Building2 },
+             { title: 'Enstitüler', data: stats.institutes, type: 'institute', icon: School },
+             { title: 'Bölümler', data: stats.departments, type: 'department', icon: BookOpen },
+             { title: 'Danışmanlar', data: stats.advisors, type: 'advisor', icon: Users } 
+           ].map((section, idx) => {
+             const Icon = section.icon;
+             const isAdvisorSection = section.type === 'advisor';
+             
+             return (
+               <div key={idx} className={`flex flex-col h-[700px] ${idx !== 3 ? 'xl:border-r-soft' : ''} ${idx % 2 === 0 ? 'md:border-r-soft' : ''} border-b-soft xl:border-b-0`}>
+                  
+                  {/* Sticky Header */}
+                  <div className="p-5 border-b-soft backdrop-blur-sm sticky top-0 z-10 flex flex-col gap-3">
+                     <div className="flex items-center justify-between">
+                        <div>
+                           <h4 className="font-display text-lg flex items-center gap-2 text-yellow-900">
+                             <Icon size={18} className="text-gray-400" />
+                             {section.title}
+                           </h4>
+                           {!isAdvisorSection && <p className="font-label text-gray-400 mt-1">Sıralı Liste</p>}
                         </div>
-                        <div className="flex items-center gap-3">
-                           <span className="badge">{item.count}</span>
-                           <ArrowUpRight size={16} className="icon-arrow" />
-                        </div>
-                     </a>
-                   ))}
-                </div>
-             </div>
-           ))}
+                        <span className="bg-white border border-gray-200 text-xs font-semibold px-2 py-1 rounded-md text-gray-500">
+                           Toplam {section.data.length > 1061 ? 0 : section.data.length}
+                        </span>
+                     </div>
+
+                     {/* SADECE DANIŞMANLAR İÇİN ARAMA KUTUSU */}
+                     {isAdvisorSection && (
+                       <div className="relative w-full">
+                          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input 
+                            type="text" 
+                            placeholder="Danışman veya Tez No..."
+                            value={advisorSearch}
+                            onChange={(e) => setAdvisorSearch(e.target.value)}
+                            className="mini-search-input"
+                          />
+                          {advisorSearch && (
+                            <button 
+                              onClick={() => setAdvisorSearch('')}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
+                       </div>
+                     )}
+                  </div>
+
+                  {/* Scrollable List Area */}
+                  <div className="overflow-y-auto flex-1 custom-scrollbar bg-white">
+                     {section.data.slice(0, 1061).map((item, i) => { // Slice'ı 100'e çıkardım ki arama daha geniş olsun
+                       const linkPath = section.type === 'advisor' 
+                          ? `/tez-analytics/all?advisor=${encodeURIComponent(item.name)}`
+                          : `/tez-analytics/filter/${section.type}/${encodeURIComponent(item.name)}`;
+
+                       const isTop3 = i < 3;
+                       const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+                       const isHighlighted = isAdvisorSection && i === highlightedAdvisorIndex;
+
+                       return (
+                         <a
+                           key={i}
+                           id={isAdvisorSection ? `advisor-row-${i}` : undefined} // Scroll için ID ataması
+                           href={linkPath}
+                           onClick={(e) => handleLinkClick(e, linkPath)}
+                           className={`list-row group ${isHighlighted ? 'highlight-active' : ''}`}
+                         >
+                            {/* Sıralama Dairesi */}
+                            <div className={`rank-circle ${rankClass} ${isHighlighted ? 'bg-yellow-600 text-white' : ''}`}>
+                               {i + 1}
+                            </div>
+
+                            {/* İçerik */}
+                            <div className="flex-1 min-w-0 pr-3">
+                               <div className="flex items-center justify-between mb-0.5">
+                                  <span className={`text-sm truncate pr-2 group-hover:text-black transition-colors ${isTop3 || isHighlighted ? 'font-semibold text-gray-900' : 'font-normal text-gray-600'}`}>
+                                    {item.name}
+                                  </span>
+                               </div>
+                               
+                               {/* Alt Bilgi */}
+                               {isAdvisorSection ? (
+                                  <div className={`text-[10px] flex items-center gap-1 truncate ${isHighlighted ? 'text-yellow-800 font-medium' : 'text-gray-400'}`}>
+                                     <Activity size={10} />
+                                     <span>Tezler: {item.thesisIds.slice(0, 2).join(', ')}{item.thesisIds.length > 2 ? ` ve ${item.thesisIds.length - 2} daha` : ''}</span>
+                                  </div>
+                               ) : (
+                                  <div className="h-4"></div> 
+                               )}
+                            </div>
+
+                            {/* Sayı Rozeti */}
+                            <span className={`badge group-hover:bg-gray-200 group-hover:text-gray-800 transition-colors ${isTop3 ? 'bg-gray-100 text-gray-900 border-gray-300' : ''} ${isHighlighted ? 'bg-yellow-400 text-yellow-900 border-yellow-500' : ''}`}>
+                               {item.count}
+                            </span>
+                            
+                            {/* Gizli Ok İkonu */}
+                            <ArrowRight size={14} className={`ml-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ${isHighlighted ? 'text-yellow-800 opacity-100 translate-x-0' : 'text-gray-300'}`} />
+                         </a>
+                       );
+                     })}
+                  </div>
+               </div>
+             );
+           })}
         </div>
       </main>
 
       {/* FOOTER CTA */}
       <footer className="border-b-soft py-24 bg-[#F9FAFB]">
          <div className="max-w-2xl mx-auto text-center px-6">
-            <h2 className="font-display text-4xl md:text-5xl mb-8 leading-tight text-gray-900">
-               Tüm koleksiyonu <br/> <span className="text-gray-400">keşfedin.</span>
+            <h2 className="font-display text-4xl md:text-5xl mb-8 leading-tight text-yellow-600">
+               Tüm koleksiyonu <br/> <span className="text-gray-900">keşfedin.</span>
             </h2>
             <button
                onClick={() => navigate('/tez-analytics/all')}
                className="btn-primary"
             >
-               Veritabanına Git <ArrowRight size={18} />
+               Tüm Tezlere Git <ArrowRight size={18} />
             </button>
          </div>
       </footer>

@@ -1,14 +1,41 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// Linklerinizi buraya giriniz.
+// "http" veya "https" ile başlayanlar YENİ SEKMEDE açılır.
+// "/" ile başlayanlar (örn: /iletisim) AYNI SEKMEDE açılır.
 const sliderImages = [
-  "/kurumsal/assest/slider-0.jpg",
-  "/kurumsal/assest/slider-1.jpeg",
-  "/kurumsal/assest/slider-2.jpeg",
-  "/kurumsal/assest/slider-3.jpeg",
-  "/kurumsal/assest/slider-4.jpeg",
-  "/kurumsal/assest/slider-5.jpeg",
-  "/kurumsal/assest/slider-6.jpeg",
-
+  { 
+    src: "/kurumsal/assest/talim.jpg", 
+    link: "https://dergipark.org.tr/tr/pub/talim/rejection-statistics" // Site içi (Aynı sekme)
+  },
+  { 
+    src: "/kurumsal/assest/slider-0.jpg", 
+    link: "https://www.hikmetinizinde.com/" // Site dışı (Yeni sekme)
+  },
+  { 
+    src: "/kurumsal/assest/slider-1.jpeg", 
+    link: "/haber/4" 
+  },
+  { 
+    src: "/kurumsal/assest/slider-2.jpeg", 
+    link: "/haber/3" 
+  },
+  { 
+    src: "/kurumsal/assest/slider-3.jpeg", 
+    link: "/haber/2" // Tıklanınca bir şey yapmaz
+  },
+  { 
+    src: "/kurumsal/assest/slider-4.jpeg", 
+    link: "https://onder.org.tr/data/uploads/document/690db6105f192.pdf" 
+  },
+  { 
+    src: "/kurumsal/assest/slider-5.jpeg", 
+    link: "#" 
+  },
+  { 
+    src: "/kurumsal/assest/slider-6.jpeg", 
+    link: "#" 
+  },
 ];
 
 const HeroSlider = () => {
@@ -20,7 +47,6 @@ const HeroSlider = () => {
     const sliderRef = useRef(null);
     const intervalRef = useRef(null);
 
-    // Kaydırma (Swipe) hassasiyeti (piksel cinsinden)
     const minSwipeDistance = 50;
 
     const goToSlide = useCallback((index) => {
@@ -44,10 +70,9 @@ const HeroSlider = () => {
         }, 5000);
     }, [pauseAutoPlay]);
 
-    // --- SWIPE (DOKUNMATİK) MANTIĞI BAŞLANGICI ---
     const onTouchStart = (e) => {
-        pauseAutoPlay(); // Dokunulduğunda otomatiği durdur
-        setTouchEnd(null); // Reset
+        pauseAutoPlay();
+        setTouchEnd(null);
         setTouchStart(e.targetTouches[0].clientX);
     };
 
@@ -56,7 +81,7 @@ const HeroSlider = () => {
     };
 
     const onTouchEnd = () => {
-        startAutoPlay(); // Bırakıldığında tekrar başlat
+        startAutoPlay();
         if (!touchStart || !touchEnd) return;
         
         const distance = touchStart - touchEnd;
@@ -64,18 +89,15 @@ const HeroSlider = () => {
         const isRightSwipe = distance < -minSwipeDistance;
 
         if (isLeftSwipe) {
-            // Sola kaydırıldı -> Sonraki slayt
             const nextIndex = currentIndex === sliderImages.length - 1 ? 0 : currentIndex + 1;
             goToSlide(nextIndex);
         }
         
         if (isRightSwipe) {
-            // Sağa kaydırıldı -> Önceki slayt
             const prevIndex = currentIndex === 0 ? sliderImages.length - 1 : currentIndex - 1;
             goToSlide(prevIndex);
         }
     };
-    // --- SWIPE MANTIĞI BİTİŞİ ---
 
     useEffect(() => {
         if (trackRef.current && sliderRef.current) {
@@ -118,27 +140,41 @@ const HeroSlider = () => {
     return (
         <section 
             ref={sliderRef} 
-            className="relative overflow-hidden w-full bg-accent-gold m-0 touch-pan-y" // touch-pan-y: dikey kaydırmaya izin ver, yatayı js ile kontrol et
+            className="relative overflow-hidden w-full bg-accent-gold m-0 touch-pan-y"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
         >
             <div ref={trackRef} className="flex transition-transform duration-700 ease-in-out select-none">
-                {sliderImages.map((src, index) => (
-                    <div key={index} className="flex-shrink-0 w-full relative block">
-                        <div className="relative w-full">
-                            <img 
-                                src={src} 
-                                alt={`Ana Görsel ${index + 1}`} 
-                                className="block w-full h-auto pointer-events-none" // Resimlerin sürüklenmesini engelle (native drag)
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+                {sliderImages.map((slide, index) => {
+                    // KONTROL MANTIĞI: Link http veya https ile başlıyor mu?
+                    const isExternal = slide.link.startsWith('http');
+
+                    return (
+                        <div key={index} className="flex-shrink-0 w-full relative block">
+                            <a 
+                                href={slide.link} 
+                                className="block w-full h-full cursor-pointer"
+                                draggable="false"
+                                // Eğer dış link ise '_blank', değilse undefined (varsayılan aynı sekme)
+                                target={isExternal ? "_blank" : undefined}
+                                // Eğer dış link ise güvenlik önlemi ekle, değilse undefined
+                                rel={isExternal ? "noopener noreferrer" : undefined}
+                            >
+                                <div className="relative w-full">
+                                    <img 
+                                        src={slide.src} 
+                                        alt={`Ana Görsel ${index + 1}`} 
+                                        className="block w-full h-auto pointer-events-none" 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+                                </div>
+                            </a>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
-            {/* NAVIGASYON NOKTALARI */}
             <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-[3] flex flex-row gap-2 max-w-[calc(100%-2rem)] p-1.5 
                             md:flex-col md:gap-1.5 md:top-1/2 md:left-auto md:right-4 md:bottom-auto md:-translate-y-1/2 md:translate-x-0 
                             md:w-4 md:h-[60vh] md:justify-center">
@@ -148,12 +184,6 @@ const HeroSlider = () => {
                         <button
                             key={index}
                             onClick={() => goToSlide(index)}
-                            /* Mantık:
-                                flex-1: Standart boyut.
-                                flex-[4]: Aktif olan diğerlerinin 4 katı yer kaplamaya çalışsın.
-                                max-h-12: Aktif olan çok da devasa olmasın.
-                                min-h-[4px]: Pasif olanlar tamamen kaybolmasın.
-                            */
                             className={`cursor-pointer transition-all duration-500 rounded-full 
                                         flex-shrink-0 w-2.5 h-2.5
                                         md:w-[8px] md:flex-shrink md:h-auto md:min-h-[6px]
