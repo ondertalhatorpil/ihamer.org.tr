@@ -180,40 +180,47 @@ export function groupProgramVariants(records) {
 }
 
 /**
- * Birden fazla varyantın toplam istatistiklerini hesapla
+ * ✅ DÜZELTİLDİ: Birden fazla varyantın toplam istatistiklerini hesapla
+ * AĞIRLIKLI ORTALAMA kullanarak doğru oran hesabı
  */
 function calculateCombinedStats(variants) {
   const stats = {
-    total2023: { sayi: 0, oranSum: 0, count: 0 },
-    total2024: { sayi: 0, oranSum: 0, count: 0 },
-    total2025: { sayi: 0, oranSum: 0, count: 0 }
+    total2023: { sayi: 0, toplamKontenjan: 0, count: 0 },
+    total2024: { sayi: 0, toplamKontenjan: 0, count: 0 },
+    total2025: { sayi: 0, toplamKontenjan: 0, count: 0 }
   };
   
   variants.forEach(variant => {
     ['2023', '2024', '2025'].forEach(year => {
       const data = variant[`data${year}`];
-      if (data) {
+      if (data && data.oran > 0) {
         const key = `total${year}`;
+        
+        // Öğrenci sayısını topla
         stats[key].sayi += data.sayi;
-        stats[key].oranSum += data.oran;
+        
+        // Kontenjanı hesapla: sayi / (oran/100)
+        // Örnek: 10 öğrenci, %50 oran → 10 / 0.5 = 20 kontenjan
+        const kontenjan = data.sayi / (data.oran / 100);
+        stats[key].toplamKontenjan += kontenjan;
         stats[key].count += 1;
       }
     });
   });
   
-  // Ortalama oran hesapla
+  // ✅ Ağırlıklı ortalama hesapla: (Toplam Öğrenci / Toplam Kontenjan) * 100
   return {
-    data2023: stats.total2023.count > 0 ? {
+    data2023: stats.total2023.count > 0 && stats.total2023.toplamKontenjan > 0 ? {
       sayi: stats.total2023.sayi,
-      oran: parseFloat((stats.total2023.oranSum / stats.total2023.count).toFixed(1))
+      oran: parseFloat(((stats.total2023.sayi / stats.total2023.toplamKontenjan) * 100).toFixed(2))
     } : null,
-    data2024: stats.total2024.count > 0 ? {
+    data2024: stats.total2024.count > 0 && stats.total2024.toplamKontenjan > 0 ? {
       sayi: stats.total2024.sayi,
-      oran: parseFloat((stats.total2024.oranSum / stats.total2024.count).toFixed(1))
+      oran: parseFloat(((stats.total2024.sayi / stats.total2024.toplamKontenjan) * 100).toFixed(2))
     } : null,
-    data2025: stats.total2025.count > 0 ? {
+    data2025: stats.total2025.count > 0 && stats.total2025.toplamKontenjan > 0 ? {
       sayi: stats.total2025.sayi,
-      oran: parseFloat((stats.total2025.oranSum / stats.total2025.count).toFixed(1))
+      oran: parseFloat(((stats.total2025.sayi / stats.total2025.toplamKontenjan) * 100).toFixed(2))
     } : null,
     variantCount2023: stats.total2023.count,
     variantCount2024: stats.total2024.count,
@@ -245,7 +252,7 @@ export function mergeProgramVariants(records) {
       return currentDataCount > prevDataCount ? current : prev;
     });
     
-    // Toplam istatistikleri hesapla
+    // ✅ Ağırlıklı ortalama ile toplam istatistikleri hesapla
     const combinedStats = calculateCombinedStats(withData);
     
     // Birleştirilmiş kayıt oluştur
@@ -256,7 +263,7 @@ export function mergeProgramVariants(records) {
       bolum: mainVariant.bolum,
       url: mainVariant.url,
       
-      // Birleştirilmiş veriler
+      // ✅ Düzeltilmiş birleştirilmiş veriler
       data2023: combinedStats.data2023,
       data2024: combinedStats.data2024,
       data2025: combinedStats.data2025,

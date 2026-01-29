@@ -1,15 +1,17 @@
 /**
  * İstatistik hesaplama fonksiyonları
+ * ✅ AĞIRLIKLI ORTALAMA ile düzeltildi
  */
 
 import { hasAnyData, getLatestYearData, calculateTrend, extractCity, getDepartmentCategory } from './dataProcessor';
 
 /**
- * Belirli bir yıl için istatistik hesapla
+ * ✅ DÜZELTİLDİ: Belirli bir yıl için istatistik hesapla
+ * Ağırlıklı ortalama kullanılıyor
  */
 export function calculateYearStats(data, year) {
   const yearKey = `data${year}`;
-  const validRecords = data.filter(d => d[yearKey] !== null);
+  const validRecords = data.filter(d => d[yearKey] !== null && d[yearKey].oran > 0);
   
   if (validRecords.length === 0) {
     return {
@@ -22,12 +24,26 @@ export function calculateYearStats(data, year) {
   }
   
   const totalStudents = validRecords.reduce((sum, d) => sum + (d[yearKey].sayi || 0), 0);
-  const totalRate = validRecords.reduce((sum, d) => sum + (d[yearKey].oran || 0), 0);
+  
+  // ✅ Ağırlıklı ortalama için toplam kontenjan hesapla
+  const toplamKontenjan = validRecords.reduce((sum, d) => {
+    const oran = d[yearKey].oran;
+    const sayi = d[yearKey].sayi;
+    if (oran > 0) {
+      // Kontenjan = sayi / (oran/100)
+      return sum + (sayi / (oran / 100));
+    }
+    return sum;
+  }, 0);
+  
   const rates = validRecords.map(d => d[yearKey].oran).filter(r => r > 0);
   
   return {
     totalStudents,
-    averageRate: (totalRate / validRecords.length).toFixed(2),
+    // ✅ Ağırlıklı ortalama: (Toplam Öğrenci / Toplam Kontenjan) * 100
+    averageRate: toplamKontenjan > 0 
+      ? ((totalStudents / toplamKontenjan) * 100).toFixed(2)
+      : 0,
     recordCount: validRecords.length,
     maxRate: Math.max(...rates).toFixed(2),
     minRate: Math.min(...rates).toFixed(2)
@@ -52,7 +68,7 @@ export function getGeneralStatistics(data) {
     uniqueDepartments: uniqueDepartments.length,
     uniqueCities: uniqueCities.length,
     
-    // Yıllara göre
+    // Yıllara göre (ağırlıklı ortalama ile)
     stats2023: calculateYearStats(data, 2023),
     stats2024: calculateYearStats(data, 2024),
     stats2025: calculateYearStats(data, 2025),
@@ -73,7 +89,8 @@ export function getGeneralStatistics(data) {
 }
 
 /**
- * Üniversite bazlı istatistikler
+ * ✅ DÜZELTİLDİ: Üniversite bazlı istatistikler
+ * Ağırlıklı ortalama kullanılıyor
  */
 export function getUniversityStatistics(data) {
   const universities = {};
@@ -93,48 +110,56 @@ export function getUniversityStatistics(data) {
         totalStudents2023: 0,
         totalStudents2024: 0,
         totalStudents2025: 0,
-        avgRate2023: [],
-        avgRate2024: [],
-        avgRate2025: []
+        // ✅ Kontenjan toplamları eklendi
+        totalKontenjan2023: 0,
+        totalKontenjan2024: 0,
+        totalKontenjan2025: 0
       };
     }
     
     universities[uniName].departments.push(record.bolum);
     
-    if (record.data2023) {
+    // ✅ Her yıl için öğrenci ve kontenjan topla
+    if (record.data2023 && record.data2023.oran > 0) {
       universities[uniName].totalStudents2023 += record.data2023.sayi;
-      universities[uniName].avgRate2023.push(record.data2023.oran);
+      universities[uniName].totalKontenjan2023 += record.data2023.sayi / (record.data2023.oran / 100);
     }
-    if (record.data2024) {
+    if (record.data2024 && record.data2024.oran > 0) {
       universities[uniName].totalStudents2024 += record.data2024.sayi;
-      universities[uniName].avgRate2024.push(record.data2024.oran);
+      universities[uniName].totalKontenjan2024 += record.data2024.sayi / (record.data2024.oran / 100);
     }
-    if (record.data2025) {
+    if (record.data2025 && record.data2025.oran > 0) {
       universities[uniName].totalStudents2025 += record.data2025.sayi;
-      universities[uniName].avgRate2025.push(record.data2025.oran);
+      universities[uniName].totalKontenjan2025 += record.data2025.sayi / (record.data2025.oran / 100);
     }
   });
   
-  // Ortalama oranları hesapla
+  // ✅ Ağırlıklı ortalama oranları hesapla
   Object.values(universities).forEach(uni => {
-    uni.avgRate2023 = uni.avgRate2023.length > 0 
-      ? (uni.avgRate2023.reduce((a, b) => a + b, 0) / uni.avgRate2023.length).toFixed(2)
+    uni.avgRate2023 = uni.totalKontenjan2023 > 0 
+      ? ((uni.totalStudents2023 / uni.totalKontenjan2023) * 100).toFixed(2)
       : 0;
-    uni.avgRate2024 = uni.avgRate2024.length > 0 
-      ? (uni.avgRate2024.reduce((a, b) => a + b, 0) / uni.avgRate2024.length).toFixed(2)
+    uni.avgRate2024 = uni.totalKontenjan2024 > 0 
+      ? ((uni.totalStudents2024 / uni.totalKontenjan2024) * 100).toFixed(2)
       : 0;
-    uni.avgRate2025 = uni.avgRate2025.length > 0 
-      ? (uni.avgRate2025.reduce((a, b) => a + b, 0) / uni.avgRate2025.length).toFixed(2)
+    uni.avgRate2025 = uni.totalKontenjan2025 > 0 
+      ? ((uni.totalStudents2025 / uni.totalKontenjan2025) * 100).toFixed(2)
       : 0;
     
     uni.departmentCount = uni.departments.length;
+    
+    // Kontenjan alanlarını temizle (ihtiyaç yoksa)
+    delete uni.totalKontenjan2023;
+    delete uni.totalKontenjan2024;
+    delete uni.totalKontenjan2025;
   });
   
   return Object.values(universities);
 }
 
 /**
- * Bölüm bazlı istatistikler
+ * ✅ DÜZELTİLDİ: Bölüm bazlı istatistikler
+ * Ağırlıklı ortalama kullanılıyor
  */
 export function getDepartmentStatistics(data) {
   const departments = {};
@@ -152,9 +177,10 @@ export function getDepartmentStatistics(data) {
         totalStudents2023: 0,
         totalStudents2024: 0,
         totalStudents2025: 0,
-        avgRate2023: [],
-        avgRate2024: [],
-        avgRate2025: []
+        // ✅ Kontenjan toplamları eklendi
+        totalKontenjan2023: 0,
+        totalKontenjan2024: 0,
+        totalKontenjan2025: 0
       };
     }
     
@@ -163,33 +189,39 @@ export function getDepartmentStatistics(data) {
       type: record.universityType
     });
     
-    if (record.data2023) {
+    // ✅ Her yıl için öğrenci ve kontenjan topla
+    if (record.data2023 && record.data2023.oran > 0) {
       departments[deptName].totalStudents2023 += record.data2023.sayi;
-      departments[deptName].avgRate2023.push(record.data2023.oran);
+      departments[deptName].totalKontenjan2023 += record.data2023.sayi / (record.data2023.oran / 100);
     }
-    if (record.data2024) {
+    if (record.data2024 && record.data2024.oran > 0) {
       departments[deptName].totalStudents2024 += record.data2024.sayi;
-      departments[deptName].avgRate2024.push(record.data2024.oran);
+      departments[deptName].totalKontenjan2024 += record.data2024.sayi / (record.data2024.oran / 100);
     }
-    if (record.data2025) {
+    if (record.data2025 && record.data2025.oran > 0) {
       departments[deptName].totalStudents2025 += record.data2025.sayi;
-      departments[deptName].avgRate2025.push(record.data2025.oran);
+      departments[deptName].totalKontenjan2025 += record.data2025.sayi / (record.data2025.oran / 100);
     }
   });
   
-  // Ortalama oranları hesapla
+  // ✅ Ağırlıklı ortalama oranları hesapla
   Object.values(departments).forEach(dept => {
-    dept.avgRate2023 = dept.avgRate2023.length > 0 
-      ? (dept.avgRate2023.reduce((a, b) => a + b, 0) / dept.avgRate2023.length).toFixed(2)
+    dept.avgRate2023 = dept.totalKontenjan2023 > 0 
+      ? ((dept.totalStudents2023 / dept.totalKontenjan2023) * 100).toFixed(2)
       : 0;
-    dept.avgRate2024 = dept.avgRate2024.length > 0 
-      ? (dept.avgRate2024.reduce((a, b) => a + b, 0) / dept.avgRate2024.length).toFixed(2)
+    dept.avgRate2024 = dept.totalKontenjan2024 > 0 
+      ? ((dept.totalStudents2024 / dept.totalKontenjan2024) * 100).toFixed(2)
       : 0;
-    dept.avgRate2025 = dept.avgRate2025.length > 0 
-      ? (dept.avgRate2025.reduce((a, b) => a + b, 0) / dept.avgRate2025.length).toFixed(2)
+    dept.avgRate2025 = dept.totalKontenjan2025 > 0 
+      ? ((dept.totalStudents2025 / dept.totalKontenjan2025) * 100).toFixed(2)
       : 0;
     
     dept.universityCount = dept.universities.length;
+    
+    // Kontenjan alanlarını temizle
+    delete dept.totalKontenjan2023;
+    delete dept.totalKontenjan2024;
+    delete dept.totalKontenjan2025;
   });
   
   return Object.values(departments);
@@ -198,12 +230,11 @@ export function getDepartmentStatistics(data) {
 /**
  * Top N kayıt al (sıralama ile)
  * NOT: Küçük kontenjanlar (minStudents öğrenciden az) anlamlı olmadığı için filtrelenir
- * minContenjan parametresi de eklenebilir (oran sıralaması için önemli)
  */
 export function getTopRecords(data, sortBy, limit = 20, year = 2025, minStudents = 5, minContenjan = 0) {
   const yearKey = `data${year}`;
   // En az minStudents öğrenci olan kayıtları al (küçük kontenjanları filtrele)
-  let validData = data.filter(d => d[yearKey] !== null && d[yearKey].sayi >= minStudents);
+  let validData = data.filter(d => d[yearKey] !== null && d[yearKey].sayi >= minStudents && d[yearKey].oran > 0);
   
   // Eğer minimum kontenjan şartı varsa onu da uygula (oran sıralaması için)
   if (minContenjan > 0 && sortBy === 'rate') {
@@ -264,7 +295,8 @@ export function getTrendingRecords(data, trendType = 'rising', limit = 20, minSt
 }
 
 /**
- * Şehir bazlı istatistikler
+ * ✅ DÜZELTİLDİ: Şehir bazlı istatistikler
+ * Ağırlıklı ortalama kullanılıyor
  */
 export function getCityStatistics(data) {
   const cities = {};
@@ -281,7 +313,8 @@ export function getCityStatistics(data) {
         departments: new Set(),
         totalRecords: 0,
         totalStudents2025: 0,
-        avgRate2025: []
+        // ✅ Kontenjan eklendi
+        totalKontenjan2025: 0
       };
     }
     
@@ -289,19 +322,24 @@ export function getCityStatistics(data) {
     cities[city].departments.add(record.bolum);
     cities[city].totalRecords++;
     
-    if (record.data2025) {
+    if (record.data2025 && record.data2025.oran > 0) {
       cities[city].totalStudents2025 += record.data2025.sayi;
-      cities[city].avgRate2025.push(record.data2025.oran);
+      cities[city].totalKontenjan2025 += record.data2025.sayi / (record.data2025.oran / 100);
     }
   });
   
-  // Set'leri array'e çevir ve ortalama hesapla
+  // Set'leri array'e çevir ve ağırlıklı ortalama hesapla
   Object.values(cities).forEach(city => {
     city.universities = city.universities.size;
     city.departments = city.departments.size;
-    city.avgRate2025 = city.avgRate2025.length > 0
-      ? (city.avgRate2025.reduce((a, b) => a + b, 0) / city.avgRate2025.length).toFixed(2)
+    
+    // ✅ Ağırlıklı ortalama
+    city.avgRate2025 = city.totalKontenjan2025 > 0
+      ? ((city.totalStudents2025 / city.totalKontenjan2025) * 100).toFixed(2)
       : 0;
+    
+    // Kontenjan alanını temizle
+    delete city.totalKontenjan2025;
   });
   
   return Object.values(cities).sort((a, b) => b.totalStudents2025 - a.totalStudents2025);
