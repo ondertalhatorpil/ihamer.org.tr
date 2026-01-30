@@ -59,31 +59,22 @@ const Dashboard = ({ data }) => {
 
     const stats = useMemo(() => getGeneralStatistics(data), [data]);
     const topByStudents = useMemo(() => getTopRecords(data, 'students', 10, 2025, 10, 0), [data]);
-    const topByRate = useMemo(() => getTopRecords(data, 'rate', 5, 2025, 10, 50), [data]);
+    const topByRate = useMemo(() => getTopRecords(data, 'rate', 10, 2025, 10, 50), [data]);
     const rising = useMemo(() => getTrendingRecords(data, 'rising', 5, 5), [data]);
 
     return (
         <div className="space-y-4 md:space-y-8 pb-8 animate-fade-in">
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                 <StatCard
                     icon={<Users className="w-5 h-5 md:w-6 md:h-6" />}
                     title="Toplam Öğr."
                     value={<AnimatedCounter value={stats.stats2025.totalStudents} formatter={formatNumber} />}
-                    subtitle={`Ort: %${stats.stats2025.averageRate}`}
+
                     trend={stats.stats2025.totalStudents > stats.stats2023.totalStudents ? 'up' : 'down'}
                     color="custom"
                     customColor="#B38F65"
                     tooltipText="2025 yılında üniversitelere yerleşen toplam İmam Hatip mezunu öğrenci sayısı" />
-                <StatCard
-                    icon={<MapPin className="w-5 h-5 md:w-6 md:h-6" />}
-                    title="Kayıt"
-                    value={<AnimatedCounter value={stats.totalRecords} formatter={formatNumber} />}
-                    subtitle={`${formatNumber(stats.validRecords)} aktif`}
-                    color="custom"
-                    customColor="#B38F65"
-                    tooltipText="YÖK Atlas'tan çekilen toplam program kaydı. 8.278'inde İH öğrenci bulunuyor"
-                />
                 <StatCard
                     icon={<Building2 className="w-5 h-5 md:w-6 md:h-6" />}
                     title="Üniversite"
@@ -112,7 +103,7 @@ const Dashboard = ({ data }) => {
                         Dönemsel Performans
                     </h2>
                     <span className="rounded-full bg-[#B38F65]/10 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-semibold tracking-wide text-[#B38F65] ring-1 ring-[#B38F65]/20">
-                        2023 vs 2025
+                        2023 ve 2025
                     </span>
                 </div>
                 <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-8">
@@ -197,42 +188,6 @@ const Dashboard = ({ data }) => {
 
                 {/* Sağ Kolon */}
                 <div className="xl:col-span-5 flex flex-col gap-4 md:gap-6">
-                    {/* Trendler */}
-                    <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 p-4 md:p-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="p-1.5 md:p-2 bg-[#B38F65]/10 rounded-lg text-[#B38F65]">
-                                <TrendingUp size={16} />
-                            </div>
-                            <div>
-                               <div className='flex'>
-                                 <h2 className="text-sm md:text-base font-bold text-slate-800 mr-2">Yükselen Trendler</h2>
-                                <Tooltip
-                                    text="Son 2 yılda İH öğrenci sayısı hızla artan popüler bölümler(Sayısal olarak değil oransal artışa göre)"
-                                    position="top"
-                                >
-                                    <Info size={14} className="text-slate-400 hover:text-[#B38F65] transition-colors" />
-                                </Tooltip>
-                               </div>
-                                <p className="text-[10px] md:text-[11px] text-slate-500">Son 3 yılda artış</p>
-
-                            </div>
-                        </div>
-                        <div className="space-y-3 md:space-y-4">
-                            {rising.map((record, index) => (
-                                <div key={index} className="flex items-center justify-between group">
-                                    <div className="flex-1 min-w-0 pr-3">
-                                        <div className="text-xs md:text-sm font-semibold text-slate-800 truncate">{record.bolum}</div>
-                                        <div className="text-[10px] md:text-[11px] text-slate-500 truncate">{record.universiteName}</div>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-[#B38F65] bg-[#B38F65]/5 border border-[#B38F65]/10 px-2 py-1 rounded-lg">
-                                        <ArrowUpRight size={12} strokeWidth={2.5} />
-                                        <span className="text-[10px] md:text-xs font-bold">%{record.trendData.percentChange.toFixed(0)}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Yoğunluk */}
                     <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 p-4 md:p-6">
                         <div className="flex items-center gap-2 mb-4">
@@ -240,15 +195,15 @@ const Dashboard = ({ data }) => {
                                 <Users size={16} />
                             </div>
                             <div>
-<div className="flex items-center gap-1.5">
-                <h2 className="text-sm md:text-base font-bold text-slate-800">Yüksek Yoğunluk</h2>
-                <Tooltip 
-                    text="Bu oran, bölümün toplam kontenjanına göre İmam Hatip mezunu yerleşme yüzdesini ifade eder. Küçük kontenjanlı bölümlerde sayı az olsa da yüzdesel yoğunluk daha yüksek çıkabilir." 
-                    position="top"
-                >
-                    <Info size={14} className="text-slate-400 hover:text-[#B38F65] transition-colors cursor-help" />
-                </Tooltip>
-            </div>                                <p className="text-[10px] md:text-[11px] text-slate-500">Doluluk oranı</p>
+                                <div className="flex items-center gap-1.5">
+                                    <h2 className="text-sm md:text-base font-bold text-slate-800">Yüksek Yoğunluk</h2>
+                                    <Tooltip
+                                        text="Bu oran, bölümün toplam kontenjanına göre İmam Hatip mezunu yerleşme yüzdesini ifade eder. Küçük kontenjanlı bölümlerde sayı az olsa da yüzdesel yoğunluk daha yüksek çıkabilir."
+                                        position="top"
+                                    >
+                                        <Info size={14} className="text-slate-400 hover:text-[#B38F65] transition-colors cursor-help" />
+                                    </Tooltip>
+                                </div>                                <p className="text-[10px] md:text-xs text-slate-500">Doluluk oranına göre ilk 10</p>
                             </div>
                         </div>
                         <div className="space-y-4 md:space-y-5">

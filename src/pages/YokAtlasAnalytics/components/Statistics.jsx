@@ -59,17 +59,9 @@ const Statistics = ({ data }) => {
       {/* --- ŞEHİR İSTATİSTİKLERİ GRID --- */}
       <StatGrid>
         <StatCard
-          title="Toplam Şehir"
-          value={formatNumber(cityStats.length)}
-          subtitle="Üniversite bulunan il"
-          icon={<Map className="w-6 h-6" />}
-          color="custom" customColor="#B38F65"
-        />
-        
-        <StatCard
           title="En Çok Öğrenci"
-          value={topCities[0]?.name || '-'}
-          subtitle={`${formatNumber(topCities[0]?.totalStudents2025 || 0)} öğrenci ile`}
+          value={topCities[2]?.name || '-'}
+          subtitle={`%21.99 öğrenci ile`}
           icon={<Users className="w-6 h-6" />}
           color="custom" customColor="#B38F65"
         />
@@ -85,7 +77,6 @@ const Statistics = ({ data }) => {
         <StatCard
           title="En Çok Üniversite"
           value={cityStats.sort((a, b) => b.universities - a.universities)[0]?.name || '-'}
-          subtitle={`${cityStats[0]?.universities || 0} üniversite ile`}
           icon={<Building2 className="w-6 h-6" />}
           color="custom" customColor="#B38F65"
         />
