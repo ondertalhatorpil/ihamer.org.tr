@@ -96,7 +96,7 @@ const Dashboard = ({ data }) => {
             </div>
 
             {/* --- KARŞILAŞTIRMA (BANNER) --- */}
-            <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-gradient-to-br from-white via-slate-50 to-[#B38F65]/10 p-5 md:p-10 border border-[#B38F65]/20 shadow-sm group">
+           {/*  <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-gradient-to-br from-white via-slate-50 to-[#B38F65]/10 p-5 md:p-10 border border-[#B38F65]/20 shadow-sm group">
                 <div className="relative z-10 mb-6 md:mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <h2 className="flex items-center gap-2 text-base md:text-xl font-extrabold tracking-tight text-[#B38F65]">
                         <BarChart3 className="h-5 w-5 md:h-6 md:w-6" />
@@ -129,13 +129,13 @@ const Dashboard = ({ data }) => {
                     // Yüzdeler küçük olduğu için animasyon gerekmez ama istenirse eklenebilir
                     />
                 </div>
-            </div>
+            </div> */}
 
             {/* --- ALT LİSTELER --- */}
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-8 items-start">
 
                 {/* En Çok Tercih Edilenler */}
-                <div className="xl:col-span-7 bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 p-4 md:p-6">
+                <div className="xl:col-span-12 bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 p-4 md:p-6">
                     <div className="flex items-center justify-between mb-4 md:mb-6 pb-3 border-b border-slate-50">
                         <div>
                             <h2 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -187,8 +187,8 @@ const Dashboard = ({ data }) => {
                 </div>
 
                 {/* Sağ Kolon */}
-                <div className="xl:col-span-5 flex flex-col gap-4 md:gap-6">
-                    {/* Yoğunluk */}
+                {/* <div className="xl:col-span-5 flex flex-col gap-4 md:gap-6">
+                    
                     <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-sm border border-slate-100 p-4 md:p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <div className="p-1.5 md:p-2 bg-[#B38F65]/10 rounded-lg text-[#B38F65]">
@@ -226,7 +226,7 @@ const Dashboard = ({ data }) => {
                             ))}
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

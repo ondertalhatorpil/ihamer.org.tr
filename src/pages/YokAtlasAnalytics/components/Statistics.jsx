@@ -57,30 +57,7 @@ const Statistics = ({ data }) => {
       </div>
 
       {/* --- ŞEHİR İSTATİSTİKLERİ GRID --- */}
-      <StatGrid>
-        <StatCard
-          title="En Çok Öğrenci"
-          value={topCities[2]?.name || '-'}
-          subtitle={`%21.99 öğrenci ile`}
-          icon={<Users className="w-6 h-6" />}
-          color="custom" customColor="#B38F65"
-        />
-        
-        <StatCard
-          title="En Yüksek Oran"
-          value={cityStats.sort((a, b) => parseFloat(b.avgRate2025) - parseFloat(a.avgRate2025))[0]?.name || '-'}
-          subtitle={`Ortalama %${cityStats[0]?.avgRate2025 || 0}`}
-          icon={<TrendingUp className="w-6 h-6" />}
-          color="custom" customColor="#B38F65"
-        />
-        
-        <StatCard
-          title="En Çok Üniversite"
-          value={cityStats.sort((a, b) => b.universities - a.universities)[0]?.name || '-'}
-          icon={<Building2 className="w-6 h-6" />}
-          color="custom" customColor="#B38F65"
-        />
-      </StatGrid>
+    
 
       {/* --- CHARTS GRID --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -88,7 +65,7 @@ const Statistics = ({ data }) => {
         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
             <Users className="w-5 h-5 text-[#B38F65]" />
-            Şehirlere Göre Öğrenci (Top 15)
+            Şehirlere Göre Öğrenci Sayısı (İlk 15)
           </h3>
           <div className="h-[300px] md:h-[350px]">
              <ComparisonBarChart 
@@ -102,7 +79,7 @@ const Statistics = ({ data }) => {
         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-[#B38F65]" />
-            Şehirlere Göre İH Oranı (Top 15)
+            Şehirlere Göre Öğrenci Oranı (İlk 15)
           </h3>
           <div className="h-[300px] md:h-[350px]">
             <ComparisonBarChart 
@@ -117,7 +94,7 @@ const Statistics = ({ data }) => {
       <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-100 bg-slate-50/50">
            <h3 className="text-lg md:text-xl font-bold text-slate-800">📋 Şehir Detay Listesi</h3>
-           <p className="text-xs md:text-sm text-slate-500 mt-1">En çok öğrenci barındıran ilk 20 şehir</p>
+           <p className="text-xs md:text-sm text-slate-500 mt-1">Öğrenci oranının en yüksek olduğu 20 şehir</p>
         </div>
         
         {/* 1. MOBİL KART GÖRÜNÜMÜ */}
