@@ -5,7 +5,7 @@ import os
 script_dizini = os.path.dirname(os.path.abspath(__file__))
 
 # Dosya yollarını script'in olduğu yere göre tam adres (absolute path) yapıyoruz:
-json_dosyasi = os.path.join(script_dizini, 'tez.json')
+json_dosyasi = os.path.join(script_dizini, 'tez2.json')
 silinecek_dosyasi = os.path.join(script_dizini, 'silinecekler.txt')
 cikti_dosyasi = os.path.join(script_dizini, 'temizlenmis_veri2.json')
 

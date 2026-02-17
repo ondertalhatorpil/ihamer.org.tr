@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Search, X, Plus, Minus, ArrowRight, Filter, ChevronDown, SlidersHorizontal, ExternalLink } from 'lucide-react';
+import { Search, X, Plus, Minus, ArrowRight, Filter, ChevronDown, SlidersHorizontal, ExternalLink, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 // --- STYLES (SHARED DESIGN SYSTEM) ---
 const styles = `
@@ -60,7 +61,7 @@ const styles = `
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    max-height: 300px; /* Scroll için yükseklik sınırı */
+    max-height: 300px;
     overflow-y: auto;
     z-index: 9999;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -106,6 +107,31 @@ const styles = `
   .floating-filter-btn:hover {
     transform: scale(1.05);
     background: black;
+  }
+
+  /* EXCEL EXPORT BUTTON */
+  .excel-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .excel-export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+  .excel-export-btn:active {
+    transform: translateY(0);
   }
 
   /* MODAL / OVERLAY SİSTEMİ */
@@ -175,6 +201,10 @@ const styles = `
       gap: 1rem;
       padding-bottom: 3rem;
     }
+    .excel-export-btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
   /* BUTTONS */
@@ -217,7 +247,7 @@ const styles = `
   }
   .yoktez-button:hover {
     transform: translateY(-1px);
-      background: linear-gradient(135deg, #ae9246 0%, #c7976f 100%);
+    background: linear-gradient(135deg, #ae9246 0%, #c7976f 100%);
   }
 
   /* BADGES */
@@ -304,7 +334,7 @@ const HighlightedText = ({ text, highlight }) => {
 
   const lowerText = turkishToLower(text);
   const lowerHighlight = turkishToLower(highlight);
-  
+
   if (!lowerText.includes(lowerHighlight)) return <>{text}</>;
 
   const elements = [];
@@ -326,7 +356,7 @@ const HighlightedText = ({ text, highlight }) => {
   if (lastIndex < text.length) {
     elements.push(text.substring(lastIndex));
   }
-  
+
   return <>{elements}</>;
 };
 
@@ -344,7 +374,7 @@ const FilterInput = ({ label, placeholder, value, onChange, onFocus, onToggle, i
         onFocus={onFocus}
         className="input-modern pr-10"
       />
-      <div 
+      <div
         onClick={(e) => {
           e.preventDefault();
           onToggle();
@@ -357,7 +387,7 @@ const FilterInput = ({ label, placeholder, value, onChange, onFocus, onToggle, i
     {isOpen && options.length > 0 && (
       <div className="dropdown-modern custom-scrollbar">
         {options.map((opt, i) => (
-          <div 
+          <div
             key={i}
             onClick={() => onSelect(opt)}
             className="dropdown-item"
@@ -394,17 +424,17 @@ const FilterSelect = ({ label, value, onChange, options }) => (
 const FilteredTezList = () => {
   const { filterType, filterValue } = useParams();
   const navigate = useNavigate();
-  
+
   const [allTheses, setAllTheses] = useState([]);
   const [filteredTheses, setFilteredTheses] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedThesis, setExpandedThesis] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Modal & Floating Btn State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFloatingBtn, setShowFloatingBtn] = useState(false);
-  
+
   const [filters, setFilters] = useState({
     year: '', university: '', institute: '', department: '', type: '', category: ''
   });
@@ -446,7 +476,7 @@ const FilteredTezList = () => {
     // 1. URL Filtreleme
     if (filterType && filterValue) {
       const decodedValue = decodeURIComponent(filterValue);
-      switch(filterType) {
+      switch (filterType) {
         case 'university': result = result.filter(t => turkishToLower(t['Üniversite']) === turkishToLower(decodedValue)); break;
         case 'institute': result = result.filter(t => turkishToLower(t['Enstitü']) === turkishToLower(decodedValue)); break;
         case 'department': result = result.filter(t => turkishToLower(t['Bölüm']) === turkishToLower(decodedValue)); break;
@@ -462,7 +492,7 @@ const FilteredTezList = () => {
     // 2. Arama
     if (searchTerm) {
       const searchLower = turkishToLower(searchTerm);
-      result = result.filter(thesis => 
+      result = result.filter(thesis =>
         turkishToLower(thesis['Tez Başlığı']).includes(searchLower) ||
         turkishToLower(thesis['Yazar']).includes(searchLower) ||
         turkishToLower(thesis['Danışman']).includes(searchLower) ||
@@ -525,75 +555,120 @@ const FilteredTezList = () => {
     return filters.year || filters.university || filters.institute || filters.department || filters.type || filters.category || searchTerm;
   }, [filters, searchTerm]);
 
+  // EXCEL EXPORT FONKSİYONU
+  const exportToExcel = () => {
+    const excelData = filteredTheses.map((thesis, index) => ({
+      'Sıra': index + 1,
+      'Tez No': thesis['Tez No'],
+      'Kategori': thesis.category,
+      'Tez Başlığı': thesis['Tez Başlığı'],
+      'Yazar': thesis['Yazar'],
+      'Danışman': thesis['Danışman'] || '—',
+      'Üniversite': thesis['Üniversite'],
+      'Enstitü': thesis['Enstitü'],
+      'Bölüm': thesis['Bölüm'],
+      'Tez Türü': thesis['Tez Türü'],
+      'Yıl': thesis['Yıl'],
+      'Tez Dosyası': thesis['Tez Dosyası'] || 'Kısıtlı'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(excelData);
+
+    const columnWidths = [
+      { wch: 6 },   // Sıra
+      { wch: 12 },  // Tez No
+      { wch: 10 },  // Kategori
+      { wch: 60 },  // Tez Başlığı
+      { wch: 25 },  // Yazar
+      { wch: 25 },  // Danışman
+      { wch: 35 },  // Üniversite
+      { wch: 35 },  // Enstitü
+      { wch: 35 },  // Bölüm
+      { wch: 15 },  // Tez Türü
+      { wch: 8 },   // Yıl
+      { wch: 60 }   // Tez Dosyası
+    ];
+    ws['!cols'] = columnWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Tezler');
+
+    // Dosya adı oluştur
+    let fileName = getFilterTitle().replace(/[/:*?"<>|]/g, '_');
+    fileName += `_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}.xlsx`;
+
+    XLSX.writeFile(wb, fileName);
+  };
+
   // ORTAK FİLTRE İÇERİĞİ (HEADER & MODAL İÇİN)
   const FilterContent = (
     <>
-      <FilterInput 
+      <FilterInput
         label="Yıl"
         placeholder="Yıl"
         value={filters.year || searchDropdown.year}
         onChange={(e) => {
-            setSearchDropdown({...searchDropdown, year: e.target.value});
-            if(activeDropdown !== 'year') toggleDropdown('year');
+          setSearchDropdown({ ...searchDropdown, year: e.target.value });
+          if (activeDropdown !== 'year') toggleDropdown('year');
         }}
         isOpen={activeDropdown === 'year'}
         onToggle={() => toggleDropdown('year')}
         options={filteredYears}
         onSelect={(val) => {
-            setFilters({...filters, year: val});
-            setSearchDropdown({...searchDropdown, year: ''});
-            setActiveDropdown(null);
+          setFilters({ ...filters, year: val });
+          setSearchDropdown({ ...searchDropdown, year: '' });
+          setActiveDropdown(null);
         }}
       />
-      <FilterInput 
+      <FilterInput
         label="Üniversite"
         placeholder="Üniversite"
         value={filters.university || searchDropdown.university}
         onChange={(e) => {
-            setSearchDropdown({...searchDropdown, university: e.target.value});
-            if(activeDropdown !== 'uni') toggleDropdown('uni');
+          setSearchDropdown({ ...searchDropdown, university: e.target.value });
+          if (activeDropdown !== 'uni') toggleDropdown('uni');
         }}
         isOpen={activeDropdown === 'uni'}
         onToggle={() => toggleDropdown('uni')}
         options={filteredUniversities}
         onSelect={(val) => {
-            setFilters({...filters, university: val});
-            setSearchDropdown({...searchDropdown, university: ''});
-            setActiveDropdown(null);
+          setFilters({ ...filters, university: val });
+          setSearchDropdown({ ...searchDropdown, university: '' });
+          setActiveDropdown(null);
         }}
       />
-      <FilterInput 
+      <FilterInput
         label="Enstitü"
         placeholder="Enstitü"
         value={filters.institute || searchDropdown.institute}
         onChange={(e) => {
-            setSearchDropdown({...searchDropdown, institute: e.target.value});
-            if(activeDropdown !== 'inst') toggleDropdown('inst');
+          setSearchDropdown({ ...searchDropdown, institute: e.target.value });
+          if (activeDropdown !== 'inst') toggleDropdown('inst');
         }}
         isOpen={activeDropdown === 'inst'}
         onToggle={() => toggleDropdown('inst')}
         options={filteredInstitutes}
         onSelect={(val) => {
-            setFilters({...filters, institute: val});
-            setSearchDropdown({...searchDropdown, institute: ''});
-            setActiveDropdown(null);
+          setFilters({ ...filters, institute: val });
+          setSearchDropdown({ ...searchDropdown, institute: '' });
+          setActiveDropdown(null);
         }}
       />
-      <FilterInput 
+      <FilterInput
         label="Bölüm"
         placeholder="Bölüm"
         value={filters.department || searchDropdown.department}
         onChange={(e) => {
-            setSearchDropdown({...searchDropdown, department: e.target.value});
-            if(activeDropdown !== 'dept') toggleDropdown('dept');
+          setSearchDropdown({ ...searchDropdown, department: e.target.value });
+          if (activeDropdown !== 'dept') toggleDropdown('dept');
         }}
         isOpen={activeDropdown === 'dept'}
         onToggle={() => toggleDropdown('dept')}
         options={filteredDepartments}
         onSelect={(val) => {
-            setFilters({...filters, department: val});
-            setSearchDropdown({...searchDropdown, department: ''});
-            setActiveDropdown(null);
+          setFilters({ ...filters, department: val });
+          setSearchDropdown({ ...searchDropdown, department: '' });
+          setActiveDropdown(null);
         }}
       />
       <FilterSelect
@@ -627,56 +702,82 @@ const FilteredTezList = () => {
         <div className="max-w-7xl mx-auto px-3 md:px-6 py-6 md:py-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div className="w-full">
-              <button 
-                onClick={() => navigate('/tez-analytics')} 
+              <button
+                onClick={() => navigate('/tez-analytics')}
                 className="text-sm font-medium text-gray-500 hover:text-black mb-2 flex items-center gap-1"
               >
-                 <ArrowRight className="rotate-180 w-4 h-4" /> Dashboard
+                <ArrowRight className="rotate-180 w-4 h-4" /> Dashboard
               </button>
-              <div className="flex items-center justify-between">
-                <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-[#111827] break-words">
-                    {getFilterTitle()}
+              <div className="flex items-center justify-between gap-3">
+                <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-[#111827] break-words flex-1">
+                  {getFilterTitle()}
                 </h1>
-                <span className="md:hidden text-xs font-bold bg-white px-2 py-1 rounded border border-gray-200">
-                    {filteredTheses.length}
+
+                {/* MOBİL EXCEL BUTONU */}
+                <button
+                  onClick={exportToExcel}
+                  className="excel-export-btn md:hidden shrink-0"
+                  title="Excel İndir"
+                >
+                  <div className="excel-icon">E</div>
+                </button>
+
+                <span className="md:hidden text-xs font-bold bg-white px-2 py-1 rounded border border-gray-200 shrink-0">
+                  {filteredTheses.length}
                 </span>
               </div>
             </div>
-            
-            <div className="hidden md:block text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm shrink-0">
-              <span className="text-black font-bold">{filteredTheses.length}</span> kayıt listelendi
+
+            {/* DESKTOP EXCEL VE KAYIT SAYISI */}
+            <div className="hidden md:flex items-center gap-3 shrink-0">
+              <button
+                onClick={exportToExcel}
+                className="excel-export-btn"
+                title="Filtrelenmiş tezleri Excel'e aktar"
+              >
+                <div className="excel-icon excel-icon-full">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                    <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6zm10-9h-2v2h-2v-2h-2v2h-2v2h2v2h2v-2h2v2h2v-2h-2v-2z" />
+                  </svg>
+                </div>
+                <span>Excel</span>
+              </button>
+
+              <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm">
+                <span className="text-black font-bold">{filteredTheses.length}</span> kayıt
+              </div>
             </div>
           </div>
 
           {/* STATİK FİLTRE BAR (SADECE MASAÜSTÜ) */}
           <div className="static-filter-bar bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-             <div className="mb-4 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Başlık, yazar veya özet ara..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-gray-200 rounded-xl outline-none transition-all font-medium text-gray-700"
-                />
-             </div>
+            <div className="mb-4 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Başlık, yazar veya özet ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-gray-200 rounded-xl outline-none transition-all font-medium text-gray-700"
+              />
+            </div>
 
-             <div className="grid grid-cols-6 gap-3">
-                {FilterContent}
-             </div>
-             
-             {hasActiveFilters && (
-               <div className="mt-4 flex justify-end">
-                 <button onClick={clearFilters} className="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1">
-                   <X size={16} /> Temizle
-                 </button>
-               </div>
-             )}
+            <div className="grid grid-cols-6 gap-3">
+              {FilterContent}
+            </div>
+
+            {hasActiveFilters && (
+              <div className="mt-4 flex justify-end">
+                <button onClick={clearFilters} className="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1">
+                  <X size={16} /> Temizle
+                </button>
+              </div>
+            )}
           </div>
 
           {/* MOBILE SEARCH BAR */}
           <div className="lg:hidden w-full mt-4">
-             <div className="relative">
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
@@ -691,7 +792,7 @@ const FilteredTezList = () => {
       </header>
 
       {/* FLOATING ACTION BUTTON */}
-      <button 
+      <button
         className={`floating-filter-btn ${showFloatingBtn ? 'visible' : ''}`}
         onClick={() => setIsModalOpen(true)}
         title="Filtreleme ve Arama"
@@ -712,8 +813,8 @@ const FilteredTezList = () => {
           </div>
         </div>
         <div className="p-5 border-t border-gray-100 bg-gray-50 shrink-0 flex gap-3">
-            <button onClick={clearFilters} className="flex-1 py-3 bg-white border border-gray-200 text-red-500 rounded-xl font-medium">Temizle</button>
-            <button onClick={() => setIsModalOpen(false)} className="flex-[2] py-3 bg-[#111827] text-white rounded-xl font-medium">Sonuçları Göster ({filteredTheses.length})</button>
+          <button onClick={clearFilters} className="flex-1 py-3 bg-white border border-gray-200 text-red-500 rounded-xl font-medium">Temizle</button>
+          <button onClick={() => setIsModalOpen(false)} className="flex-[2] py-3 bg-[#111827] text-white rounded-xl font-medium">Sonuçları Göster ({filteredTheses.length})</button>
         </div>
       </div>
 
@@ -735,7 +836,6 @@ const FilteredTezList = () => {
             {filteredTheses.map((thesis, index) => (
               <div key={index} className="card-modern group">
                 <div className="card-header-flex flex mb-4 md:mb-6">
-                  {/* Min-w-0: Flex içinde taşmayı önler */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap gap-2 mb-2 md:mb-3">
                       <span className="badge badge-dark">{thesis['Tez No']}</span>
@@ -745,18 +845,21 @@ const FilteredTezList = () => {
                       <span className="badge bg-yellow-50 text-yellow-700 border border-yellow-100">{thesis['Tez Türü']}</span>
                       <span className="badge bg-orange-50 text-orange-800 border border-orange-100">{thesis['Yıl']}</span>
                     </div>
-                    {/* BAŞLIKTA VURGULAMA & WORD BREAK */}
                     <h2 className="text-xl md:text-xl font-bold text-justify text-gray-900 leading-snug group-hover:text-[#c7972f] transition-colors break-words">
                       <HighlightedText text={thesis['Tez Başlığı']} highlight={searchTerm} />
                     </h2>
                   </div>
-                  
+
                   <div className="card-action-top shrink-0">
                     {thesis['Tez Dosyası'] && thesis['Tez Dosyası'] !== 'İzinsiz' ? (
-                      <a href={thesis['Tez Dosyası']} target="_blank" rel="noopener noreferrer"
+                      <a
+                        href={thesis['Tez Dosyası']}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="yoktez-button"
-                        title="YÖKTEZ'DE GÖRÜNTÜLE">
-                         <span className="text-xs font-semibold">YÖKTEZ'DE GÖRÜNTÜLE</span>
+                        title="YÖKTEZ'DE GÖRÜNTÜLE"
+                      >
+                        <span className="text-xs font-semibold">YÖKTEZ'DE GÖRÜNTÜLE</span>
                         <ExternalLink size={14} />
                       </a>
                     ) : (
@@ -793,7 +896,7 @@ const FilteredTezList = () => {
                   {thesis['Özet (Türkçe)'] ? (
                     <button onClick={() => setExpandedThesis(expandedThesis === index ? null : index)}
                       className="btn-modern py-1.5 px-3 md:py-2 md:px-4 gap-2 text-xs md:text-sm border-gray-200 hover:shadow-sm">
-                      {expandedThesis === index ? <Minus size={14}/> : <Plus size={14}/>}
+                      {expandedThesis === index ? <Minus size={14} /> : <Plus size={14} />}
                       <span>{expandedThesis === index ? 'Gizle' : 'Özet'}</span>
                     </button>
                   ) : (
@@ -804,22 +907,22 @@ const FilteredTezList = () => {
                 {expandedThesis === index && (
                   <div className="mt-6 bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
                     <div className="p-5 md:p-8 max-h-[350px] overflow-y-auto custom-scrollbar">
-                        <div>
+                      <div>
                         <h4 className="text-sm font-bold text-gray-900 mb-3 top-0 bg-gray-50 z-10 flex items-center gap-2 pb-2">
-                            <span className="w-1 h-4 bg-yellow-600 rounded-full"></span> Türkçe Özet
+                          <span className="w-1 h-4 bg-yellow-600 rounded-full"></span> Türkçe Özet
                         </h4>
                         <p className="text-gray-700 text-justify leading-relaxed font-light text-sm md:text-[0.95rem]">
-                            <HighlightedText text={thesis['Özet (Türkçe)']} highlight={searchTerm} />
+                          <HighlightedText text={thesis['Özet (Türkçe)']} highlight={searchTerm} />
                         </p>
-                        </div>
-                        {thesis['Özet (İngilizce)'] && (
+                      </div>
+                      {thesis['Özet (İngilizce)'] && (
                         <div className="mt-8 pt-8 border-t border-gray-200">
-                            <h4 className="text-sm font-bold text-gray-900 mb-3 top-0 bg-gray-50 z-10 flex items-center gap-2 pb-2">
-                                <span className="w-1 h-4 bg-orange-500 rounded-full"></span> English Abstract
-                            </h4>
-                            <p className="text-gray-600 text-justify leading-relaxed font-light text-sm md:text-[0.95rem]">{thesis['Özet (İngilizce)']}</p>
+                          <h4 className="text-sm font-bold text-gray-900 mb-3 top-0 bg-gray-50 z-10 flex items-center gap-2 pb-2">
+                            <span className="w-1 h-4 bg-orange-500 rounded-full"></span> English Abstract
+                          </h4>
+                          <p className="text-gray-600 text-justify leading-relaxed font-light text-sm md:text-[0.95rem]">{thesis['Özet (İngilizce)']}</p>
                         </div>
-                        )}
+                      )}
                     </div>
                   </div>
                 )}
@@ -831,7 +934,5 @@ const FilteredTezList = () => {
     </div>
   );
 };
-
-/* deneme */
 
 export default FilteredTezList;

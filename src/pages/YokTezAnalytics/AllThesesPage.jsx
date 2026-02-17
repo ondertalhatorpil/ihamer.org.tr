@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, X, Plus, Minus, ArrowRight, Filter, ChevronDown, SlidersHorizontal, ExternalLink, UserCheck } from 'lucide-react';
+import { Search, X, Plus, Minus, ArrowRight, Filter, ChevronDown, SlidersHorizontal, ExternalLink, UserCheck, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 const styles = `
   @import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
@@ -106,6 +107,31 @@ const styles = `
     background: black;
   }
 
+  /* EXCEL EXPORT BUTTON */
+  .excel-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .excel-export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  }
+  .excel-export-btn:active {
+    transform: translateY(0);
+  }
+
   /* MODAL / OVERLAY SİSTEMİ */
   .filter-overlay {
     position: fixed;
@@ -176,6 +202,11 @@ const styles = `
       gap: 1rem;
       padding-bottom: 3rem;
     }
+    
+    .excel-export-btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
   /* BUTTONS */
@@ -217,7 +248,7 @@ const styles = `
   }
   .yoktez-button:hover {
     transform: translateY(-1px);
-      background: linear-gradient(135deg, #ae9246 0%, #c7976f 100%);
+    background: linear-gradient(135deg, #ae9246 0%, #c7976f 100%);
   }
 
   /* BADGES */
@@ -451,6 +482,66 @@ const AllThesesPage = () => {
     navigate('/tez-analytics/all');
     setIsModalOpen(false);
   };
+
+  // EXCEL EXPORT FONKSİYONU
+  const exportToExcel = () => {
+    // Excel için veri hazırlama
+    const excelData = filteredTheses.map((thesis, index) => ({
+      'Sıra': index + 1,
+      'Tez No': thesis['Tez No'],
+      'Kategori': thesis.category,
+      'Tez Başlığı': thesis['Tez Başlığı'],
+      'Yazar': thesis['Yazar'],
+      'Danışman': thesis['Danışman'] || '—',
+      'Üniversite': thesis['Üniversite'],
+      'Enstitü': thesis['Enstitü'],
+      'Bölüm': thesis['Bölüm'],
+      'Tez Türü': thesis['Tez Türü'],
+      'Yıl': thesis['Yıl'],
+      'Tez Dosyası': thesis['Tez Dosyası'] || 'Kısıtlı'
+    }));
+
+    // Worksheet oluştur
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    
+    // Sütun genişliklerini ayarla
+    const columnWidths = [
+      { wch: 6 },  // Sıra
+      { wch: 12 }, // Tez No
+      { wch: 10 }, // Kategori
+      { wch: 60 }, // Tez Başlığı
+      { wch: 25 }, // Yazar
+      { wch: 25 }, // Danışman
+      { wch: 35 }, // Üniversite
+      { wch: 35 }, // Enstitü
+      { wch: 35 }, // Bölüm
+      { wch: 15 }, // Tez Türü
+      { wch: 8 },  // Yıl
+      { wch: 60 }  // Tez Dosyası
+    ];
+    ws['!cols'] = columnWidths;
+
+    // Workbook oluştur
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Tezler');
+
+    // Dosya adı oluştur
+    let fileName = 'Tezler';
+    if (filters.advisor) {
+      fileName = `${filters.advisor}_Tezleri`;
+    } else if (filters.university) {
+      fileName = `${filters.university}_Tezleri`;
+    } else if (filters.year) {
+      fileName = `${filters.year}_Tezleri`;
+    } else if (filters.category) {
+      fileName = `${filters.category}_Tezler`;
+    }
+    fileName += `_${new Date().toLocaleDateString('tr-TR').replace(/\./g, '-')}.xlsx`;
+
+    // Excel dosyasını indir
+    XLSX.writeFile(wb, fileName);
+  };
+
   const HighlightedText = ({ text, highlight }) => {
     if (!text) return null;
     if (!highlight || highlight.trim() === '') return <>{text}</>;
@@ -561,11 +652,21 @@ const AllThesesPage = () => {
                 <ArrowRight className="rotate-180 w-4 h-4" /> Dashboard
               </button>
 
-              <div className="flex items-center justify-between">
-                <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-[#111827] break-words">
+              <div className="flex items-center justify-between gap-3">
+                <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-[#111827] break-words flex-1">
                   {filters.advisor ? `${filters.advisor}` : 'Tüm Tezler'}
                 </h1>
-                <span className="md:hidden text-xs font-bold bg-white px-2 py-1 rounded border border-gray-200">
+                
+                {/* MOBİL EXCEL BUTONU */}
+                <button 
+                  onClick={exportToExcel}
+                  className="excel-export-btn md:hidden shrink-0"
+                  title="Excel İndir"
+                >
+                  <Download size={16} />
+                </button>
+
+                <span className="md:hidden text-xs font-bold bg-white px-2 py-1 rounded border border-gray-200 shrink-0">
                   {filteredTheses.length}
                 </span>
               </div>
@@ -578,8 +679,20 @@ const AllThesesPage = () => {
               )}
             </div>
 
-            <div className="hidden md:block text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm shrink-0">
-              <span className="text-black font-bold">{filteredTheses.length}</span> kayıt
+            {/* DESKTOP EXCEL VE KAYIT SAYISI */}
+            <div className="hidden md:flex items-center gap-3 shrink-0">
+              <button 
+                onClick={exportToExcel}
+                className="excel-export-btn"
+                title="Filtrelenmiş tezleri Excel'e aktar"
+              >
+                <Download size={18} />
+                <span>Excel İndir</span>
+              </button>
+              
+              <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm">
+                <span className="text-black font-bold">{filteredTheses.length}</span> kayıt
+              </div>
             </div>
           </div>
 
@@ -659,7 +772,6 @@ const AllThesesPage = () => {
             {filteredTheses.map((thesis, index) => (
               <div key={index} className="card-modern group">
                 <div className="card-header-flex flex mb-4 md:mb-6">
-                  {/* Min-w-0: Flex içinde taşmayı önler */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap gap-2 mb-2 md:mb-3">
                       <span className="badge badge-dark">{thesis['Tez No']}</span>
@@ -669,7 +781,6 @@ const AllThesesPage = () => {
                       <span className="badge bg-yellow-50 text-yellow-700 border border-yellow-100">{thesis['Tez Türü']}</span>
                       <span className="badge bg-orange-50 text-orange-800 border border-orange-100">{thesis['Yıl']}</span>
                     </div>
-                    {/* BAŞLIKTA VURGULAMA & WORD BREAK */}
                     <h2 className="text-xl md:text-xl font-bold text-justify text-gray-900 leading-snug group-hover:text-[#c7972f] transition-colors break-words">
                       <HighlightedText text={thesis['Tez Başlığı']} highlight={searchTerm} />
                     </h2>
@@ -677,9 +788,13 @@ const AllThesesPage = () => {
 
                   <div className="card-action-top shrink-0">
                     {thesis['Tez Dosyası'] && thesis['Tez Dosyası'] !== 'İzinsiz' ? (
-                      <a href={thesis['Tez Dosyası']} target="_blank" rel="noopener noreferrer"
+                      <a
+                        href={thesis['Tez Dosyası'].replace('/TezGoster?', '/tezSorguSonucYeni.jsp?')}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="yoktez-button"
-                        title="YÖKTEZ'DE GÖRÜNTÜLE">
+                        title="YÖKTEZ'DE GÖRÜNTÜLE"
+                      >
                         <span className="text-xs font-semibold">YÖKTEZ'DE GÖRÜNTÜLE</span>
                         <ExternalLink size={14} />
                       </a>
