@@ -352,7 +352,7 @@ const TurkeyMap = ({ citiesData, data }) => {
                         transition={{ delay: index * 0.05 }}
                         onClick={() => {
                           setSelectedCity(null);
-                          navigate(`/universities/${encodeURIComponent(univ.name)}`);
+                          navigate(`/universities/v2/${encodeURIComponent(univ.name)}`);
                         }}
                         className="bg-gray-50 rounded-lg p-4 hover:bg-primary-50 hover:border-primary-300 hover:shadow-md transition-all border border-gray-200 cursor-pointer group"
                       >

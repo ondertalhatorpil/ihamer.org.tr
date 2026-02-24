@@ -274,7 +274,7 @@ const Overview = ({ data }) => {
             {stats.topPrograms.map((program, index) => (
               <div
                 key={index}
-                onClick={() => navigate(`/programs/${encodeURIComponent(program.name)}`)}
+                onClick={() => navigate(`/programs/v2/${encodeURIComponent(program.name)}`)}
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-primary-50 hover:border-primary-200 border border-transparent transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -303,7 +303,7 @@ const Overview = ({ data }) => {
             {stats.topUniversities.map((univ, index) => (
               <div
                 key={index}
-                onClick={() => navigate(`/universities/${encodeURIComponent(univ.name)}`)}
+                onClick={() => navigate(`/universities/v2/${encodeURIComponent(univ.name)}`)}
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-purple-50 hover:border-purple-200 border border-transparent transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
