@@ -1,497 +1,740 @@
+/* ProgramDetail.jsx */
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, TrendingUp, TrendingDown, Info, X, School, MapPin } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Building2, TrendingUp, TrendingDown, Info, X, School, MapPin, ChevronRight, Search } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { calculateTrend, normalizeProgramName } from '../utils/dataProcessor';
 
+const T = {
+  bg: '#faf8f4', bgDeep: '#f4f0e8', bgCard: '#ffffff',
+  border: 'rgba(28,31,46,0.10)', borderCard: 'rgba(28,31,46,0.08)',
+  text: '#1c1f2e', textSub: '#4a4e65', textMuted: '#8a8ea8',
+  navy: '#1c1f2e', navyMid: '#2d3250',
+  brown: '#8b5e3c', brownLight: '#c49a6c', brownPale: '#f0e4d0',
+  shadow: 'rgba(28,31,46,0.08)', shadowMd: 'rgba(28,31,46,0.14)',
+};
+
+const FONT_BODY    = '"Plus Jakarta Sans", system-ui, sans-serif';
+const FONT_DISPLAY = '"Playfair Display", serif';
+
+/* Türkçe karakter + büyük/küçük harf duyarsız normalize */
+const trNorm = (s) =>
+  (s || '')
+    .replace(/İ/g, 'i').replace(/I/g, 'ı')
+    .replace(/Ğ/g, 'ğ').replace(/Ü/g, 'ü')
+    .replace(/Ş/g, 'ş').replace(/Ö/g, 'ö')
+    .replace(/Ç/g, 'ç')
+    .toLowerCase().trim();
+
+const TYPE_STYLES = {
+  Devlet: { bg: `${T.navy}12`, color: T.navy, border: `${T.navy}28` },
+  Vakıf:  { bg: `${T.brown}12`, color: T.brown, border: `${T.brown}28` },
+  KKTC:   { bg: `${T.brownLight}22`, color: '#7a4a10', border: `${T.brownLight}44` },
+};
+
+const Badge = ({ type }) => {
+  const s = TYPE_STYLES[type] || TYPE_STYLES.Devlet;
+  return (
+    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+      padding: '3px 8px', borderRadius: 6, background: s.bg, color: s.color,
+      border: `1px solid ${s.border}`, flexShrink: 0 }}>{type}</span>
+  );
+};
+
+const Card = ({ children, accent, delay = 0, style = {} }) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-20px' });
+  const ac = accent || T.brown;
+  return (
+    <motion.div ref={ref}
+      initial={{ opacity: 0, y: 18 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      style={{ background: T.bgCard, border: `1px solid ${T.borderCard}`, borderRadius: 14,
+        padding: '22px 20px', boxShadow: `0 2px 10px ${T.shadow}`,
+        position: 'relative', overflow: 'hidden', ...style }}
+    >
+      <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 2,
+        background: `linear-gradient(90deg, transparent, ${ac}44, transparent)` }}/>
+      {children}
+    </motion.div>
+  );
+};
+
+const SectionTitle = ({ children, color }) => (
+  <div style={{ marginBottom: 18 }}>
+    <h2 style={{ fontSize: 18, fontWeight: 700, color: T.navy,
+      fontFamily: FONT_DISPLAY, fontStyle: 'italic', letterSpacing: '-0.01em' }}>{children}</h2>
+    <div style={{ width: 40, height: 2,
+      background: `linear-gradient(90deg, ${color || T.brown}, transparent)`,
+      borderRadius: 1, marginTop: 4 }}/>
+  </div>
+);
+
+const tipStyle = {
+  backgroundColor: T.bgCard, border: `1px solid ${T.borderCard}`,
+  borderRadius: 10, color: T.text, fontSize: 12, boxShadow: `0 4px 16px ${T.shadow}`,
+};
+
+/* ─────────────────────────────────────────────────────
+   MAIN PAGE
+───────────────────────────────────────────────────── */
 const ProgramDetail = ({ data }) => {
   const { programName } = useParams();
   const navigate = useNavigate();
   const decodedName = decodeURIComponent(programName);
 
-  const [programData, setProgramData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedUniversity, setSelectedUniversity] = useState(null);
+  const [progData, setProgData]       = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [selectedUniv, setSelectedUniv] = useState(null);
+  const [univSearch, setUnivSearch]   = useState('');
 
   useEffect(() => {
-    if (!data || !data.length) return;
+    if (!data?.length) return;
+    const recs = data.filter(r => normalizeProgramName(r.program_name) === decodedName);
+    if (!recs.length) { setLoading(false); return; }
 
-    const programRecords = data.filter(r => {
-      const normalizedRecordName = normalizeProgramName(r.program_name);
-      return normalizedRecordName === decodedName;
-    });
-
-    if (programRecords.length === 0) {
-      setLoading(false);
-      return;
-    }
-
-    const calculateYearData = (year) => {
-      const yearRecords = programRecords.filter(r => r.year === year);
-      const totalIHL = yearRecords.reduce((sum, r) => {
-        return sum + (r.imam_hatip_lise_tipi?.reduce((s, tip) => s + (tip.yerlesen || 0), 0) || 0);
-      }, 0);
-      const totalStudents = yearRecords.reduce((sum, r) => sum + (r.toplam_yerlesen || 0), 0);
-      const universityCount = new Set(yearRecords.map(r => r.university_name)).size;
+    const calcYear = (year) => {
+      const yr  = recs.filter(r => r.year === year);
+      const ihl = yr.reduce((s, r) => s + (r.imam_hatip_lise_tipi?.reduce((a, t) => a + (t.yerlesen || 0), 0) || 0), 0);
+      const tot = yr.reduce((s, r) => s + (r.toplam_yerlesen || 0), 0);
       return {
-        year, ihlCount: totalIHL, totalStudents, universityCount,
-        percentage: totalStudents > 0 ? ((totalIHL / totalStudents) * 100).toFixed(2) : 0
+        year, ihlCount: ihl, totalStudents: tot,
+        universityCount: new Set(yr.map(r => r.university_name)).size,
+        percentage: tot > 0 ? ((ihl / tot) * 100).toFixed(2) : 0,
       };
     };
 
-    const data2023 = calculateYearData('2023');
-    const data2024 = calculateYearData('2024');
-    const data2025 = calculateYearData('2025');
+    const d23 = calcYear('2023'), d24 = calcYear('2024'), d25 = calcYear('2025');
 
     const univMap = {};
-    programRecords.filter(r => r.year === '2025').forEach(record => {
-      const univName = record.university_name;
-      const ihlCount = record.imam_hatip_lise_tipi?.reduce((s, tip) => s + (tip.yerlesen || 0), 0) || 0;
-      if (!univMap[univName]) {
-        univMap[univName] = { name: univName, type: record.university_type, city: record.city, count2025: 0, total2025: 0, count2024: 0, total2024: 0 };
-      }
-      univMap[univName].count2025 += ihlCount;
-      univMap[univName].total2025 += record.toplam_yerlesen || 0;
+    ['2023', '2024', '2025'].forEach(yr => {
+      recs.filter(r => r.year === yr).forEach(r => {
+        const n   = r.university_name;
+        const ihl = r.imam_hatip_lise_tipi?.reduce((s, t) => s + (t.yerlesen || 0), 0) || 0;
+        if (!univMap[n]) univMap[n] = { name: n, type: r.university_type, city: r.city, count2025: 0, total2025: 0, count2024: 0, count2023: 0 };
+        univMap[n][`count${yr}`] += ihl;
+        if (yr === '2025') univMap[n].total2025 += r.toplam_yerlesen || 0;
+      });
     });
 
-    programRecords.filter(r => r.year === '2024').forEach(record => {
-      const univName = record.university_name;
-      const ihlCount = record.imam_hatip_lise_tipi?.reduce((s, tip) => s + (tip.yerlesen || 0), 0) || 0;
-      if (univMap[univName]) {
-        univMap[univName].count2024 += ihlCount;
-        univMap[univName].total2024 += record.toplam_yerlesen || 0;
-      }
+    const universities = Object.values(univMap)
+      .filter(u => u.count2025 > 0)
+      .map(u => ({
+        ...u,
+        percentage2025: u.total2025 > 0 ? ((u.count2025 / u.total2025) * 100).toFixed(2) : 0,
+        trend: calculateTrend(u.count2025, u.count2024),
+      }))
+      .sort((a, b) => b.count2025 - a.count2025);
+
+    setProgData({
+      name: decodedName, category: recs[0]?.puan_turu || '',
+      yearlyData: [d23, d24, d25], data2025: d25, data2024: d24,
+      universities, topUniversities: universities.slice(0, 10),
     });
-
-    const universities = Object.values(univMap).map(univ => ({
-      ...univ,
-      percentage2025: univ.total2025 > 0 ? ((univ.count2025 / univ.total2025) * 100).toFixed(2) : 0,
-      trend: calculateTrend(univ.count2025, univ.count2024)
-    })).sort((a, b) => b.count2025 - a.count2025);
-
-    setProgramData({
-      name: decodedName,
-      category: programRecords[0]?.puan_turu || '',
-      yearlyData: [data2023, data2024, data2025],
-      data2023, data2024, data2025,
-      universities,
-      topUniversities: universities.slice(0, 10)
-    });
-
     setLoading(false);
   }, [data, decodedName]);
 
-  const handleUniversityClick = (univ) => {
-    const univProgramRecords = data.filter(r => {
-      const normalizedRecordName = normalizeProgramName(r.program_name);
-      return normalizedRecordName === decodedName &&
-        r.university_name === univ.name &&
-        r.year === '2025';
+  const handleUnivClick = (univ) => {
+    const uRecs = data.filter(r =>
+      normalizeProgramName(r.program_name) === decodedName &&
+      r.university_name === univ.name &&
+      r.year === '2025'
+    );
+    const schools = [];
+    uRecs.forEach(r => {
+      r.imam_hatip_liseler?.forEach(school => {
+        const nm  = school.lise || school.okul_adi;
+        const cnt = school.yerlesen || 0;
+        if (nm && cnt > 0) {
+          const match = nm.match(/\(([^-]+)/);
+          schools.push({ name: nm, city: match?.[1]?.trim() || 'Bilinmiyor', count: cnt });
+        }
+      });
     });
-
-    const ihlSchools = [];
-    univProgramRecords.forEach(record => {
-      if (record.imam_hatip_liseler && Array.isArray(record.imam_hatip_liseler)) {
-        record.imam_hatip_liseler.forEach(school => {
-          const schoolName = school.lise || school.okul_adi;
-          const studentCount = school.yerlesen || 0;
-          if (schoolName && studentCount > 0) {
-            let cityName = 'Bilinmiyor';
-            const match = schoolName.match(/\(([^-]+)/);
-            if (match) cityName = match[1].trim();
-            ihlSchools.push({ name: schoolName, city: cityName, count: studentCount });
-          }
-        });
-      }
-    });
-
-    ihlSchools.sort((a, b) => b.count - a.count);
-
-    setSelectedUniversity({
-      name: univ.name,
-      type: univ.type,
-      city: univ.city,
-      totalStudents: ihlSchools.reduce((sum, s) => sum + s.count, 0),
-      schools: ihlSchools
-    });
+    schools.sort((a, b) => b.count - a.count);
+    setSelectedUniv({ ...univ, schools, totalStudents: schools.reduce((s, x) => s + x.count, 0) });
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  /* Türkçe-duyarsız üniversite filtresi */
+  const filteredUnivs = progData?.universities.filter(u =>
+    !univSearch ||
+    trNorm(u.name).includes(trNorm(univSearch)) ||
+    trNorm(u.city || '').includes(trNorm(univSearch))
+  ) || [];
 
-  if (!programData) {
-    return (
-      <div className="text-center py-12">
-        <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <p className="text-gray-600">Bölüm bulunamadı</p>
-        <button
-          onClick={() => navigate('/programs/v2')}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Bölümlere Dön
-        </button>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+        style={{ width: 36, height: 36, borderRadius: '50%',
+          border: `2px solid ${T.brown}`, borderTopColor: 'transparent' }}/>
+    </div>
+  );
 
-  const trend2425 = calculateTrend(programData.data2025.ihlCount, programData.data2024.ihlCount);
+  if (!progData) return (
+    <div style={{ textAlign: 'center', padding: '60px 0', color: T.textMuted }}>
+      <Building2 size={40} color={T.borderCard} style={{ margin: '0 auto 12px' }}/>
+      <p style={{ marginBottom: 16 }}>Bölüm bulunamadı</p>
+      <button onClick={() => navigate('/programs/v2')}
+        style={{ padding: '9px 20px', background: T.navy, color: '#fff',
+          border: 'none', borderRadius: 10, cursor: 'pointer', fontSize: 13, fontFamily: FONT_BODY }}>
+        Bölümlere Dön
+      </button>
+    </div>
+  );
+
+  const trend2425    = calculateTrend(progData.data2025.ihlCount, progData.data2024.ihlCount);
+  const titleNavy  = progData.name.slice(0, 20);
+  const titleBrown = progData.name.slice(20);
 
   return (
     <>
-      {/* Modal */}
-      {selectedUniversity && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => setSelectedUniversity(null)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+      {/* ── IHL SCHOOLS MODAL ── */}
+      <AnimatePresence>
+        {selectedUniv && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setSelectedUniv(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(28,31,46,0.55)',
+              backdropFilter: 'blur(4px)', zIndex: 900,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
           >
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-1">{selectedUniversity.name}</h2>
-                  <p className="text-green-100">{programData.name} Bölümü</p>
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16 }}
+              onClick={e => e.stopPropagation()}
+              style={{ background: T.bgCard, borderRadius: 18, width: '100%', maxWidth: 680,
+                maxHeight: '88vh', overflow: 'hidden',
+                boxShadow: `0 24px 72px ${T.shadowMd}`,
+                border: `1px solid ${T.borderCard}`,
+                display: 'flex', flexDirection: 'column' }}
+            >
+              {/* Modal header */}
+              <div style={{ background: `linear-gradient(135deg, ${T.navy}, ${T.navyMid})`,
+                padding: '22px 24px', flexShrink: 0 }}>
+                <div style={{ position: 'absolute', top: 0, left: '8%', right: '8%', height: 2,
+                  background: `linear-gradient(90deg, transparent, ${T.brownLight}88, transparent)` }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between',
+                  alignItems: 'flex-start', marginBottom: 14 }}>
+                  <div>
+                    <h2 style={{ fontSize: 18, fontWeight: 700, color: '#fff',
+                      fontFamily: FONT_DISPLAY, fontStyle: 'italic', marginBottom: 3 }}>
+                      {selectedUniv.name}
+                    </h2>
+                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
+                      {progData.name} Bölümü
+                    </p>
+                  </div>
+                  <button onClick={() => setSelectedUniv(null)}
+                    style={{ background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: 8,
+                      padding: 7, cursor: 'pointer', color: '#fff', display: 'flex',
+                      transition: 'background 0.18s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.22)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+                  >
+                    <X size={16}/>
+                  </button>
                 </div>
-                <button
-                  onClick={() => setSelectedUniversity(null)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/20 rounded-lg p-3">
-                  <p className="text-sm text-green-100">Toplam İHL Öğrencisi</p>
-                  <p className="text-3xl font-bold">{selectedUniversity.totalStudents}</p>
-                </div>
-                <div className="bg-white/20 rounded-lg p-3">
-                  <p className="text-sm text-green-100">Farklı Okul Sayısı</p>
-                  <p className="text-3xl font-bold">{selectedUniversity.schools.length}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-220px)]">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <School className="w-5 h-5 text-green-600" />
-                Mezun Olunan İmam Hatip Liseleri
-              </h3>
-
-              {selectedUniversity.schools.length > 0 ? (
-                <div className="space-y-2">
-                  {selectedUniversity.schools.map((school, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-green-50 transition-colors border border-gray-200"
-                    >
-                      <div className="flex items-start gap-3 flex-1">
-                        <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-                          {index + 1}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900">{school.name}</p>
-                          <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
-                            <MapPin className="w-3 h-3" />
-                            <span>{school.city}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0 ml-4">
-                        <p className="text-2xl font-bold text-green-600">{school.count}</p>
-                        <p className="text-xs text-gray-500">öğrenci</p>
-                      </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {[
+                    ['Toplam İHL Öğrencisi', selectedUniv.totalStudents],
+                    ['Farklı Okul Sayısı',   selectedUniv.schools.length],
+                  ].map(([l, v]) => (
+                    <div key={l} style={{ background: 'rgba(255,255,255,0.10)',
+                      borderRadius: 10, padding: '10px 14px' }}>
+                      <p style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.6)', marginBottom: 3 }}>{l}</p>
+                      <p style={{ fontSize: 26, fontWeight: 800, color: '#fff',
+                        fontFamily: FONT_DISPLAY, lineHeight: 1 }}>{v}</p>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-12">
-                  <School className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">İmam Hatip Lisesi verisi bulunamadı</p>
-                </div>
-              )}
-            </div>
+              </div>
 
-            {/* Modal Footer */}
-            <div className="border-t border-gray-200 p-4 bg-gray-50">
-              <button
-                onClick={() => {
-                  setSelectedUniversity(null);
-                  navigate(`/universities/v2/${encodeURIComponent(selectedUniversity.name)}`);
-                }}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
-              >
-                <Building2 className="w-5 h-5" />
-                {selectedUniversity.name} Detay Sayfasına Git
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="space-y-6">
-
-        {/* Geri Butonu */}
-        <button
-          onClick={() => navigate('/programs/v2')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Bölümlere Dön</span>
-        </button>
-
-        {/* Başlık */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{programData.name}</h1>
-          {programData.category && (
-            <p className="mt-2 text-gray-600">Alan: {programData.category}</p>
-          )}
-        </div>
-
-        {/* İstatistik Kartları */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <p className="text-sm text-gray-600">2025 İHL Öğrencisi</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">
-              {programData.data2025.ihlCount.toLocaleString('tr-TR')}
-            </p>
-            <div className="flex items-center gap-1 mt-2">
-              {trend2425.direction === 'up' ? (
-                <TrendingUp className="w-4 h-4 text-green-500" />
-              ) : (
-                <TrendingDown className="w-4 h-4 text-red-500" />
-              )}
-              <span className={`text-sm font-medium ${trend2425.direction === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                %{trend2425.percentage}
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <p className="text-sm text-gray-600">Üniversite Sayısı</p>
-            <p className="text-3xl font-bold text-gray-900 mt-2">
-              {programData.data2025.universityCount}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">farklı üniversite</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <p className="text-sm text-gray-600">Genel Oran (2025)</p>
-            <p className="text-3xl font-bold text-blue-600 mt-2">
-              %{programData.data2025.percentage}
-            </p>
-          </div>
-        </div>
-
-        {/* Üç Yıllık Tablo */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Son Üç Yıl İstatistikleri</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Yıl</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900">İHL Öğrenci</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900">Toplam Öğrenci</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900">Üniversite</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900">Oran</th>
-                </tr>
-              </thead>
-              <tbody>
-                {programData.yearlyData.map((yearData) => (
-                  <tr key={yearData.year} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 font-medium text-gray-900">{yearData.year}</td>
-                    <td className="py-3 px-4 text-right font-semibold text-gray-900">
-                      {yearData.ihlCount.toLocaleString('tr-TR')}
-                    </td>
-                    <td className="py-3 px-4 text-right text-gray-600">
-                      {yearData.totalStudents.toLocaleString('tr-TR')}
-                    </td>
-                    <td className="py-3 px-4 text-right text-gray-600">{yearData.universityCount}</td>
-                    <td className="py-3 px-4 text-right font-semibold text-blue-600">
-                      %{yearData.percentage}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Trend Grafiği */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">İHL Öğrenci Sayısı Trendi</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={programData.yearlyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="year" />
-              <YAxis />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                formatter={(value) => value.toLocaleString('tr-TR')}
-              />
-              <Line type="monotone" dataKey="ihlCount" stroke="#0ea5e9" strokeWidth={3}
-                dot={{ fill: '#0ea5e9', r: 6 }} name="İHL Öğrenci Sayısı" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* En Çok Tercih Edilen 10 Üniversite */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">En Çok Tercih Edilen 10 Üniversite (2025)</h2>
-          <p className="text-sm text-gray-600 mb-4 flex items-center gap-2">
-            <Info className="w-4 h-4 text-blue-500" />
-            <span>Üniversiteye tıklayarak <strong>mezun olunan İmam Hatip Liselerini</strong> görün</span>
-          </p>
-          <div className="space-y-3">
-            {programData.topUniversities.map((univ, index) => (
-              <div
-                key={index}
-                onClick={() => handleUniversityClick(univ)}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-green-50 hover:border-green-300 border border-gray-200 transition-all cursor-pointer group"
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
-                    {index + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors">
-                      {univ.name}
-                    </p>
-                    <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
-                      <span>{univ.city}</span>
-                      <span>•</span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium
-                        ${univ.type === 'Devlet' ? 'bg-blue-100 text-blue-700' : ''}
-                        ${univ.type === 'Vakıf' ? 'bg-purple-100 text-purple-700' : ''}
-                        ${univ.type === 'KKTC' ? 'bg-orange-100 text-orange-700' : ''}
-                      `}>
-                        {univ.type}
-                      </span>
+              {/* School list */}
+              <div style={{ padding: '18px 24px', overflowY: 'auto', flex: 1 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: T.textMuted,
+                  textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12,
+                  display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <School size={12}/>Mezun Olunan Liseler
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                  {selectedUniv.schools.map((s, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '10px 12px', background: T.bgDeep,
+                      borderRadius: 10, border: `1px solid ${T.borderCard}` }}>
+                      <div style={{ width: 26, height: 26, borderRadius: 7, flexShrink: 0,
+                        background: i < 3 ? T.navy : `${T.navy}14`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 11, fontWeight: 700,
+                          color: i < 3 ? '#fff' : T.textMuted }}>{i + 1}</span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 12.5, fontWeight: 500, color: T.text,
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</p>
+                        <p style={{ fontSize: 10.5, color: T.textMuted,
+                          display: 'flex', alignItems: 'center', gap: 3 }}>
+                          <MapPin size={9}/>{s.city}
+                        </p>
+                      </div>
+                      <span style={{ fontSize: 18, fontWeight: 800, color: T.brown,
+                        fontFamily: FONT_DISPLAY, flexShrink: 0 }}>{s.count}</span>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 flex-shrink-0">
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-gray-900">{univ.count2025}</p>
-                    <p className="text-sm text-gray-500">%{univ.percentage2025}</p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {univ.trend.direction === 'up' ? (
-                      <TrendingUp className="w-4 h-4 text-green-500" />
-                    ) : univ.trend.direction === 'down' ? (
-                      <TrendingDown className="w-4 h-4 text-red-500" />
-                    ) : null}
-                    <span className={`text-sm font-medium ${
-                      univ.trend.direction === 'up' ? 'text-green-600' :
-                      univ.trend.direction === 'down' ? 'text-red-600' : 'text-gray-600'
-                    }`}>
-                      {univ.trend.direction !== 'neutral' && (univ.trend.direction === 'up' ? '+' : '-')}
-                      %{univ.trend.percentage}
-                    </span>
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); navigate(`/universities/v2/${encodeURIComponent(univ.name)}`); }}
-                    className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
-                    title="Üniversite detay sayfasına git"
-                  >
-                    <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors rotate-180" />
-                  </button>
+                  ))}
+                  {selectedUniv.schools.length === 0 && (
+                    <p style={{ textAlign: 'center', color: T.textMuted,
+                      padding: '24px 0', fontSize: 13 }}>İmam Hatip Lisesi verisi bulunamadı</p>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Tüm Üniversiteler Tablosu */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Tüm Üniversiteler ({programData.universities.length})
-          </h2>
-          <p className="text-sm text-gray-600 mb-4 flex items-center gap-2">
-            <Info className="w-4 h-4 text-blue-500" />
-            <span>Üniversiteye tıklayarak <strong>mezun olunan İmam Hatip Liselerini</strong> görün</span>
-          </p>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900">Üniversite</th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900">Şehir</th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900">Tip</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900">2025 Sayı</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900">Oran</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900">Trend</th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-900">İHL Detay</th>
-                </tr>
-              </thead>
-              <tbody>
-                {programData.universities.map((univ, index) => (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-green-50 transition-colors group">
-                    <td className="py-3 px-4 font-medium text-gray-900">{univ.name}</td>
-                    <td className="py-3 px-4 text-center text-gray-600">{univ.city}</td>
-                    <td className="py-3 px-4 text-center">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium
-                        ${univ.type === 'Devlet' ? 'bg-blue-100 text-blue-700' : ''}
-                        ${univ.type === 'Vakıf' ? 'bg-purple-100 text-purple-700' : ''}
-                        ${univ.type === 'KKTC' ? 'bg-orange-100 text-orange-700' : ''}
-                      `}>
-                        {univ.type}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-right font-semibold text-gray-900">{univ.count2025}</td>
-                    <td className="py-3 px-4 text-right text-blue-600 font-medium">%{univ.percentage2025}</td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        {univ.trend.direction === 'up' ? (
-                          <TrendingUp className="w-4 h-4 text-green-500" />
-                        ) : univ.trend.direction === 'down' ? (
-                          <TrendingDown className="w-4 h-4 text-red-500" />
-                        ) : null}
-                        <span className={`text-sm font-medium ${
-                          univ.trend.direction === 'up' ? 'text-green-600' :
-                          univ.trend.direction === 'down' ? 'text-red-600' : 'text-gray-600'
-                        }`}>
-                          {univ.trend.direction !== 'neutral' && (univ.trend.direction === 'up' ? '+' : '-')}
-                          %{univ.trend.percentage}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleUniversityClick(univ); }}
-                          className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium flex items-center gap-1"
-                        >
-                          <School className="w-4 h-4" />
-                          Liseler
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); navigate(`/universities/v2/${encodeURIComponent(univ.name)}`); }}
-                          className="p-2 hover:bg-blue-100 rounded-lg transition-colors"
-                        >
-                          <ArrowLeft className="w-4 h-4 text-gray-400 group-hover:text-blue-600 rotate-180" />
-                        </button>
-                      </div>
-                    </td>
+              <div style={{ padding: '14px 24px', borderTop: `1px solid ${T.borderCard}`, flexShrink: 0 }}>
+                <button
+                  onClick={() => { setSelectedUniv(null); navigate(`/universities/v2/${encodeURIComponent(selectedUniv.name)}`); }}
+                  style={{ width: '100%', padding: '11px', background: T.navy, color: '#fff',
+                    border: 'none', borderRadius: 11, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                    fontFamily: FONT_BODY }}>
+                  <Building2 size={15}/> {selectedUniv.name} Detay Sayfasına Git
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div style={{ background: T.bg, minHeight: '100vh', padding: '0 0 80px',
+        fontFamily: FONT_BODY, color: T.text }}>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');`}</style>
+
+        {/* ══ HERO ══ */}
+        <section style={{
+          padding: 'clamp(36px,5vw,64px) clamp(20px,6vw,80px) clamp(28px,4vw,52px)',
+          position: 'relative', overflow: 'hidden',
+          background: T.bg, borderBottom: `1px solid ${T.border}`,
+        }}>
+          {/* Warm radial wash */}
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: `radial-gradient(ellipse 65% 55% at 85% 45%, ${T.brownPale} 0%, transparent 65%)` }} />
+          {/* Notebook lines */}
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
+            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 71px, ${T.border} 71px, ${T.border} 72px)`,
+            opacity: 0.45 }} />
+          {/* Left margin rule */}
+          <div style={{ position: 'absolute', left: 'clamp(16px,4.5vw,56px)', top: 0, bottom: 0, width: 1,
+            background: `linear-gradient(180deg, transparent, ${T.brown}33 15%, ${T.brown}33 85%, transparent)` }} />
+          {/* Ghost letter */}
+          <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)',
+            fontSize: '28vw', fontWeight: 800, color: T.navy, opacity: 0.022,
+            fontFamily: FONT_DISPLAY, fontStyle: 'italic', lineHeight: 1,
+            userSelect: 'none', pointerEvents: 'none' }}>
+            {progData.name.charAt(0)}
+          </div>
+
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            {/* Back */}
+            <motion.button onClick={() => navigate('/programs/v2')} whileHover={{ x: -3 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none',
+                cursor: 'pointer', color: T.textSub, fontSize: 12, marginBottom: 20, padding: 0,
+                fontFamily: FONT_BODY, fontWeight: 600 }}>
+              <ArrowLeft size={14}/> Bölümlere Dön
+            </motion.button>
+
+            {/* Eyebrow */}
+            <motion.p
+              initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              style={{ fontSize: 10, fontWeight: 700, color: T.brown, textTransform: 'uppercase',
+                letterSpacing: '0.22em', marginBottom: 14,
+                display: 'flex', alignItems: 'center', gap: 10 }}
+            >
+              <span style={{ display: 'inline-block', width: 28, height: 1.5,
+                background: T.brown, borderRadius: 1 }} />
+              İHL Mezunları · Bölüm Detayı · YÖK Atlas
+            </motion.p>
+
+            {/* Program adı — harf-harf animasyon */}
+            <div style={{ overflow: 'hidden', marginBottom: 14 }}>
+              {titleNavy.split('').map((ch, ci) => (
+                <motion.span key={ci}
+                  initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.15 + ci * 0.028, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ display: 'inline-block',
+                    fontSize: 'clamp(28px,5vw,68px)', fontWeight: 800, lineHeight: 0.95,
+                    fontFamily: FONT_DISPLAY, fontStyle: 'italic',
+                    color: T.navy, letterSpacing: '-0.02em' }}
+                >{ch === ' ' ? '\u00A0' : ch}</motion.span>
+              ))}
+              {titleBrown && (
+                <motion.span
+                  initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.58, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ display: 'inline-block',
+                    fontSize: 'clamp(28px,5vw,68px)', fontWeight: 800, lineHeight: 0.95,
+                    fontFamily: FONT_DISPLAY, fontStyle: 'italic',
+                    color: T.brown, letterSpacing: '-0.02em' }}
+                >{titleBrown}</motion.span>
+              )}
+            </div>
+
+            {/* Puan türü chip */}
+            {progData.category && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 16,
+                  padding: '4px 12px', background: `${T.brown}14`,
+                  border: `1px solid ${T.brown}28`, borderRadius: 20 }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 600, color: T.brown }}>
+                  Alan: {progData.category}
+                </span>
+              </motion.div>
+            )}
+
+            {/* Rule */}
+            <motion.div
+              initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+              transition={{ duration: 1.3, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              style={{ height: 2, width: 'min(45%, 280px)', originX: 0, marginBottom: 28,
+                background: `linear-gradient(90deg, ${T.brown}, ${T.brownLight}77, transparent)`,
+                borderRadius: 1 }}
+            />
+
+            {/* Stat strip */}
+            <div style={{ display: 'flex', gap: 'clamp(16px,3vw,36px)', flexWrap: 'wrap' }}>
+              {[
+                { l: 'İHL 2025',    v: progData.data2025.ihlCount.toLocaleString('tr-TR'), c: T.navy  },
+                { l: 'Üniversite',  v: String(progData.data2025.universityCount),          c: T.brown },
+                { l: 'Oran',        v: `%${progData.data2025.percentage}`,                 c: T.navy  },
+              ].map((s, i) => (
+                <motion.div key={i}
+                  initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.85 + i * 0.09, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ borderLeft: `2px solid ${s.c}33`, paddingLeft: 14 }}
+                >
+                  <p style={{ fontSize: 10, color: T.textMuted, letterSpacing: '0.1em',
+                    textTransform: 'uppercase', marginBottom: 5 }}>{s.l}</p>
+                  <p style={{ fontSize: 'clamp(22px,3vw,32px)', fontWeight: 800, color: s.c,
+                    lineHeight: 1, fontFamily: FONT_DISPLAY }}>{s.v}</p>
+                </motion.div>
+              ))}
+              {/* Trend stat */}
+              <motion.div
+                initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                style={{ borderLeft: `2px solid ${trend2425.direction === 'up' ? '#22a55e' : '#d94040'}33`, paddingLeft: 14 }}
+              >
+                <p style={{ fontSize: 10, color: T.textMuted, letterSpacing: '0.1em',
+                  textTransform: 'uppercase', marginBottom: 5 }}>Trend 24→25</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {trend2425.direction === 'up'
+                    ? <TrendingUp size={18} color="#22a55e"/>
+                    : <TrendingDown size={18} color="#d94040"/>}
+                  <span style={{ fontSize: 'clamp(22px,3vw,32px)', fontWeight: 800, lineHeight: 1,
+                    fontFamily: FONT_DISPLAY,
+                    color: trend2425.direction === 'up' ? '#22a55e' : '#d94040' }}>
+                    {trend2425.direction === 'up' ? '+' : '-'}%{trend2425.percentage}
+                  </span>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── CONTENT ── */}
+        <div style={{ padding: '28px 5vw 0' }}>
+
+          {/* ── İKİ KOLON ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))', gap: 16, marginBottom: 16 }}>
+            {/* 3 Yıl Tablosu */}
+            <Card accent={T.navy} delay={0.06}>
+              <SectionTitle color={T.navy}>Son Üç Yıl</SectionTitle>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    {['Yıl','İHL','Toplam','Üniv.','Oran'].map(h => (
+                      <th key={h} style={{ fontSize: 10, fontWeight: 700, color: T.textMuted,
+                        letterSpacing: '0.1em', textTransform: 'uppercase',
+                        textAlign: h === 'Yıl' ? 'left' : 'right',
+                        padding: '0 0 10px', borderBottom: `1px solid ${T.borderCard}` }}>{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                </thead>
+                <tbody>
+                  {progData.yearlyData.map((yd, i) => (
+                    <tr key={yd.year}>
+                      <td style={{ padding: '10px 0', borderBottom: `1px solid ${T.borderCard}`,
+                        fontSize: i === 2 ? 16 : 13, fontWeight: i === 2 ? 800 : 600,
+                        color: i === 2 ? T.navy : T.textSub, fontFamily: FONT_DISPLAY }}>{yd.year}</td>
+                      <td style={{ textAlign: 'right', padding: '10px 0',
+                        borderBottom: `1px solid ${T.borderCard}`, fontSize: 13, fontWeight: 700, color: T.text }}>
+                        {yd.ihlCount.toLocaleString('tr-TR')}
+                      </td>
+                      <td style={{ textAlign: 'right', padding: '10px 0',
+                        borderBottom: `1px solid ${T.borderCard}`, fontSize: 12, color: T.textSub }}>
+                        {yd.totalStudents.toLocaleString('tr-TR')}
+                      </td>
+                      <td style={{ textAlign: 'right', padding: '10px 0',
+                        borderBottom: `1px solid ${T.borderCard}`, fontSize: 12, color: T.textSub }}>
+                        {yd.universityCount}
+                      </td>
+                      <td style={{ textAlign: 'right', padding: '10px 0',
+                        borderBottom: `1px solid ${T.borderCard}`, fontSize: 13, fontWeight: 700, color: T.brown }}>
+                        %{yd.percentage}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
 
+            {/* Trend Chart */}
+            <Card accent={T.brown} delay={0.1}>
+              <SectionTitle color={T.brown}>İHL Öğrenci Trendi</SectionTitle>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={progData.yearlyData}>
+                  <CartesianGrid strokeDasharray="2 4" stroke={T.borderCard} vertical={false}/>
+                  <XAxis dataKey="year" tick={{ fontSize: 11, fill: T.textMuted }} axisLine={false} tickLine={false}/>
+                  <YAxis tick={{ fontSize: 11, fill: T.textMuted }} axisLine={false} tickLine={false}/>
+                  <Tooltip contentStyle={tipStyle} formatter={v => [v.toLocaleString('tr-TR'), 'İHL']}/>
+                  <Line type="monotone" dataKey="ihlCount" stroke={T.brown} strokeWidth={2.5}
+                    dot={{ fill: T.brown, r: 5, strokeWidth: 0 }}/>
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+          </div>
+
+          {/* ── TOP 10 ÜNİVERSİTE ── */}
+          <Card accent={T.navy} delay={0.14} style={{ marginBottom: 16 }}>
+            <SectionTitle color={T.navy}>En Çok Tercih Edilen 10 Üniversite (2025)</SectionTitle>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 16,
+              marginTop: -10, padding: '8px 12px', background: T.brownPale, borderRadius: 8 }}>
+              <Info size={12} color={T.brown}/>
+              <span style={{ fontSize: 12, color: T.textSub }}>
+                Üniversiteye tıklayarak mezun olunan İmam Hatip Liselerini görün
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+              {progData.topUniversities.map((u, i) => (
+                <UnivRow key={i} univ={u} index={i} onIHLClick={handleUnivClick} navigate={navigate}/>
+              ))}
+            </div>
+          </Card>
+
+          {/* ── TÜM ÜNİVERSİTELER ── */}
+          <Card accent={T.brown} delay={0.18}>
+            {/* Başlık + Arama */}
+            <div style={{ display: 'flex', alignItems: 'flex-start',
+              justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+              <SectionTitle color={T.brown}>
+                Tüm Üniversiteler ({progData.universities.length})
+              </SectionTitle>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <Search size={13} color={T.textMuted}
+                  style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }}/>
+                <input
+                  type="text"
+                  placeholder="Üniversite veya şehir ara..."
+                  value={univSearch}
+                  onChange={e => setUnivSearch(e.target.value)}
+                  style={{
+                    paddingLeft: 30, paddingRight: univSearch ? 28 : 12,
+                    paddingTop: 7, paddingBottom: 7,
+                    border: `1px solid ${T.border}`, borderRadius: 9,
+                    fontSize: 12, color: T.text, background: T.bgDeep,
+                    outline: 'none', fontFamily: FONT_BODY,
+                    width: 'clamp(180px,25vw,300px)', transition: 'border-color 0.18s',
+                  }}
+                  onFocus={e => e.target.style.borderColor = T.brown}
+                  onBlur={e  => e.target.style.borderColor = T.border}
+                />
+                {univSearch && (
+                  <button onClick={() => setUnivSearch('')}
+                    style={{ position: 'absolute', right: 8, top: '50%',
+                      transform: 'translateY(-50%)', background: 'none',
+                      border: 'none', cursor: 'pointer', padding: 2, display: 'flex' }}>
+                    <X size={12} color={T.textMuted}/>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Sonuç sayacı */}
+            {univSearch && (
+              <p style={{ fontSize: 11, color: T.textMuted, marginBottom: 12, marginTop: -8 }}>
+                <strong style={{ color: T.text }}>{filteredUnivs.length}</strong> sonuç
+                {filteredUnivs.length === 0 && (
+                  <span style={{ color: T.brown, marginLeft: 6, fontStyle: 'italic' }}>
+                    — Türkçe karakterleri deneyebilirsiniz (ö, ü, ş, ç, ğ, ı)
+                  </span>
+                )}
+              </p>
+            )}
+
+            {/* Tablo — sticky başlık */}
+            <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '68vh' }}>
+              <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+                <thead>
+                  <tr>
+                    {['Üniversite','Şehir','Tip','2025','Oran','Trend','İHL Detay'].map(h => (
+                      <th key={h} style={{
+                        fontSize: 10, fontWeight: 700, color: T.textMuted,
+                        letterSpacing: '0.08em', textTransform: 'uppercase',
+                        textAlign: h === 'Üniversite' ? 'left' : 'center',
+                        padding: '10px 10px', whiteSpace: 'nowrap',
+                        position: 'sticky', top: 0, zIndex: 10,
+                        background: T.bgDeep,
+                        borderBottom: `2px solid ${T.borderCard}`,
+                        boxShadow: '0 2px 8px rgba(28,31,46,0.06)',
+                      }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUnivs.map((u, i) => (
+                    <tr key={i}
+                      onMouseEnter={e => e.currentTarget.style.background = T.bgDeep}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      style={{ transition: 'background 0.15s' }}
+                    >
+                      <td style={{ padding: '9px 10px', borderBottom: `1px solid ${T.borderCard}`,
+                        fontSize: 13, fontWeight: 500, color: T.text }}>{u.name}</td>
+                      <td style={{ textAlign: 'center', padding: '9px 10px',
+                        borderBottom: `1px solid ${T.borderCard}`, fontSize: 12, color: T.textSub }}>
+                        {u.city}
+                      </td>
+                      <td style={{ textAlign: 'center', padding: '9px 10px',
+                        borderBottom: `1px solid ${T.borderCard}` }}>
+                        <Badge type={u.type}/>
+                      </td>
+                      <td style={{ textAlign: 'center', padding: '9px 10px',
+                        borderBottom: `1px solid ${T.borderCard}`,
+                        fontSize: 15, fontWeight: 800, color: T.navy, fontFamily: FONT_DISPLAY }}>
+                        {u.count2025}
+                      </td>
+                      <td style={{ textAlign: 'center', padding: '9px 10px',
+                        borderBottom: `1px solid ${T.borderCard}`,
+                        fontSize: 12, fontWeight: 600, color: T.brown }}>
+                        %{u.percentage2025}
+                      </td>
+                      <td style={{ textAlign: 'center', padding: '9px 10px',
+                        borderBottom: `1px solid ${T.borderCard}` }}>
+                        <div style={{ display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', gap: 3 }}>
+                          {u.trend.direction === 'up'
+                            ? <TrendingUp size={12} color="#22a55e"/>
+                            : u.trend.direction === 'down'
+                            ? <TrendingDown size={12} color="#d94040"/> : null}
+                          <span style={{ fontSize: 11, fontWeight: 700,
+                            color: u.trend.direction === 'up' ? '#22a55e'
+                              : u.trend.direction === 'down' ? '#d94040' : T.textMuted }}>
+                            {u.trend.direction !== 'neutral'
+                              ? (u.trend.direction === 'up' ? '+' : '-') + '%' + u.trend.percentage
+                              : '—'}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'center', padding: '9px 10px',
+                        borderBottom: `1px solid ${T.borderCard}` }}>
+                        <div style={{ display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', gap: 5 }}>
+                          <button
+                            onClick={e => { e.stopPropagation(); handleUnivClick(u); }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 4,
+                              padding: '4px 10px', background: T.brownPale, color: T.brown,
+                              border: `1px solid ${T.brown}22`, borderRadius: 7,
+                              cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                              transition: 'all 0.15s', fontFamily: FONT_BODY }}
+                            onMouseEnter={e => { e.currentTarget.style.background = T.brown; e.currentTarget.style.color = '#fff'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = T.brownPale; e.currentTarget.style.color = T.brown; }}
+                          >
+                            <School size={11}/> Liseler
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); navigate(`/universities/v2/${encodeURIComponent(u.name)}`); }}
+                            style={{ padding: 5, background: 'transparent', border: 'none',
+                              cursor: 'pointer', color: T.textMuted, display: 'flex' }}>
+                            <ChevronRight size={14}/>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredUnivs.length === 0 && (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '32px 0', color: T.textMuted, fontSize: 13 }}>
+                        Sonuç bulunamadı
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+
+        </div>{/* ── /CONTENT ── */}
       </div>
     </>
+  );
+};
+
+/* ─────────────────────────────────────────────────────
+   TOP-10 ÜNİVERSİTE SATIRI
+───────────────────────────────────────────────────── */
+const UnivRow = ({ univ, index, onIHLClick, navigate }) => {
+  const [hov, setHov] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      onClick={() => onIHLClick(univ)}
+      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px',
+        borderRadius: 11, cursor: 'pointer',
+        background: hov ? T.bgDeep : 'transparent',
+        border: `1px solid ${hov ? T.brown + '30' : T.borderCard}`,
+        transition: 'all 0.15s' }}
+    >
+      <div style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+        background: index < 3 ? T.navy : `${T.navy}12`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontSize: 12, fontWeight: 700,
+          color: index < 3 ? '#fff' : T.textMuted }}>{index + 1}</span>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ fontSize: 13, fontWeight: 500,
+          color: hov ? T.brown : T.text,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          transition: 'color 0.15s' }}>{univ.name}</p>
+        <p style={{ fontSize: 11, color: T.textMuted,
+          display: 'flex', alignItems: 'center', gap: 5 }}>
+          {univ.city}
+          {univ.city && <span style={{ color: T.borderCard }}>·</span>}
+          <Badge type={univ.type}/>
+        </p>
+      </div>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <p style={{ fontSize: 20, fontWeight: 800, color: T.navy,
+          fontFamily: FONT_DISPLAY, lineHeight: 1 }}>{univ.count2025}</p>
+        <p style={{ fontSize: 10.5, color: T.textMuted }}>%{univ.percentage2025}</p>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0, width: 52 }}>
+        {univ.trend.direction === 'up'
+          ? <TrendingUp size={12} color="#22a55e"/>
+          : univ.trend.direction === 'down'
+          ? <TrendingDown size={12} color="#d94040"/> : null}
+        <span style={{ fontSize: 11, fontWeight: 700,
+          color: univ.trend.direction === 'up' ? '#22a55e'
+            : univ.trend.direction === 'down' ? '#d94040' : T.textMuted }}>
+          {univ.trend.direction !== 'neutral'
+            ? (univ.trend.direction === 'up' ? '+' : '-') + '%' + univ.trend.percentage : '—'}
+        </span>
+      </div>
+      <button
+        onClick={e => { e.stopPropagation(); navigate(`/universities/v2/${encodeURIComponent(univ.name)}`); }}
+        style={{ padding: 6, background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex' }}>
+        <ChevronRight size={14} color={hov ? T.brown : T.textMuted}/>
+      </button>
+    </div>
   );
 };
 

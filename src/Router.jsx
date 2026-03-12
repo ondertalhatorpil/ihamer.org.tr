@@ -70,6 +70,7 @@ import V2IHLKoken from "./pages/YokAtlasV2/pages/IHLKoken";
 import V2IHLDetail from "./pages/YokAtlasV2/pages/IHLDetail";
 import V2FakulteAnaliz from "./pages/YokAtlasV2/pages/FakulteAnaliz";
 import V2PuanTuruAnaliz from "./pages/YokAtlasV2/pages/PuanTuruAnaliz";
+import V2SchoolDetail from "./pages/YokAtlasV2/pages/SchoolDetail"; // ← YENİ
 
 // --- YÖK Atlas V2 Data Wrapper ---
 const YokAtlasV2Wrapper = ({ children }) => {
@@ -145,7 +146,8 @@ const AppContent = () => {
     location.pathname.startsWith("/programs/v2") ||
     location.pathname.startsWith("/ihl/v2") ||
     location.pathname.startsWith("/fakulte/v2") ||
-    location.pathname.startsWith("/puan-turu/v2");
+    location.pathname.startsWith("/puan-turu/v2") ||
+    location.pathname.startsWith("/schools/"); // ← YENİ
 
   return (
     <>
@@ -221,6 +223,13 @@ const AppContent = () => {
         <Route path="/puan-turu/v2" element={
           <YokAtlasV2Wrapper>
             {(data) => <V2Layout><V2PuanTuruAnaliz data={data} /></V2Layout>}
+          </YokAtlasV2Wrapper>
+        } />
+
+        {/* Lise → Üniversite Detay (Navbar/Footer GİZLİ) ← YENİ */}
+        <Route path="/schools/:schoolName/:univName" element={
+          <YokAtlasV2Wrapper>
+            {(data) => <V2Layout><V2SchoolDetail data={data} /></V2Layout>}
           </YokAtlasV2Wrapper>
         } />
 

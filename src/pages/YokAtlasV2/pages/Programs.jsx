@@ -1,216 +1,366 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, TrendingUp, TrendingDown, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { motion, useInView } from 'framer-motion';
 import { groupByProgram, calculateTrend, isAcikogretim } from '../utils/dataProcessor';
 
+const T = {
+  bg: '#faf8f4', bgDeep: '#f4f0e8', bgCard: '#ffffff',
+  border: 'rgba(28,31,46,0.10)', borderCard: 'rgba(28,31,46,0.08)',
+  text: '#1c1f2e', textSub: '#4a4e65', textMuted: '#8a8ea8',
+  navy: '#1c1f2e', navyMid: '#2d3250',
+  brown: '#8b5e3c', brownLight: '#c49a6c', brownPale: '#f0e4d0',
+  shadow: 'rgba(28,31,46,0.08)', shadowMd: 'rgba(28,31,46,0.14)',
+};
+
+/* ─── Türkçe karaktere duyarlı normalize ─── */
+const trNormalize = (str) =>
+  (str || '').toLocaleLowerCase('tr-TR').trim();
+
+const CAT_STYLES = {
+  'Sayısal':       { bg: `${T.navy}10`,        color: T.navy,    border: `${T.navy}25`       },
+  'Sözel':         { bg: `${T.brown}10`,        color: T.brown,   border: `${T.brown}25`      },
+  'Eşit Ağırlık':  { bg: `${T.brownLight}18`,  color: '#7a4a10', border: `${T.brownLight}40` },
+  'Dil':           { bg: 'rgba(28,31,46,0.06)', color: T.textSub, border: 'rgba(28,31,46,0.15)' },
+};
+
+const CatBadge = ({ cat }) => {
+  const s = CAT_STYLES[cat] || CAT_STYLES['Dil'];
+  return (
+    <span style={{
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+      padding: '3px 7px', borderRadius: 6,
+      background: s.bg, color: s.color, border: `1px solid ${s.border}`, whiteSpace: 'nowrap',
+    }}>{cat}</span>
+  );
+};
+
+const Reveal = ({ children, delay = 0 }) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-30px' });
+  return (
+    <motion.div ref={ref}
+      initial={{ opacity: 0, y: 18 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+    >{children}</motion.div>
+  );
+};
+
+/* ─── ANA SAYFA ─── */
 const Programs = ({ data }) => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm]         = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tümü');
-  const [programs, setPrograms] = useState([]);
+  const [programs, setPrograms]             = useState([]);
 
   useEffect(() => {
-    if (!data || !data.length) return;
-
-    const progs2023 = groupByProgram(data, '2023');
-    const progs2024 = groupByProgram(data, '2024');
-    const progs2025 = groupByProgram(data, '2025');
-
-    const mergedProgs = progs2025
-      .filter(p => !isAcikogretim(p.name, ''))
-      .map(prog2025 => {
-        const prog2023 = progs2023.find(p => p.name === prog2025.name);
-        const prog2024 = progs2024.find(p => p.name === prog2025.name);
-        const trend = calculateTrend(prog2025.count, prog2023?.count || 0);
-        return {
-          ...prog2025,
-          count2023: prog2023?.count || 0,
-          count2024: prog2024?.count || 0,
-          count2025: prog2025.count,
-          trend
-        };
-      });
-
-    setPrograms(mergedProgs);
+    if (!data?.length) return;
+    const p23 = groupByProgram(data, '2023');
+    const p24 = groupByProgram(data, '2024');
+    const p25 = groupByProgram(data, '2025');
+    const merged = p25.filter(p => !isAcikogretim(p.name, '')).map(p2025 => {
+      const p23i = p23.find(p => p.name === p2025.name);
+      const p24i = p24.find(p => p.name === p2025.name);
+      return {
+        ...p2025,
+        count2023: p23i?.count || 0,
+        count2024: p24i?.count || 0,
+        count2025: p2025.count,
+        trend: calculateTrend(p2025.count, p24i?.count || 0),
+      };
+    });
+    setPrograms(merged);
   }, [data]);
 
-  const filteredPrograms = useMemo(() => {
-    return programs.filter(prog => {
-      const matchesSearch = prog.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = selectedCategory === 'Tümü' || prog.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [programs, searchTerm, selectedCategory]);
+  const filtered = useMemo(() => programs.filter(p => {
+    const query = trNormalize(searchTerm);
+    const name  = trNormalize(p.name);
+    const ms = !query || name.includes(query);
+    const mc = selectedCategory === 'Tümü' || p.category === selectedCategory;
+    return ms && mc;
+  }), [programs, searchTerm, selectedCategory]);
+
+  const inputStyle = {
+    width: '100%', padding: '9px 12px',
+    border: `1px solid ${T.border}`, borderRadius: 10,
+    background: T.bgCard, color: T.text, fontSize: 13,
+    outline: 'none', fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
+    transition: 'border-color 0.2s',
+  };
 
   return (
-    <div className="space-y-6">
+    <div style={{
+      background: T.bg, minHeight: '100vh',
+      padding: '36px 5vw 80px',
+      fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
+      color: T.text,
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&display=swap');
+      `}</style>
 
-      {/* Başlık */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Bölümler</h1>
-        <p className="mt-2 text-gray-600">
-          Bölümlere yerleşen İHL mezunu öğrenci sayıları ve trendler
-        </p>
-      </div>
+      {/* ══ HERO ══ */}
+      <section style={{
+        margin: '-36px -5vw 32px',
+        padding: 'clamp(56px,8vw,96px) clamp(20px,6vw,80px) clamp(40px,5vw,72px)',
+        position: 'relative', overflow: 'hidden',
+        background: T.bg, borderBottom: `1px solid ${T.border}`,
+      }}>
+        {/* Warm radial wash */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: `radial-gradient(ellipse 65% 55% at 85% 45%, ${T.brownPale} 0%, transparent 65%)` }} />
+        {/* Notebook lines */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 71px, ${T.border} 71px, ${T.border} 72px)`, opacity: 0.45 }} />
+        {/* Left margin rule */}
+        <div style={{ position: 'absolute', left: 'clamp(16px,4.5vw,56px)', top: 0, bottom: 0, width: 1, background: `linear-gradient(180deg, transparent, ${T.brown}33 15%, ${T.brown}33 85%, transparent)` }} />
+        {/* Ghost letter */}
+        <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)', fontSize: '32vw', fontWeight: 800, color: T.navy, opacity: 0.022, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>B</div>
 
-      {/* Açıklayıcı Bilgi Kutusu */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
-        <div className="flex items-start gap-3">
-          <div className="p-2 bg-purple-600 rounded-lg flex-shrink-0">
-            <TrendingUp className="w-5 h-5 text-white" />
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 760 }}>
+          <motion.p
+            initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            style={{ fontSize: 10, fontWeight: 700, color: T.brown, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}
+          >
+            <span style={{ display: 'inline-block', width: 28, height: 1.5, background: T.brown, borderRadius: 1 }} />
+            İHL Mezunları · Program Analizi · YÖK Atlas
+          </motion.p>
+
+          <div style={{ overflow: 'hidden' }}>
+            {'Bölüm'.split('').map((ch, ci) => (
+              <motion.span key={ci}
+                initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.65, delay: 0.15 + ci * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                style={{ display: 'inline-block', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', color: T.navy, letterSpacing: '-0.02em' }}
+              >{ch}</motion.span>
+            ))}
+            <motion.span
+              initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              style={{ display: 'inline-block', paddingLeft: '0.04em', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', color: T.brown, letterSpacing: '-0.02em' }}
+            >ler</motion.span>
           </div>
-          <div className="flex-1">
-            <h3 className="font-bold text-gray-900 mb-2">💡 Bu sayfada ne var?</h3>
-            <ul className="space-y-1 text-sm text-gray-700">
-              <li>• <strong>3 Yıllık Karşılaştırma:</strong> 2023-2024-2025 yılları arasında bölüm bazlı İHL mezunu sayıları</li>
-              <li>• <strong>Trend Göstergeleri:</strong> 2023'ten 2025'e yüzdelik değişim (yeşil ↗ artış, kırmızı ↘ azalış)</li>
-              <li>• <strong>Alan Filtreleme:</strong> Sayısal, Sözel, Eşit Ağırlık kategorilerine göre filtreleyin</li>
-              <li>• <strong>Detaylı İnceleme:</strong> Her bölüme tıklayarak hangi üniversitelerde tercih edildiğini görebilirsiniz</li>
-            </ul>
+
+          <motion.div
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+            transition={{ duration: 1.4, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            style={{ height: 2, width: 'min(55%, 320px)', originX: 0, marginTop: 20, background: `linear-gradient(90deg, ${T.brown}, ${T.brownLight}77, transparent)`, borderRadius: 1 }}
+          />
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            style={{ fontSize: 15, color: T.textSub, marginTop: 20, lineHeight: 1.8, maxWidth: 460 }}
+          >
+            Bölümlere yerleşen İHL mezunu öğrenci sayıları, alan dağılımı ve 3 yıllık karşılaştırmaları.
+          </motion.p>
+
+          <div style={{ display: 'flex', gap: 'clamp(16px,3vw,36px)', marginTop: 40, flexWrap: 'wrap' }}>
+            {[
+              { l: 'Bölüm',       v: programs.length ? programs.length.toLocaleString('tr-TR') : '–',                            c: T.navy  },
+              { l: 'Sayısal',     v: programs.filter(p => p.category === 'Sayısal').length     || '–',                            c: T.brown },
+              { l: 'Sözel',       v: programs.filter(p => p.category === 'Sözel').length       || '–',                            c: T.navy  },
+              { l: 'Eşit Ağırlık', v: programs.filter(p => p.category === 'Eşit Ağırlık').length || '–',                          c: T.brown },
+            ].map((s, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.3 + i * 0.09, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                style={{ borderLeft: `2px solid ${s.c}33`, paddingLeft: 14 }}
+              >
+                <p style={{ fontSize: 10, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5 }}>{s.l}</p>
+                <p style={{ fontSize: 'clamp(22px,3.5vw,32px)', fontWeight: 800, color: s.c, lineHeight: 1, fontFamily: '"Playfair Display", serif' }}>{s.v}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Filtreler */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Bölüm Ara</label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Bölüm adı..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              />
+      {/* INFO BANNER */}
+      <Reveal delay={0.06}>
+        <div style={{
+          background: T.brownPale,
+          border: `1px solid ${T.brown}22`, borderLeft: `3px solid ${T.brown}`,
+          borderRadius: 12, padding: '14px 18px', marginBottom: 24,
+          display: 'flex', gap: 12, alignItems: 'flex-start',
+        }}>
+          <TrendingUp size={15} color={T.brown} style={{ flexShrink: 0, marginTop: 2 }}/>
+          <div style={{ fontSize: 13, color: T.textSub, lineHeight: 1.7 }}>
+            <strong style={{ color: T.navy }}>3 Yıllık Karşılaştırma</strong> (2023→2025) · Alan bazlı filtreleme ·
+            Her bölüme tıklayarak hangi üniversitelerde tercih edildiğini görün
+          </div>
+        </div>
+      </Reveal>
+
+      {/* FILTERS */}
+      <Reveal delay={0.1}>
+        <div style={{
+          background: T.bgCard, border: `1px solid ${T.borderCard}`,
+          borderRadius: 14, padding: '20px 22px', marginBottom: 20,
+          boxShadow: `0 2px 10px ${T.shadow}`,
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Bölüm Ara</label>
+              <div style={{ position: 'relative' }}>
+                <Search size={14} color={T.textMuted} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)' }}/>
+                <input
+                  type="text"
+                  placeholder="Bölüm adı..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  style={{ ...inputStyle, paddingLeft: 34 }}
+                  onFocus={e => e.target.style.borderColor = T.brown}
+                  onBlur={e => e.target.style.borderColor = T.border}
+                />
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Alan</label>
+              <select
+                value={selectedCategory}
+                onChange={e => setSelectedCategory(e.target.value)}
+                style={inputStyle}
+              >
+                {['Tümü', 'Sayısal', 'Sözel', 'Eşit Ağırlık', 'Dil'].map(o => <option key={o}>{o}</option>)}
+              </select>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Alan</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-            >
-              <option>Tümü</option>
-              <option>Sayısal</option>
-              <option>Sözel</option>
-              <option>Eşit Ağırlık</option>
-              <option>Dil</option>
-            </select>
-          </div>
+          {(searchTerm || selectedCategory !== 'Tümü') && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
+              {searchTerm && (
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: `${T.navy}10`, color: T.navy, border: `1px solid ${T.navy}22` }}>
+                  "{searchTerm}"
+                </span>
+              )}
+              {selectedCategory !== 'Tümü' && (
+                <span style={{ fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: T.brownPale, color: T.brown, border: `1px solid ${T.brown}33` }}>
+                  {selectedCategory}
+                </span>
+              )}
+            </div>
+          )}
         </div>
+      </Reveal>
 
-        {(searchTerm || selectedCategory !== 'Tümü') && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {searchTerm && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                Arama: {searchTerm}
-              </span>
-            )}
-            {selectedCategory !== 'Tümü' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                Alan: {selectedCategory}
-              </span>
-            )}
+      <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, paddingLeft: 2 }}>
+        <strong style={{ color: T.text }}>{filtered.length}</strong> bölüm
+      </div>
+
+      {/* TABLE */}
+      <Reveal delay={0.14}>
+        <div style={{
+          background: T.bgCard, border: `1px solid ${T.borderCard}`,
+          borderRadius: 14, overflow: 'hidden',
+          boxShadow: `0 2px 10px ${T.shadow}`,
+        }}>
+          <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '72vh' }}>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+              <thead>
+                <tr>
+                  {[
+                    { l: 'Bölüm Adı',     align: 'left',   minW: 280 },
+                    { l: 'Alan',          align: 'center'            },
+                    { l: 'Üniversite',    align: 'center'            },
+                    { l: '2023',          align: 'center'            },
+                    { l: '2024',          align: 'center'            },
+                    { l: '2025',          align: 'center'            },
+                    { l: 'Karşılaştırma 2024→25', align: 'center'            },
+                  ].map(h => (
+                    <th key={h.l} style={{
+                      fontSize: 10, fontWeight: 700, color: T.textMuted,
+                      letterSpacing: '0.1em', textTransform: 'uppercase',
+                      textAlign: h.align, padding: '12px 14px',
+                      whiteSpace: 'nowrap', minWidth: h.minW,
+                      position: 'sticky', top: 0, zIndex: 10,
+                      background: T.bgDeep,
+                      borderBottom: `2px solid ${T.borderCard}`,
+                      boxShadow: '0 2px 8px rgba(28,31,46,0.06)',
+                    }}>{h.l}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((prog, i) => (
+                  <ProgramRow key={i} prog={prog} index={i} navigate={navigate} />
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
 
-      {/* Sonuç Sayısı */}
-      <div>
-        <p className="text-sm text-gray-600">
-          <span className="font-semibold text-gray-900">{filteredPrograms.length}</span> bölüm bulundu
-        </p>
-      </div>
-
-      {/* Bölüm Tablosu */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 min-w-[300px]">Bölüm Adı</th>
-              <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900">Alan</th>
-              <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900">Üniversite</th>
-              <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900 bg-gray-50">2023</th>
-              <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900 bg-blue-50">2024</th>
-              <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900 bg-green-50">2025</th>
-              <th className="text-center py-3 px-4 text-sm font-semibold text-gray-900">
-                Trend
-                <div className="text-xs font-normal text-gray-500 mt-1">(2023→2025)</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPrograms.map((prog, index) => (
-              <tr
-                key={index}
-                onClick={() => navigate(`/programs/v2/${encodeURIComponent(prog.name)}`)}
-                className="border-b border-gray-100 hover:bg-blue-50 transition-colors cursor-pointer group"
-              >
-                <td className="py-3 px-4">
-                  <p className="font-medium text-gray-900 group-hover:text-blue-700 transition-colors">
-                    {prog.name}
-                  </p>
-                </td>
-                <td className="py-3 px-4 text-center">
-                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium
-                    ${prog.category === 'Sayısal' ? 'bg-blue-100 text-blue-700' : ''}
-                    ${prog.category === 'Sözel' ? 'bg-purple-100 text-purple-700' : ''}
-                    ${prog.category === 'Eşit Ağırlık' ? 'bg-green-100 text-green-700' : ''}
-                    ${prog.category === 'Dil' ? 'bg-gray-100 text-gray-900' : ''}
-                  `}>
-                    {prog.category}
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-center text-gray-600">{prog.universityCount}</td>
-                <td className="py-3 px-4 text-center bg-gray-50">
-                  <span className="font-semibold text-gray-700">{prog.count2023.toLocaleString('tr-TR')}</span>
-                </td>
-                <td className="py-3 px-4 text-center bg-blue-50">
-                  <span className="font-semibold text-gray-700">{prog.count2024.toLocaleString('tr-TR')}</span>
-                </td>
-                <td className="py-3 px-4 text-center bg-green-50">
-                  <div className="flex flex-col items-center">
-                    <span className="font-bold text-gray-900">{prog.count2025.toLocaleString('tr-TR')}</span>
-                    <span className="text-xs text-gray-500">%{prog.percentage}</span>
-                  </div>
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center justify-center gap-1">
-                    {prog.trend.direction === 'up' ? (
-                      <TrendingUp className="w-4 h-4 text-green-500" />
-                    ) : prog.trend.direction === 'down' ? (
-                      <TrendingDown className="w-4 h-4 text-red-500" />
-                    ) : (
-                      <div className="w-4 h-4" />
-                    )}
-                    <span className={`text-sm font-medium
-                      ${prog.trend.direction === 'up' ? 'text-green-600' : ''}
-                      ${prog.trend.direction === 'down' ? 'text-red-600' : ''}
-                      ${prog.trend.direction === 'neutral' ? 'text-gray-600' : ''}
-                    `}>
-                      {prog.trend.direction === 'up' ? '+' : prog.trend.direction === 'down' ? '-' : ''}
-                      %{prog.trend.percentage}
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {filteredPrograms.length === 0 && (
-          <div className="text-center py-12">
-            <Filter className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Filtre kriterlerine uygun bölüm bulunamadı</p>
-          </div>
-        )}
-      </div>
+          {filtered.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '56px 0', color: T.textMuted }}>
+              <Filter size={36} color={T.borderCard} style={{ margin: '0 auto 12px' }}/>
+              <p style={{ fontSize: 14 }}>Filtre kriterlerine uygun bölüm bulunamadı</p>
+              {searchTerm && (
+                <p style={{ fontSize: 12, marginTop: 6, color: T.brown }}>
+                  "{searchTerm}" için sonuç yok — Türkçe karakterleri de deneyebilirsiniz (ö, ü, ş, ç, ğ, ı)
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </Reveal>
     </div>
+  );
+};
+
+/* ─── PROGRAM SATIRI ─── */
+const ProgramRow = ({ prog, index, navigate }) => {
+  const [hov, setHov] = useState(false);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-10px' });
+
+  return (
+    <motion.tr ref={ref}
+      initial={{ opacity: 0 }}
+      animate={inView ? { opacity: 1 } : {}}
+      transition={{ duration: 0.35, delay: Math.min(index * 0.02, 0.3) }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={() => navigate(`/programs/v2/${encodeURIComponent(prog.name)}`)}
+      style={{ background: hov ? T.bgDeep : 'transparent', cursor: 'pointer', transition: 'background 0.15s' }}
+    >
+      <td style={{ padding: '11px 14px', borderBottom: `1px solid ${T.borderCard}` }}>
+        <span style={{ fontSize: 13, fontWeight: 500, color: hov ? T.brown : T.text, transition: 'color 0.15s' }}>
+          {prog.name}
+        </span>
+      </td>
+      <td style={{ textAlign: 'center', padding: '11px 14px', borderBottom: `1px solid ${T.borderCard}` }}>
+        {prog.category && <CatBadge cat={prog.category} />}
+      </td>
+      <td style={{ textAlign: 'center', padding: '11px 14px', borderBottom: `1px solid ${T.borderCard}`, fontSize: 13, color: T.textSub }}>
+        {prog.universityCount}
+      </td>
+      <td style={{ textAlign: 'center', padding: '11px 14px', borderBottom: `1px solid ${T.borderCard}`, background: `${T.navy}04`, fontSize: 13, fontWeight: 600, color: T.textSub }}>
+        {prog.count2023?.toLocaleString('tr-TR')}
+      </td>
+      <td style={{ textAlign: 'center', padding: '11px 14px', borderBottom: `1px solid ${T.borderCard}`, background: `${T.brown}04`, fontSize: 13, fontWeight: 600, color: T.textSub }}>
+        {prog.count2024?.toLocaleString('tr-TR')}
+      </td>
+      <td style={{ textAlign: 'center', padding: '11px 14px', borderBottom: `1px solid ${T.borderCard}` }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <span style={{ fontSize: 15, fontWeight: 800, color: T.navy, fontFamily: '"Playfair Display", serif' }}>
+            {prog.count2025?.toLocaleString('tr-TR')}
+          </span>
+          <span style={{ fontSize: 10, color: T.textMuted }}>%{prog.percentage}</span>
+        </div>
+      </td>
+      <td style={{ textAlign: 'center', padding: '11px 14px', borderBottom: `1px solid ${T.borderCard}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+          {prog.trend.direction === 'up'
+            ? <TrendingUp size={12} color="#22a55e"/>
+            : prog.trend.direction === 'down'
+            ? <TrendingDown size={12} color="#d94040"/>
+            : <span style={{ fontSize: 12, color: T.textMuted }}>—</span>}
+          {prog.trend.direction !== 'neutral' && (
+            <span style={{ fontSize: 12, fontWeight: 700, color: prog.trend.direction === 'up' ? '#22a55e' : '#d94040' }}>
+              {prog.trend.direction === 'up' ? '+' : '-'}%{prog.trend.percentage}
+            </span>
+          )}
+        </div>
+      </td>
+    </motion.tr>
   );
 };
 

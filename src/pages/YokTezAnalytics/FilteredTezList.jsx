@@ -714,13 +714,13 @@ const FilteredTezList = () => {
                 </h1>
 
                 {/* MOBİL EXCEL BUTONU */}
-                <button
+               {/*  <button
                   onClick={exportToExcel}
                   className="excel-export-btn md:hidden shrink-0"
                   title="Excel İndir"
                 >
                   <div className="excel-icon">E</div>
-                </button>
+                </button> */}
 
                 <span className="md:hidden text-xs font-bold bg-white px-2 py-1 rounded border border-gray-200 shrink-0">
                   {filteredTheses.length}
@@ -730,7 +730,7 @@ const FilteredTezList = () => {
 
             {/* DESKTOP EXCEL VE KAYIT SAYISI */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
-              <button
+             {/*  <button
                 onClick={exportToExcel}
                 className="excel-export-btn"
                 title="Filtrelenmiş tezleri Excel'e aktar"
@@ -741,7 +741,7 @@ const FilteredTezList = () => {
                   </svg>
                 </div>
                 <span>Excel</span>
-              </button>
+              </button> */}
 
               <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm">
                 <span className="text-black font-bold">{filteredTheses.length}</span> kayıt

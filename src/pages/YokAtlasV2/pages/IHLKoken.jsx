@@ -1,7 +1,62 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { School, MapPin, Search, TrendingUp, ChevronRight, Trophy, Users } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
 import { groupByIHL, groupIHLByCity } from '../utils/dataProcessor';
+
+const T = {
+  bg: '#faf8f4', bgDeep: '#f4f0e8', bgCard: '#ffffff',
+  border: 'rgba(28,31,46,0.10)', borderCard: 'rgba(28,31,46,0.08)',
+  text: '#1c1f2e', textSub: '#4a4e65', textMuted: '#8a8ea8',
+  navy: '#1c1f2e', navyMid: '#2d3250',
+  brown: '#8b5e3c', brownLight: '#c49a6c', brownPale: '#f0e4d0',
+  shadow: 'rgba(28,31,46,0.08)', shadowMd: 'rgba(28,31,46,0.14)',
+};
+
+const FONT_BODY = '"Plus Jakarta Sans", system-ui, sans-serif';
+const FONT_DISPLAY = '"Playfair Display", serif';
+
+/* ─── Türkçe karaktere duyarlı normalize ─── */
+const trNormalize = (str) =>
+  (str || '')
+    .replace(/İ/g, 'i').replace(/I/g, 'ı')
+    .replace(/Ğ/g, 'ğ').replace(/Ü/g, 'ü')
+    .replace(/Ş/g, 'ş').replace(/Ö/g, 'ö')
+    .replace(/Ç/g, 'ç')
+    .toLowerCase()
+    .trim();
+
+const Card = ({ children, accent, delay = 0, style = {} }) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-20px' });
+  const ac = accent || T.brown;
+  return (
+    <motion.div ref={ref}
+      initial={{ opacity: 0, y: 18 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
+      style={{ background: T.bgCard, border: `1px solid ${T.borderCard}`, borderRadius: 14, padding: '22px 20px', boxShadow: `0 2px 10px ${T.shadow}`, position: 'relative', overflow: 'hidden', ...style }}
+    >
+      <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 2, background: `linear-gradient(90deg, transparent, ${ac}44, transparent)` }}/>
+      {children}
+    </motion.div>
+  );
+};
+
+const SectionTitle = ({ children, color }) => (
+  <div style={{ marginBottom: 18 }}>
+    <h2 style={{ fontSize: 18, fontWeight: 700, color: T.navy, fontFamily: FONT_DISPLAY, fontStyle: 'italic' }}>{children}</h2>
+    <div style={{ width: 40, height: 2, background: `linear-gradient(90deg, ${color || T.brown}, transparent)`, borderRadius: 1, marginTop: 4 }}/>
+  </div>
+);
+
+const YearBtn = ({ active, onClick, children }) => (
+  <button onClick={onClick} style={{
+    padding: '7px 18px', borderRadius: 9, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    background: active ? T.navy : T.bgCard, color: active ? '#fff' : T.textSub,
+    border: active ? 'none' : `1px solid ${T.borderCard}`,
+    transition: 'all 0.2s', fontFamily: FONT_BODY,
+  }}>{children}</button>
+);
 
 const IHLKoken = ({ data }) => {
   const navigate = useNavigate();
@@ -14,281 +69,300 @@ const IHLKoken = ({ data }) => {
   const [selectedYear, setSelectedYear] = useState('2025');
 
   useEffect(() => {
-    if (!data || !data.length) return;
-    const ihls = groupByIHL(data, selectedYear);
-    const cities = groupIHLByCity(data, selectedYear);
-    setIhlData(ihls);
-    setCityData(cities);
+    if (!data?.length) return;
+    setIhlData(groupByIHL(data, selectedYear));
+    setCityData(groupIHLByCity(data, selectedYear));
     setLoading(false);
   }, [data, selectedYear]);
 
-  const allCities = useMemo(() => {
-    return [...new Set(ihlData.map(i => i.city).filter(Boolean))].sort();
-  }, [ihlData]);
+  const allCities = useMemo(() =>
+    [...new Set(ihlData.map(i => i.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'tr')),
+  [ihlData]);
 
   const filtered = useMemo(() => {
+    const q = trNormalize(search);
     return ihlData.filter(ihl => {
-      const matchSearch = !search || ihl.displayName.toLowerCase().includes(search.toLowerCase());
-      const matchCity = !cityFilter || ihl.city === cityFilter;
-      return matchSearch && matchCity;
+      const ms = !q || trNormalize(ihl.displayName).includes(q);
+      const mc = !cityFilter || ihl.city === cityFilter;
+      return ms && mc;
     });
   }, [ihlData, search, cityFilter]);
 
-  const top10Cities = cityData.slice(0, 15);
-  const maxCityCount = top10Cities[0]?.count || 1;
+  const top15 = cityData.slice(0, 15);
+  const maxCount = top15[0]?.count || 1;
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+        style={{ width: 36, height: 36, borderRadius: '50%', border: `2px solid ${T.brown}`, borderTopColor: 'transparent' }}/>
     </div>
   );
 
   return (
-    <div className="space-y-6">
+    <div style={{ background: T.bg, minHeight: '100vh', padding: '36px 5vw 80px', fontFamily: FONT_BODY, color: T.text }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');`}</style>
 
-      {/* Başlık */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <School className="w-8 h-8 text-green-600" />
-          İHL Köken Analizi
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Hangi İmam Hatip Liselerinden kaç öğrenci üniversiteye yerleşti?
-        </p>
-      </div>
+      {/* ══ HERO ══ */}
+      <section style={{
+        margin: '-36px -5vw 32px',
+        padding: 'clamp(56px,8vw,96px) clamp(20px,6vw,80px) clamp(40px,5vw,72px)',
+        position: 'relative', overflow: 'hidden',
+        background: T.bg, borderBottom: `1px solid ${T.border}`,
+      }}>
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: `radial-gradient(ellipse 65% 55% at 85% 45%, ${T.brownPale} 0%, transparent 65%)` }} />
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 71px, ${T.border} 71px, ${T.border} 72px)`, opacity: 0.45 }} />
+        <div style={{ position: 'absolute', left: 'clamp(16px,4.5vw,56px)', top: 0, bottom: 0, width: 1, background: `linear-gradient(180deg, transparent, ${T.brown}33 15%, ${T.brown}33 85%, transparent)` }} />
+        <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)', fontSize: '32vw', fontWeight: 800, color: T.navy, opacity: 0.022, fontFamily: FONT_DISPLAY, fontStyle: 'italic', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>İ</div>
 
-      {/* Açıklayıcı Bilgi Kutusu */}
-      <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6">
-        <div className="flex items-start gap-3">
-          <div className="p-2 bg-blue-600 rounded-lg flex-shrink-0">
-            <Users className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-bold text-gray-900 mb-2">💡 Bu sayfada ne var?</h3>
-            <ul className="space-y-1 text-sm text-gray-700">
-              <li>• <strong>Şehir Bazlı Dağılım:</strong> Hangi şehirlerden kaç öğrenci üniversiteye yerleşti?</li>
-              <li>• <strong>Okul Sıralaması:</strong> Türkiye geneli İmam Hatip Liseleri başarı sıralaması</li>
-              <li>• <strong>Detaylı İnceleme:</strong> Her okula tıklayarak o okuldan hangi üniversite ve bölümlere yerleşildiğini görebilirsiniz</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Yıl Seçici */}
-      <div className="flex gap-2">
-        {['2023', '2024', '2025'].map(y => (
-          <button
-            key={y}
-            onClick={() => setSelectedYear(y)}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
-              selectedYear === y
-                ? 'bg-green-600 text-white shadow-md'
-                : 'bg-white border border-gray-200 text-gray-700 hover:border-green-300'
-            }`}
+        <div style={{ position: 'relative', zIndex: 2, maxWidth: 760 }}>
+          <motion.p
+            initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            style={{ fontSize: 10, fontWeight: 700, color: T.brown, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}
           >
-            {y}
-          </button>
-        ))}
-      </div>
+            <span style={{ display: 'inline-block', width: 28, height: 1.5, background: T.brown, borderRadius: 1 }} />
+            İHL Mezunları · Okul Bazlı Analiz · YÖK Atlas
+          </motion.p>
 
-      {/* Özet Kartlar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-600 rounded-lg">
-              <School className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm text-green-700 font-medium">Toplam İHL Sayısı</p>
-              <p className="text-3xl font-bold text-green-900">{ihlData.length.toLocaleString('tr-TR')}</p>
-              <p className="text-xs text-green-600 mt-1">farklı okul</p>
-            </div>
+          <div style={{ overflow: 'hidden' }}>
+            {'İHL '.split('').map((ch, ci) => (
+              <motion.span key={ci}
+                initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.65, delay: 0.15 + ci * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                style={{ display: 'inline-block', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: FONT_DISPLAY, fontStyle: 'italic', color: T.navy, letterSpacing: '-0.02em' }}
+              >{ch === ' ' ? '\u00A0' : ch}</motion.span>
+            ))}
+            <motion.span
+              initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              style={{ display: 'inline-block', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: FONT_DISPLAY, fontStyle: 'italic', color: T.brown, letterSpacing: '-0.02em' }}
+            >Haritası</motion.span>
+          </div>
+
+          <motion.div
+            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+            transition={{ duration: 1.4, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            style={{ height: 2, width: 'min(55%, 320px)', originX: 0, marginTop: 20, background: `linear-gradient(90deg, ${T.brown}, ${T.brownLight}77, transparent)`, borderRadius: 1 }}
+          />
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            style={{ fontSize: 15, color: T.textSub, marginTop: 20, lineHeight: 1.8, maxWidth: 460 }}
+          >
+            Hangi İmam Hatip Liselerinden kaç öğrenci üniversiteye yerleşti? Şehir ve okul bazlı dağılım.
+          </motion.p>
+
+          <div style={{ display: 'flex', gap: 'clamp(16px,3vw,36px)', marginTop: 40, flexWrap: 'wrap' }}>
+            {[
+              { l: 'Toplam İHL',   v: ihlData.length ? ihlData.length.toLocaleString('tr-TR') : '–',                                      c: T.navy  },
+              { l: 'Yerleşen',     v: ihlData.length ? ihlData.reduce((s, i) => s + i.totalCount, 0).toLocaleString('tr-TR') : '–',        c: T.brown },
+              { l: 'Şehir',        v: ihlData.length ? [...new Set(ihlData.map(i => i.city).filter(Boolean))].length.toLocaleString('tr-TR') : '–', c: T.navy  },
+              { l: 'Yıl',          v: selectedYear,                                                                                        c: T.brown },
+            ].map((s, i) => (
+              <motion.div key={i}
+                initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.3 + i * 0.09, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                style={{ borderLeft: `2px solid ${s.c}33`, paddingLeft: 14 }}
+              >
+                <p style={{ fontSize: 10, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5 }}>{s.l}</p>
+                <p style={{ fontSize: 'clamp(22px,3.5vw,32px)', fontWeight: 800, color: s.c, lineHeight: 1, fontFamily: FONT_DISPLAY }}>{s.v}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
+      </section>
 
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-blue-600 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="text-sm text-blue-700 font-medium">Toplam Yerleşen</p>
-              <p className="text-3xl font-bold text-blue-900">
-                {ihlData.reduce((s, i) => s + i.totalCount, 0).toLocaleString('tr-TR')}
-              </p>
-              <p className="text-xs text-blue-600 mt-1">öğrenci ({selectedYear})</p>
-            </div>
-          </div>
-        </div>
+      {/* YEAR TOGGLE */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+        {['2023', '2024', '2025'].map(y => <YearBtn key={y} active={selectedYear === y} onClick={() => setSelectedYear(y)}>{y}</YearBtn>)}
       </div>
 
-      {/* Şehir Bazlı Dağılım */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-          <MapPin className="w-6 h-6 text-green-600" />
-          Şehir Bazlı İHL Mezunu Dağılımı ({selectedYear})
-        </h2>
-        <p className="text-sm text-gray-500 mb-4">Üzerine gelerek şehir detaylarını görebilirsiniz</p>
+      {/* STAT CARDS */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px,1fr))', gap: 14, marginBottom: 24 }}>
+        {[
+          { icon: School, label: 'Toplam İHL Sayısı', value: ihlData.length.toLocaleString('tr-TR'), sub: 'farklı okul', accent: T.navy },
+          { icon: Users,  label: 'Toplam Yerleşen',  value: ihlData.reduce((s, i) => s + i.totalCount, 0).toLocaleString('tr-TR'), sub: `öğrenci (${selectedYear})`, accent: T.brown },
+        ].map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <Card key={i} delay={i * 0.06} accent={s.accent}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 11, background: s.accent === T.navy ? `${T.navy}12` : T.brownPale, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon size={18} color={s.accent}/>
+                </div>
+                <div>
+                  <p style={{ fontSize: 10.5, color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 3 }}>{s.label}</p>
+                  <p style={{ fontSize: 28, fontWeight: 800, color: s.accent, fontFamily: FONT_DISPLAY, lineHeight: 1 }}>{s.value}</p>
+                  <p style={{ fontSize: 11, color: T.textMuted, marginTop: 2 }}>{s.sub}</p>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-          {top10Cities.map((city, idx) => {
-            const ratio = city.count / maxCityCount;
-            const bg = ratio > 0.7 ? 'from-green-600 to-green-700 text-white' :
-                       ratio > 0.4 ? 'from-green-400 to-green-500 text-white' :
-                       ratio > 0.2 ? 'from-green-200 to-green-300 text-green-900' :
-                                     'from-green-50 to-green-100 text-green-800';
+      {/* CITY GRID */}
+      <Card delay={0.1} accent={T.navy} style={{ marginBottom: 20 }}>
+        <SectionTitle color={T.navy}>Şehir Bazlı Dağılım ({selectedYear})</SectionTitle>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px,1fr))', gap: 8, marginBottom: 20 }}>
+          {top15.map((city, idx) => {
+            const isSelected = cityFilter === city.city;
             return (
-              <div
-                key={city.city}
+              <motion.div key={city.city}
+                initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+                transition={{ delay: idx * 0.04 }}
                 onMouseEnter={() => setHoveredCity(city)}
                 onMouseLeave={() => setHoveredCity(null)}
                 onClick={() => setCityFilter(city.city === cityFilter ? '' : city.city)}
-                className={`relative p-3 rounded-xl bg-gradient-to-br ${bg} cursor-pointer transition-all border-2 ${
-                  cityFilter === city.city ? 'border-green-600 shadow-lg scale-105' : 'border-transparent hover:scale-102'
-                }`}
+                style={{
+                  padding: '11px 10px', borderRadius: 11, cursor: 'pointer', position: 'relative',
+                  background: isSelected ? T.navy : T.bgDeep,
+                  border: `1.5px solid ${isSelected ? T.navy : T.borderCard}`,
+                  transition: 'all 0.18s',
+                  transform: isSelected ? 'scale(1.04)' : 'scale(1)',
+                }}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold truncate">{city.city}</span>
-                  {idx < 3 && <Trophy className="w-3 h-3 opacity-70 flex-shrink-0" />}
-                </div>
-                <p className="text-xl font-bold">{city.count}</p>
-                <p className="text-xs opacity-75">{city.schoolCount} okul</p>
+                <p style={{ fontSize: 11, fontWeight: 700, color: isSelected ? '#fff' : T.text, marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {idx < 3 && <Trophy size={9} style={{ display: 'inline', marginRight: 3, color: isSelected ? '#fff' : T.brownLight }}/>}
+                  {city.city}
+                </p>
+                <p style={{ fontSize: 18, fontWeight: 800, color: isSelected ? '#fff' : T.navy, fontFamily: FONT_DISPLAY, lineHeight: 1 }}>{city.count}</p>
+                <p style={{ fontSize: 9.5, color: isSelected ? 'rgba(255,255,255,0.65)' : T.textMuted }}>{city.schoolCount} okul</p>
 
-                {/* Hover Tooltip */}
-                {hoveredCity?.city === city.city && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 bg-gray-900 text-white text-xs rounded-lg p-2 w-36 shadow-xl pointer-events-none">
-                    <p className="font-bold">{city.city}</p>
-                    <p>{city.count} öğrenci</p>
-                    <p>{city.schoolCount} farklı okul</p>
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
+                {hoveredCity?.city === city.city && !isSelected && (
+                  <div style={{ position: 'absolute', bottom: '110%', left: '50%', transform: 'translateX(-50%)', zIndex: 20, background: T.navy, color: '#fff', fontSize: 11, borderRadius: 8, padding: '8px 12px', whiteSpace: 'nowrap', boxShadow: `0 4px 16px ${T.shadowMd}`, pointerEvents: 'none', fontFamily: FONT_BODY }}>
+                    <p style={{ fontWeight: 700 }}>{city.city}</p>
+                    <p style={{ opacity: 0.8 }}>{city.count} öğrenci · {city.schoolCount} okul</p>
+                    <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: `5px solid ${T.navy}` }}/>
                   </div>
                 )}
-              </div>
+              </motion.div>
             );
           })}
         </div>
 
-        {/* Bar Chart */}
-        <div className="mt-6 space-y-2">
-          {top10Cities.slice(0, 10).map((city, idx) => (
-            <div key={city.city} className="flex items-center gap-3">
-              <div className="w-24 text-sm font-medium text-gray-700 text-right truncate">{city.city}</div>
-              <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-end pr-2 transition-all duration-500"
-                  style={{ width: `${(city.count / maxCityCount) * 100}%` }}
+        {/* Bar chart */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {top15.slice(0, 10).map((city, idx) => (
+            <div key={city.city} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 11, fontWeight: 500, color: T.textSub, width: 80, textAlign: 'right', flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{city.city}</span>
+              <div style={{ flex: 1, height: 18, background: T.bgDeep, borderRadius: 4, overflow: 'hidden' }}>
+                <motion.div
+                  initial={{ width: 0 }} whileInView={{ width: `${(city.count / maxCount) * 100}%` }} viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ height: '100%', background: `linear-gradient(90deg, ${T.navy}, ${T.brown})`, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 7 }}
                 >
-                  <span className="text-xs text-white font-bold">{city.count}</span>
-                </div>
+                  <span style={{ fontSize: 10, color: '#fff', fontWeight: 700 }}>{city.count}</span>
+                </motion.div>
               </div>
-              <div className="w-16 text-xs text-gray-500 text-left">{city.schoolCount} okul</div>
+              <span style={{ fontSize: 10, color: T.textMuted, width: 40, flexShrink: 0 }}>{city.schoolCount} ok.</span>
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
-      {/* Türkiye Geneli Sıralama */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-yellow-500" />
-            Türkiye Geneli İHL Sıralaması
-            <span className="text-base text-gray-500 font-normal">({filtered.length} okul)</span>
-          </h2>
-
-          <div className="flex gap-2 flex-wrap">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      {/* RANKING TABLE */}
+      <Card delay={0.18} accent={T.brown}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 14, marginBottom: 20 }}>
+          <div>
+            <SectionTitle color={T.brown}>Türkiye Geneli İHL Sıralaması</SectionTitle>
+            <p style={{ fontSize: 12, color: T.textMuted, marginTop: -10 }}>{filtered.length} okul</p>
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative' }}>
+              <Search size={13} color={T.textMuted} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }}/>
               <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
+                value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Okul ara..."
-                className="pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-300 focus:border-green-400 outline-none w-48"
+                style={{
+                  paddingLeft: 30, paddingRight: 10, paddingTop: 7, paddingBottom: 7,
+                  border: `1px solid ${T.border}`, borderRadius: 9,
+                  fontSize: 12, color: T.text, background: T.bgCard,
+                  outline: 'none', width: 210, fontFamily: FONT_BODY,
+                  transition: 'border-color 0.18s',
+                }}
+                onFocus={e => e.target.style.borderColor = T.brown}
+                onBlur={e => e.target.style.borderColor = T.border}
               />
             </div>
             <select
-              value={cityFilter}
-              onChange={e => setCityFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-300 outline-none"
+              value={cityFilter} onChange={e => setCityFilter(e.target.value)}
+              style={{ padding: '7px 10px', border: `1px solid ${T.border}`, borderRadius: 9, fontSize: 12, color: T.text, background: T.bgCard, outline: 'none', fontFamily: FONT_BODY }}
             >
               <option value="">Tüm Şehirler</option>
-              {allCities.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
+              {allCities.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
             {(search || cityFilter) && (
-              <button
-                onClick={() => { setSearch(''); setCityFilter(''); }}
-                className="px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50"
-              >
+              <button onClick={() => { setSearch(''); setCityFilter(''); }}
+                style={{ padding: '7px 12px', border: `1px solid ${T.border}`, borderRadius: 9, fontSize: 12, color: T.textSub, background: T.bgCard, cursor: 'pointer', fontFamily: FONT_BODY }}>
                 Temizle
               </button>
             )}
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">#</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Okul Adı</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-600">Şehir</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Yerleşen</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Üniversite</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Bölüm</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600"></th>
+              <tr>
+                {['#', 'Okul Adı', 'Şehir', 'Yerleşen', 'Üniversite', 'Bölüm', ''].map(h => (
+                  <th key={h} style={{ fontSize: 10, fontWeight: 700, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', textAlign: h === 'Okul Adı' ? 'left' : 'center', padding: '0 10px 10px', borderBottom: `1px solid ${T.borderCard}`, whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {filtered.slice(0, 100).map((ihl, idx) => (
-                <tr
-                  key={ihl.name}
-                  onClick={() => navigate(`/ihl/v2/${encodeURIComponent(ihl.name)}`)}
-                  className="border-b border-gray-50 hover:bg-green-50 cursor-pointer group transition-colors"
-                >
-                  <td className="py-3 px-4">
-                    {idx < 3 ? (
-                      <span className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-bold text-white
-                        ${idx === 0 ? 'bg-yellow-500' : idx === 1 ? 'bg-gray-400' : 'bg-amber-600'}`}>
-                        {idx + 1}
-                      </span>
-                    ) : (
-                      <span className="text-sm text-gray-500">{idx + 1}</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <p className="font-medium text-gray-900 group-hover:text-green-700 transition-colors">
-                      {ihl.displayName}
-                    </p>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                      {ihl.city}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <span className="text-xl font-bold text-green-700">{ihl.totalCount}</span>
-                  </td>
-                  <td className="py-3 px-4 text-right text-gray-600 text-sm">{ihl.universityCount}</td>
-                  <td className="py-3 px-4 text-right text-gray-600 text-sm">{ihl.programCount}</td>
-                  <td className="py-3 px-4 text-right">
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-green-600 ml-auto transition-colors" />
-                  </td>
-                </tr>
+              {filtered.slice(0, 1639).map((ihl, idx) => (
+                <IHLRow key={ihl.name} ihl={ihl} idx={idx} navigate={navigate}/>
               ))}
             </tbody>
           </table>
         </div>
 
         {filtered.length > 100 && (
-          <p className="text-center text-sm text-gray-500 mt-4 py-3 bg-gray-50 rounded-lg">
-            İlk 100 sonuç gösteriliyor — aramayı daraltın
+          <p style={{ textAlign: 'center', fontSize: 12, color: T.textMuted, marginTop: 16, padding: '12px', background: T.bgDeep, borderRadius: 8 }}>
+           Bütün sonuçlar gösteriliyor — aramayı daraltın
           </p>
         )}
-      </div>
-
+      </Card>
     </div>
+  );
+};
+
+const IHLRow = ({ ihl, idx, navigate }) => {
+  const [hov, setHov] = useState(false);
+  const isTop3 = idx < 3;
+  const medalColor = idx === 0 ? '#c49a6c' : idx === 1 ? T.textMuted : '#8b5e3c';
+
+  return (
+    <tr
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      onClick={() => navigate(`/ihl/v2/${encodeURIComponent(ihl.name)}`)}
+      style={{ cursor: 'pointer', background: hov ? T.bgDeep : 'transparent', transition: 'background 0.15s' }}
+    >
+      <td style={{ padding: '10px 10px', borderBottom: `1px solid ${T.borderCard}`, textAlign: 'center' }}>
+        {isTop3
+          ? <div style={{ width: 26, height: 26, borderRadius: '50%', background: medalColor, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>{idx + 1}</span>
+            </div>
+          : <span style={{ fontSize: 12, color: T.textMuted }}>{idx + 1}</span>}
+      </td>
+      <td style={{ padding: '10px 10px', borderBottom: `1px solid ${T.borderCard}` }}>
+        <span style={{ fontSize: 13, fontWeight: 500, color: hov ? T.brown : T.text, transition: 'color 0.15s' }}>{ihl.displayName}</span>
+      </td>
+      <td style={{ padding: '10px 10px', borderBottom: `1px solid ${T.borderCard}`, textAlign: 'center' }}>
+        <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: T.bgDeep, color: T.textSub }}>{ihl.city}</span>
+      </td>
+      <td style={{ padding: '10px 10px', borderBottom: `1px solid ${T.borderCard}`, textAlign: 'center' }}>
+        <span style={{ fontSize: 18, fontWeight: 800, color: T.navy, fontFamily: FONT_DISPLAY }}>{ihl.totalCount}</span>
+      </td>
+      <td style={{ padding: '10px 10px', borderBottom: `1px solid ${T.borderCard}`, textAlign: 'center', fontSize: 13, color: T.textSub }}>{ihl.universityCount}</td>
+      <td style={{ padding: '10px 10px', borderBottom: `1px solid ${T.borderCard}`, textAlign: 'center', fontSize: 13, color: T.textSub }}>{ihl.programCount}</td>
+      <td style={{ padding: '10px 10px', borderBottom: `1px solid ${T.borderCard}`, textAlign: 'center' }}>
+        <ChevronRight size={14} color={hov ? T.brown : T.textMuted} style={{ transition: 'color 0.15s' }}/>
+      </td>
+    </tr>
   );
 };
 

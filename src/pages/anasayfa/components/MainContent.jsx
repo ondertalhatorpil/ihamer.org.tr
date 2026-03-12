@@ -60,6 +60,12 @@ const programData = [
     desc: "Uluslararası İmam Hatip Liseleri",
     link: "/uluslararasi-programlar",
   },
+  {
+    img: "/kurumsal/assest/engelli.jpg",
+    title: "Engelli",
+    desc: "Engellilere Yönelik İmam Hatip Liseleri",
+    link: "https://kanikaracaihl.meb.k12.tr/",
+  },
 ];
 
 // --- NewsSlider ---

@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "@tailwindcss/vite": "^4.1.14",
     "d3-scale": "^4.0.2",
     "framer-motion": "^12.34.3",
@@ -22,6 +24,7 @@
     "react-router-dom": "^7.9.4",
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.6.0",
+    "three": "^0.183.2",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
