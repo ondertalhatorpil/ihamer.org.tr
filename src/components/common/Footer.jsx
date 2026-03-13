@@ -133,8 +133,7 @@ const Footer = () => {
             </li>
             <li>
               <a
-                href="https://dergipark.org.tr/tr/pub/talim"
-                target="_blank"
+                href="/talim-dergisi"
                 rel="noopener noreferrer"
                 className="transition-all hover:text-white hover:pl-1.5"
               >

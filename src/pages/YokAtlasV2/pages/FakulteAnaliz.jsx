@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { BookOpen, Search, SlidersHorizontal, ChevronDown, X } from 'lucide-react';
+import { BookOpen, Search, X } from 'lucide-react';
 import { groupByFakulte, groupByFakulteKategori } from '../utils/dataProcessor';
 
 const T = {
@@ -38,8 +38,7 @@ const trNormalize = (str) =>
     .trim();
 
 const KAT_COLOR = {
-  'İlahiyat + İslami İlimler Fakülteleri': '#b45309',
-  'İlahiyat':        '#166534',
+  'İlahiyat & İslami İlimler': '#b45309',
   'Tıp':             '#991b1b',
   'Hukuk':           '#5b21b6',
   'Eğitim':          '#1e40af',
@@ -345,7 +344,6 @@ const FakulteAnaliz = ({ data }) => {
   const [selectedKategori, setSelectedKategori] = useState('');
   const [selectedYear,     setSelectedYear]    = useState('2025');
   const [sortBy,           setSortBy]          = useState('count');
-  const [showAll,          setShowAll]         = useState(false);
 
   useEffect(() => {
     if (!data?.length) return;
@@ -353,7 +351,6 @@ const FakulteAnaliz = ({ data }) => {
     setFakulteData(groupByFakulte(data, selectedYear));
     setKategoriData(groupByFakulteKategori(data, selectedYear));
     setLoading(false);
-    setShowAll(false);
   }, [data, selectedYear]);
 
   const allKategoriler = [...new Set(fakulteData.map(f => f.kategori))].sort((a, b) => a.localeCompare(b, 'tr'));
@@ -367,7 +364,7 @@ const FakulteAnaliz = ({ data }) => {
     })
     .sort((a, b) => sortBy === 'count' ? b.count - a.count : b.percentage - a.percentage);
 
-  const visible = showAll ? filtered : filtered.slice(0, 60);
+  const visible = filtered;
 
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 14, background: T.bg }}>
@@ -515,12 +512,12 @@ const FakulteAnaliz = ({ data }) => {
         </Reveal>
 
         <Card delay={0.1} accent={T.navy}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '65vh', borderRadius: 10, border: `1px solid ${T.borderCard}` }}>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
               <thead>
-                <tr style={{ borderBottom: `2px solid ${T.border}` }}>
+                <tr>
                   {['#', 'Fakülte Adı', 'Kategori', 'İHL Öğrenci', 'Toplam', 'Oran', 'Üniversite'].map((h, i) => (
-                    <th key={i} style={{ padding: '10px 12px', textAlign: i === 0 ? 'left' : i === 1 ? 'left' : i === 2 ? 'center' : 'right', fontSize: 9.5, fontWeight: 700, color: T.textMuted, letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                    <th key={i} style={{ position: 'sticky', top: 0, zIndex: 10, padding: '11px 12px', textAlign: i === 0 ? 'left' : i === 1 ? 'left' : i === 2 ? 'center' : 'right', fontSize: 9.5, fontWeight: 700, color: T.textMuted, letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap', background: T.bgDeep, borderBottom: `2px solid ${T.border}`, boxShadow: '0 2px 6px rgba(28,31,46,0.06)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -531,26 +528,6 @@ const FakulteAnaliz = ({ data }) => {
               </tbody>
             </table>
           </div>
-
-          {filtered.length > 60 && (
-            <div style={{ marginTop: 24, textAlign: 'center' }}>
-              <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowAll(v => !v)}
-                style={{
-                  padding: '10px 28px', borderRadius: 10, cursor: 'pointer',
-                  border: `1.5px solid ${T.brown}44`,
-                  background: T.brownPale, color: T.brown,
-                  fontSize: 12, fontWeight: 600, letterSpacing: '0.06em',
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  transition: 'all 0.2s ease', fontFamily: FONT_BODY,
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = `${T.brown}14`}
-                onMouseLeave={e => e.currentTarget.style.background = T.brownPale}
-              >
-                <ChevronDown size={13} style={{ transform: showAll ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }} />
-                {showAll ? 'Daha Az Göster' : `${filtered.length - 60} fakülte daha göster`}
-              </motion.button>
-            </div>
-          )}
 
           {filtered.length === 0 && (
             <div style={{ textAlign: 'center', padding: '48px 0' }}>
@@ -566,7 +543,7 @@ const FakulteAnaliz = ({ data }) => {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{
+   {/*    <footer style={{
         padding: 'clamp(14px,2vw,22px) clamp(20px,6vw,80px)',
         background: T.sidebar,
         display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12,
@@ -580,7 +557,7 @@ const FakulteAnaliz = ({ data }) => {
           </span>
         </div>
         <div style={{ height: 1, width: 40, background: `linear-gradient(90deg, ${T.brown}, ${T.brownLight})`, borderRadius: 1 }} />
-      </footer>
+      </footer> */}
     </div>
   );
 };

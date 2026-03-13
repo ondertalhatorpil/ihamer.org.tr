@@ -344,6 +344,36 @@ const SchoolRow = ({ school, index, onClick }) => {
   );
 };
 
+/* ─── Mezunların Liseleri pill butonu ─── */
+const SchoolBtn = ({ onClick }) => {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      title="Mezunların Liseleri"
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        gap: 4, padding: '8px 10px', borderRadius: 10, cursor: 'pointer',
+        background: hov ? T.brownPale : T.bgDeep,
+        border: `1.5px solid ${hov ? T.brown + '55' : T.borderCard}`,
+        color: hov ? T.brown : T.textMuted,
+        transition: 'all 0.18s', outline: 'none', flexShrink: 0,
+        boxShadow: hov ? `0 4px 14px ${T.brown}22` : 'none',
+        width: 52,
+      }}
+    >
+      <School size={15} color={hov ? T.brown : T.textMuted} style={{ transition: 'color 0.18s' }} />
+      <span style={{
+        fontSize: 8.5, fontWeight: 700, letterSpacing: '0.05em', lineHeight: 1.2,
+        textAlign: 'center', textTransform: 'uppercase', color: 'inherit',
+        fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
+      }}>Lise<br/>Analizi</span>
+    </button>
+  );
+};
+
 /* ─── UNIV ROW ─── */
 const UnivRow = ({ univ, index, navigate, data, onSchoolModal }) => {
   const [hov, setHov] = useState(false);
@@ -396,30 +426,13 @@ const UnivRow = ({ univ, index, navigate, data, onSchoolModal }) => {
           )}
           {univ.programCount && <span>{univ.programCount} program</span>}
           {univ.percentage   && <span>%{univ.percentage} oran</span>}
-
-          <button
-            onClick={e => { e.stopPropagation(); onSchoolModal(univ); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '4px 10px', borderRadius: 7,
-              background: hov ? T.brownPale : `${T.navy}08`,
-              color: hov ? T.brown : T.textSub,
-              border: `1px solid ${hov ? T.brown + '33' : T.border}`,
-              cursor: 'pointer', fontSize: 11, fontWeight: 600,
-              transition: 'all 0.18s', outline: 'none', letterSpacing: '0.02em',
-              fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = T.brownPale; e.currentTarget.style.color = T.brown; e.currentTarget.style.borderColor = T.brown + '44'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = hov ? T.brownPale : `${T.navy}08`; e.currentTarget.style.color = hov ? T.brown : T.textSub; e.currentTarget.style.borderColor = hov ? T.brown + '33' : T.border; }}
-          >
-            <School size={11}/>
-            Mezunların Liseleri
-          </button>
         </div>
       </div>
 
       {/* Trend block */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, borderLeft: `1px solid ${T.borderCard}`, paddingLeft: 14, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderLeft: `1px solid ${T.borderCard}`, paddingLeft: 14, flexShrink: 0 }}>
+        <SchoolBtn onClick={e => { e.stopPropagation(); onSchoolModal(univ); }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ textAlign: 'right' }}>
           <p style={{ fontSize: 9.5, color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>2024</p>
           <p style={{ fontSize: 18, fontWeight: 700, color: T.textSub, fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>
@@ -446,6 +459,7 @@ const UnivRow = ({ univ, index, navigate, data, onSchoolModal }) => {
           style={{ transition: 'color 0.2s', cursor: 'pointer' }}
           onClick={() => navigate(`/universities/v2/${encodeURIComponent(univ.name)}`)}
         />
+        </div>
       </div>
     </motion.div>
   );
@@ -608,7 +622,7 @@ const Universities = ({ data }) => {
               <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Üniversite Ara</label>
               <div style={{ position: 'relative' }}>
                 <Search size={14} color={T.textMuted} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)' }}/>
-                <input type="text" placeholder="Üniversite adı..." value={searchTerm}
+                <input type="text" placeholder="Üniversite adı... (ör: istanbul, İstanbul, ISTANBUL)" value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   style={{ ...inputStyle, paddingLeft: 34 }}
                   onFocus={e => e.target.style.borderColor = T.brown}

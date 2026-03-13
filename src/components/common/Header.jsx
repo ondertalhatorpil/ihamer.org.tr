@@ -270,8 +270,7 @@ ${scrolled ? "fixed top-10 right-6 -translate-y-1/4 scale-110" : "relative"}
 
               <li className="w-full border-b border-white/5">
                 <a
-                  href="https://dergipark.org.tr/tr/pub/talim"
-                  target="_blank"
+                  href="/talim-dergisi"
                   rel="noopener noreferrer"
                   onClick={closeMenu}
                   className="text-white text-2xl font-medium py-5 px-8 block relative transition-all duration-300 ease-in-out hover:bg-white/5 hover:pl-10 hover:text-[#ae9242]"

@@ -131,7 +131,7 @@ const SidebarContent = ({ onClose }) => {
 
         {/* Logo placeholder — sol üst köşe
             Gerçek logo geldiğinde bu div'in içini değiştir */}
-        <div style={{
+       {/*  <div style={{
           width: 46, height: 46, borderRadius: 13,
           border: `1.5px dashed ${T.brown}50`,
           background: `linear-gradient(145deg, rgba(139,94,60,0.12), rgba(196,154,108,0.06))`,
@@ -140,13 +140,13 @@ const SidebarContent = ({ onClose }) => {
           position: 'relative',
         }}>
           <GraduationCap size={19} color={T.brownLight} style={{ opacity: 0.65 }}/>
-          {/* Tiny corner dot */}
+          
           <div style={{
             position: 'absolute', top: 4, left: 4,
             width: 4, height: 4, borderRadius: '50%',
             background: T.brown, opacity: 0.45,
           }}/>
-        </div>
+        </div> */}
 
         {/* Brand name */}
         <p style={{
@@ -166,7 +166,7 @@ const SidebarContent = ({ onClose }) => {
           <p style={{
             fontSize: 8.5, color: T.brownLight, fontWeight: 700,
             letterSpacing: '0.22em', textTransform: 'uppercase',
-          }}>Veri &amp; Analiz</p>
+          }}>Verİ &amp; Analİz</p>
         </div>
 
         <p style={{

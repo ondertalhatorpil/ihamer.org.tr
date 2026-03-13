@@ -265,7 +265,7 @@ const IHLDetail = ({ data }) => {
                 initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.15 + ci * 0.025, ease: [0.22, 1, 0.36, 1] }}
                 style={{ display: 'inline-block',
-                  fontSize: 'clamp(24px,4vw,56px)', fontWeight: 800, lineHeight: 0.95,
+                  fontSize: 'clamp(24px,4vw,56px)', marginTop: "0.1em",  marginBottom: "0.1em", fontWeight: 800, lineHeight: 1,
                   fontFamily: FONT_DISPLAY, fontStyle: 'italic',
                   color: T.navy, letterSpacing: '-0.02em' }}
               >{ch === ' ' ? '\u00A0' : ch}</motion.span>
@@ -275,7 +275,7 @@ const IHLDetail = ({ data }) => {
                 initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.58, ease: [0.22, 1, 0.36, 1] }}
                 style={{ display: 'inline-block',
-                  fontSize: 'clamp(24px,4vw,56px)', fontWeight: 800, lineHeight: 0.95,
+                  fontSize: 'clamp(24px,4vw,56px)', marginTop: "0.1em", marginBottom: "0.1em", fontWeight: 800, lineHeight: 1,
                   fontFamily: FONT_DISPLAY, fontStyle: 'italic',
                   color: T.brown, letterSpacing: '-0.02em' }}
               >{titleBrown}</motion.span>

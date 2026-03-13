@@ -136,7 +136,7 @@ const IHLKoken = ({ data }) => {
               initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
               style={{ display: 'inline-block', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: FONT_DISPLAY, fontStyle: 'italic', color: T.brown, letterSpacing: '-0.02em' }}
-            >Haritası</motion.span>
+            >Köken</motion.span>
           </div>
 
           <motion.div
@@ -303,28 +303,22 @@ const IHLKoken = ({ data }) => {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '65vh', borderRadius: 10, border: `1px solid ${T.borderCard}` }}>
+          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
               <tr>
                 {['#', 'Okul Adı', 'Şehir', 'Yerleşen', 'Üniversite', 'Bölüm', ''].map(h => (
-                  <th key={h} style={{ fontSize: 10, fontWeight: 700, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', textAlign: h === 'Okul Adı' ? 'left' : 'center', padding: '0 10px 10px', borderBottom: `1px solid ${T.borderCard}`, whiteSpace: 'nowrap' }}>{h}</th>
+                  <th key={h} style={{ position: 'sticky', top: 0, zIndex: 10, fontSize: 10, fontWeight: 700, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', textAlign: h === 'Okul Adı' ? 'left' : 'center', padding: '11px 10px', background: T.bgDeep, borderBottom: `2px solid ${T.borderCard}`, boxShadow: '0 2px 6px rgba(28,31,46,0.06)', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {filtered.slice(0, 1639).map((ihl, idx) => (
+              {filtered.map((ihl, idx) => (
                 <IHLRow key={ihl.name} ihl={ihl} idx={idx} navigate={navigate}/>
               ))}
             </tbody>
           </table>
         </div>
-
-        {filtered.length > 100 && (
-          <p style={{ textAlign: 'center', fontSize: 12, color: T.textMuted, marginTop: 16, padding: '12px', background: T.bgDeep, borderRadius: 8 }}>
-           Bütün sonuçlar gösteriliyor — aramayı daraltın
-          </p>
-        )}
       </Card>
     </div>
   );

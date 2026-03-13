@@ -277,24 +277,44 @@ export const getIHLUniversityFlow = (records, ihlName, year) => {
 // Fakülte kategorileştirme (İlahiyat, Tıp, Hukuk vs.)
 export const categorizeFakulte = (fakulte) => {
   if (!fakulte) return 'Diğer';
-  const f = fakulte.toLowerCase();
-  if (f.includes('ilahiyat')) return 'İlahiyat';
+
+  // Türkçe büyük harfleri önce manuel çevir, sonra toLowerCase
+  const f = fakulte
+    .replace(/İ/g, 'i').replace(/I/g, 'ı')
+    .replace(/Ğ/g, 'ğ').replace(/Ü/g, 'ü')
+    .replace(/Ş/g, 'ş').replace(/Ö/g, 'ö')
+    .replace(/Ç/g, 'ç')
+    .toLowerCase();
+
+  if (
+    f.includes('ilahiyat') ||
+    f.includes('islami ilim') ||
+    f.includes('islam ilim') ||
+    f.includes('islam bilim') ||
+    f.includes('dini ilim') ||
+    f.includes('islamic')
+  ) return 'İlahiyat & İslami İlimler';
+
   if (f.includes('tıp') || f.includes('tip fakül')) return 'Tıp';
   if (f.includes('hukuk')) return 'Hukuk';
   if (f.includes('eğitim') || f.includes('egitim')) return 'Eğitim';
-  if (f.includes('mühendis') || f.includes('muhendis')) return 'Mühendislik';
+  if (f.includes('mühendis') || f.includes('muhendis') || f.includes('muhendis')) return 'Mühendislik';
   if (f.includes('fen') && (f.includes('bilim') || f.includes('edebiyat'))) return 'Fen-Edebiyat';
-  if (f.includes('iktisat') || f.includes('ekonomi')) return 'İktisat';
+  if (f.includes('iktisat') || f.includes('ekonomi') || f.includes('iktisa'))  return 'İktisat';
   if (f.includes('işletme') || f.includes('isletme')) return 'İşletme';
-  if (f.includes('sosyal') || f.includes('beşeri')) return 'Sosyal Bilimler';
+  if (f.includes('sosyal') || f.includes('beşeri') || f.includes('beseri')) return 'Sosyal Bilimler';
   if (f.includes('sağlık') || f.includes('saglik')) return 'Sağlık';
   if (f.includes('güzel sanat') || f.includes('guzel sanat')) return 'Güzel Sanatlar';
   if (f.includes('mimarlık') || f.includes('mimarlik')) return 'Mimarlık';
   if (f.includes('eczacılık') || f.includes('eczacilik')) return 'Eczacılık';
-  if (f.includes('diş') || f.includes('dis hek')) return 'Diş Hekimliği';
   if (f.includes('iletişim') || f.includes('iletisim')) return 'İletişim';
+  if (f.includes('edebiyat') || f.includes('edebiyat')) return 'Edebiyat';
+  if (f.includes('diş') || f.includes('dis')) return 'Diş Hekimliği';
+  
   return 'Diğer';
 };
+
+
 
 // Fakülte ismini normalize et (Türkçe karakterler, büyük/küçük harf)
 const basicNormalize = (text) => {

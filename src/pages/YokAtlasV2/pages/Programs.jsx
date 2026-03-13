@@ -137,7 +137,7 @@ const Programs = ({ data }) => {
             <motion.span
               initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              style={{ display: 'inline-block', paddingLeft: '0.04em', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', color: T.brown, letterSpacing: '-0.02em' }}
+              style={{ display: 'inline-block', paddingLeft: '0.04em', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', color: T.navy, letterSpacing: '-0.02em' }}
             >ler</motion.span>
           </div>
 

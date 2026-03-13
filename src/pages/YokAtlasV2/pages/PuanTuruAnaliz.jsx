@@ -209,8 +209,8 @@ const PuanTuruAnaliz = ({ data }) => {
             <CartesianGrid strokeDasharray="2 4" stroke={T.borderCard} vertical={false}/>
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: T.textMuted, fontFamily: FONT_BODY }} axisLine={false} tickLine={false}/>
             <YAxis tick={{ fontSize: 11, fill: T.textMuted, fontFamily: FONT_BODY }} axisLine={false} tickLine={false}/>
-            <Tooltip contentStyle={tipStyle} formatter={v => [viewMode === 'count' ? v.toLocaleString('tr-TR') + ' öğrenci' : '%' + v, '']}/>
-            <Bar dataKey={viewMode === 'count' ? 'count' : 'pct'} radius={[5, 5, 0, 0]}>
+            <Tooltip contentStyle={tipStyle} cursor={false} formatter={v => [viewMode === 'count' ? v.toLocaleString('tr-TR') + ' öğrenci' : '%' + v, '']}/>
+            <Bar dataKey={viewMode === 'count' ? 'count' : 'pct'} radius={[5, 5, 0, 0]} activeBar={false}>
               {bar2025.map(e => <Cell key={e.puan} fill={PUAN_COLORS[e.puan] || T.textMuted}/>)}
             </Bar>
           </BarChart>

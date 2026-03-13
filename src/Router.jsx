@@ -16,6 +16,7 @@ import TarihcePage from "./pages/kurumsal/tarihce";
 import IletisimPage from "./pages/iletisim";
 import BilgiPage from "./pages/raporlar/bilgi";
 import CalistayPage from "./pages/raporlar/calistay";
+import TalimJournalPage from "./pages/talim/TalimJournalPage.jsx";
 import NewsPage from "./pages/haberler/NewsPage";
 import NewsDetail from "./pages/haberler/NewsDetail";
 import KvkkPolitikası from "./components/common/kvkk";
@@ -162,6 +163,7 @@ const AppContent = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/hakkimizda" element={<HakkımızdaPage />} />
         <Route path="/yonetim" element={<YönetimPage />} />
+        <Route path="/talim-dergisi" element={<TalimJournalPage />} />
         <Route path="/kurumsal/tarihce" element={<TarihcePage />} />
         <Route path="/iletisim" element={<IletisimPage />} />
         <Route path="/bilgi" element={<BilgiPage />} />
