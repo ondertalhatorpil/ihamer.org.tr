@@ -14,7 +14,6 @@ const T = {
   shadow: 'rgba(28,31,46,0.08)', shadowMd: 'rgba(28,31,46,0.14)',
 };
 
-/* ─── Türkçe karaktere duyarlı normalize ─── */
 const trNormalize = (str) =>
   (str || '')
     .replace(/İ/g, 'i').replace(/I/g, 'ı')
@@ -25,18 +24,19 @@ const trNormalize = (str) =>
     .trim();
 
 const TYPE_STYLES = {
-  Devlet: { bg: `${T.navy}12`,       color: T.navy,    border: `${T.navy}28`        },
-  Vakıf:  { bg: `${T.brown}12`,      color: T.brown,   border: `${T.brown}28`       },
-  KKTC:   { bg: `${T.brownLight}22`, color: '#7a4a10', border: `${T.brownLight}44`  },
+  Devlet: { bg: `${T.navy}12`, color: T.navy, border: `${T.navy}28` },
+  Vakıf:  { bg: `${T.brown}12`, color: T.brown, border: `${T.brown}28` },
+  KKTC:   { bg: `${T.brownLight}22`, color: '#7a4a10', border: `${T.brownLight}44` },
 };
 
 const Badge = ({ type }) => {
   const s = TYPE_STYLES[type] || TYPE_STYLES.Devlet;
   return (
     <span style={{
-      fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
-      padding: '3px 8px', borderRadius: 6,
+      fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+      padding: '2px 7px', borderRadius: 5,
       background: s.bg, color: s.color, border: `1px solid ${s.border}`, flexShrink: 0,
+      lineHeight: '16px', display: 'inline-block',
     }}>{type}</span>
   );
 };
@@ -55,12 +55,23 @@ const Reveal = ({ children, delay = 0 }) => {
 
 const SORT_OPTIONS = [
   { value: 'count_desc', label: 'Öğrenci Sayısı (Çok → Az)' },
-  { value: 'alpha_asc',  label: 'Alfabetik (A → Z)'         },
+  { value: 'alpha_asc',  label: 'Alfabetik (A → Z)' },
 ];
 
 const YEARS = ['Tüm Yıllar', '2023', '2024', '2025'];
 
-/* ─── Okul listesini belirli bir yıl (veya tümü) için çıkar ─── */
+/* ─── Width hook ─── */
+const useWidth = () => {
+  const [w, setW] = useState(() => typeof window !== 'undefined' ? window.innerWidth : 1200);
+  useEffect(() => {
+    const fn = () => setW(window.innerWidth);
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, []);
+  return w;
+};
+
+/* ─── Okul listesini çıkar ─── */
 const extractSchoolsForYear = (data, univName, year) => {
   const schoolMap = {};
   data
@@ -90,21 +101,16 @@ const extractSchoolsForYear = (data, univName, year) => {
 /* ─── SCHOOL MODAL ─── */
 const SchoolModal = ({ univ, data, onClose }) => {
   const navigate = useNavigate();
+  const vw = useWidth();
+  const isMobile = vw < 640;
   const [search, setSearch] = useState('');
-  const [year,   setYear]   = useState('Tüm Yıllar');
+  const [year, setYear] = useState('Tüm Yıllar');
 
-  const schools = useMemo(
-    () => extractSchoolsForYear(data, univ.name, year),
-    [data, univ.name, year]
-  );
-
+  const schools = useMemo(() => extractSchoolsForYear(data, univ.name, year), [data, univ.name, year]);
   const filtered = useMemo(() => {
     const q = trNormalize(search);
     if (!q.trim()) return schools;
-    return schools.filter(s =>
-      trNormalize(s.name).includes(q) ||
-      trNormalize(s.city).includes(q)
-    );
+    return schools.filter(s => trNormalize(s.name).includes(q) || trNormalize(s.city).includes(q));
   }, [schools, search]);
 
   const totalStudents = schools.reduce((s, x) => s + x.total, 0);
@@ -130,114 +136,114 @@ const SchoolModal = ({ univ, data, onClose }) => {
       style={{
         position: 'fixed', inset: 0, zIndex: 900,
         background: 'rgba(28,31,46,0.55)', backdropFilter: 'blur(5px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: isMobile ? '8px' : '20px',
       }}
     >
       <motion.div
         initial={{ opacity: 0, y: 28, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0,  scale: 1    }}
-        exit={{    opacity: 0, y: 16, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.97 }}
         transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
         onClick={e => e.stopPropagation()}
         style={{
-          background: T.bgCard, borderRadius: 20,
-          width: '100%', maxWidth: 700, maxHeight: '90vh',
+          background: T.bgCard, borderRadius: isMobile ? 16 : 20,
+          width: '100%', maxWidth: 700, maxHeight: isMobile ? '95vh' : '90vh',
           overflow: 'hidden',
           boxShadow: '0 32px 80px rgba(28,31,46,0.28)',
           border: `1px solid ${T.borderCard}`,
-          display: 'flex', flexDirection: 'column',
-          fontFamily: fontBase,
+          display: 'flex', flexDirection: 'column', fontFamily: fontBase,
         }}
       >
-        {/* ── Header ── */}
+        {/* Header */}
         <div style={{
           background: `linear-gradient(135deg, ${T.navy} 0%, ${T.navyMid} 100%)`,
-          padding: '22px 24px 18px', position: 'relative', flexShrink: 0,
+          padding: isMobile ? '16px 16px 14px' : '22px 24px 18px',
+          position: 'relative', flexShrink: 0,
         }}>
           <div style={{
             position: 'absolute', top: 0, left: '8%', right: '8%', height: 2,
             background: `linear-gradient(90deg, transparent, ${T.brownLight}88, transparent)`,
           }} />
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
             <div style={{ flex: 1, minWidth: 0, paddingRight: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <div style={{
-                  width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                  width: 24, height: 24, borderRadius: 6, flexShrink: 0,
                   background: `linear-gradient(135deg, ${T.brown}, ${T.brownLight})`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <GraduationCap size={14} color="#fff" />
+                  <GraduationCap size={12} color="#fff" />
                 </div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: T.brownLight, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: T.brownLight, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
                   Mezunların Liseleri
                 </span>
               </div>
               <h2 style={{
-                fontSize: 18, fontWeight: 700, color: '#fff',
+                fontSize: isMobile ? 15 : 18, fontWeight: 700, color: '#fff',
                 fontFamily: '"Playfair Display", serif', fontStyle: 'italic',
-                lineHeight: 1.2, letterSpacing: '-0.01em',
+                lineHeight: 1.25, letterSpacing: '-0.01em',
+                wordBreak: 'break-word',
               }}>{univ.name}</h2>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5, flexWrap: 'wrap' }}>
                 <Badge type={univ.type} />
                 {univ.city && (
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <MapPin size={10}/>{univ.city}
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <MapPin size={9}/>{univ.city}
                   </span>
                 )}
               </div>
             </div>
             <button onClick={onClose}
               style={{
-                background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 9,
-                padding: 8, cursor: 'pointer', color: '#fff',
+                background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 8,
+                padding: 7, cursor: 'pointer', color: '#fff',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'background 0.18s', flexShrink: 0,
               }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'}
               onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-            ><X size={16} /></button>
+            ><X size={15} /></button>
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
             {[
-              ['İHL Mezunu',  totalStudents.toLocaleString('tr-TR')],
+              ['İHL Mezunu', totalStudents.toLocaleString('tr-TR')],
               ['Farklı Lise', schools.length.toLocaleString('tr-TR')],
             ].map(([label, val]) => (
-              <div key={label} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 14px' }}>
-                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginBottom: 3, letterSpacing: '0.05em' }}>{label}</p>
-                <p style={{ fontSize: 24, fontWeight: 800, color: '#fff', fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>{val}</p>
+              <div key={label} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 8, padding: isMobile ? '8px 10px' : '10px 14px' }}>
+                <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', marginBottom: 2, letterSpacing: '0.05em' }}>{label}</p>
+                <p style={{ fontSize: isMobile ? 18 : 24, fontWeight: 800, color: '#fff', fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>{val}</p>
               </div>
             ))}
           </div>
 
-          {/* Yıl filtresi */}
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {/* Year filter */}
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
             {YEARS.map(y => (
               <button key={y} onClick={() => setYear(y)}
                 style={{
-                  padding: '5px 14px', borderRadius: 20,
-                  fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
+                  padding: isMobile ? '4px 10px' : '5px 14px', borderRadius: 20,
+                  fontSize: isMobile ? 10 : 11, fontWeight: 700, letterSpacing: '0.04em',
                   cursor: 'pointer', transition: 'all 0.18s',
                   border: year === y ? 'none' : '1px solid rgba(255,255,255,0.2)',
-                  background: year === y
-                    ? `linear-gradient(135deg, ${T.brown}, ${T.brownLight})`
-                    : 'rgba(255,255,255,0.08)',
+                  background: year === y ? `linear-gradient(135deg, ${T.brown}, ${T.brownLight})` : 'rgba(255,255,255,0.08)',
                   color: year === y ? '#fff' : 'rgba(255,255,255,0.6)',
                   boxShadow: year === y ? `0 2px 10px ${T.brown}66` : 'none',
                   fontFamily: fontBase,
                 }}
               >
-                <Calendar size={9} style={{ marginRight: 5, verticalAlign: 'middle' }} />
+                <Calendar size={8} style={{ marginRight: 4, verticalAlign: 'middle' }} />
                 {y}
               </button>
             ))}
           </div>
         </div>
 
-        {/* ── Search ── */}
-        <div style={{ padding: '14px 24px 10px', borderBottom: `1px solid ${T.borderCard}`, flexShrink: 0 }}>
+        {/* Search */}
+        <div style={{ padding: isMobile ? '10px 14px 8px' : '14px 24px 10px', borderBottom: `1px solid ${T.borderCard}`, flexShrink: 0 }}>
           <div style={{ position: 'relative' }}>
             <Search size={13} color={T.textMuted} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)' }} />
             <input
@@ -259,35 +265,32 @@ const SchoolModal = ({ univ, data, onClose }) => {
               </button>
             )}
           </div>
-          <p style={{ fontSize: 11, color: T.textMuted, marginTop: 8 }}>
+          <p style={{ fontSize: 11, color: T.textMuted, marginTop: 6 }}>
             <strong style={{ color: T.text }}>{filtered.length}</strong> lise
             {search ? ` (arama: "${search}")` : ` · ${year}`}
-            <span style={{ marginLeft: 8, color: T.brown, fontStyle: 'italic' }}>
-              Liseye tıklayarak detay sayfasına gidin
-            </span>
           </p>
         </div>
 
-        {/* ── List ── */}
-        <div style={{ overflowY: 'auto', padding: '12px 24px 20px', flex: 1 }}>
+        {/* List */}
+        <div style={{ overflowY: 'auto', padding: isMobile ? '10px 14px 16px' : '12px 24px 20px', flex: 1 }}>
           {filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 0', color: T.textMuted }}>
               <School size={32} color={T.borderCard} style={{ margin: '0 auto 10px', display: 'block' }} />
               <p style={{ fontSize: 13 }}>Sonuç bulunamadı</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               {filtered.map((school, i) => (
-                <SchoolRow key={i} school={school} index={i} onClick={() => goToSchoolDetail(school)} />
+                <SchoolRow key={i} school={school} index={i} isMobile={isMobile} onClick={() => goToSchoolDetail(school)} />
               ))}
             </div>
           )}
         </div>
 
-        {/* ── Footer ── */}
-        <div style={{ padding: '12px 24px 16px', borderTop: `1px solid ${T.borderCard}`, flexShrink: 0, textAlign: 'center' }}>
-          <p style={{ fontSize: 11, color: T.textMuted }}>
-            ESC veya dışına tıkla kapatmak için &nbsp;·&nbsp; Liseye tıklayarak bölüm detaylarını görün
+        {/* Footer */}
+        <div style={{ padding: isMobile ? '10px 14px' : '12px 24px 16px', borderTop: `1px solid ${T.borderCard}`, flexShrink: 0, textAlign: 'center' }}>
+          <p style={{ fontSize: 10, color: T.textMuted }}>
+            {isMobile ? 'Liseye tıklayarak detayları görün' : 'ESC veya dışına tıkla kapatmak için · Liseye tıklayarak bölüm detaylarını görün'}
           </p>
         </div>
       </motion.div>
@@ -295,17 +298,15 @@ const SchoolModal = ({ univ, data, onClose }) => {
   );
 };
 
-/* ─── Tek lise satırı ─── */
-const SchoolRow = ({ school, index, onClick }) => {
+/* ─── School Row ─── */
+const SchoolRow = ({ school, index, isMobile, onClick }) => {
   const [hov, setHov] = useState(false);
   return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
+    <div onClick={onClick}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{
-        display: 'flex', alignItems: 'center', gap: 12,
-        padding: '11px 14px', borderRadius: 10, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12,
+        padding: isMobile ? '9px 10px' : '11px 14px', borderRadius: 10, cursor: 'pointer',
         background: hov ? T.brownPale : (index < 3 ? `${T.navy}06` : T.bgDeep),
         border: `1px solid ${hov ? T.brown + '44' : (index < 3 ? T.navy + '14' : T.borderCard)}`,
         transition: 'all 0.18s',
@@ -313,60 +314,78 @@ const SchoolRow = ({ school, index, onClick }) => {
       }}
     >
       <div style={{
-        width: 26, height: 26, borderRadius: 7, flexShrink: 0,
+        width: 24, height: 24, borderRadius: 6, flexShrink: 0,
         background: index < 3 ? `linear-gradient(135deg, ${T.navy}, ${T.navyMid})` : `${T.navy}10`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <span style={{ fontSize: 10, fontWeight: 700, color: index < 3 ? '#fff' : T.textMuted }}>{index + 1}</span>
+        <span style={{ fontSize: 9, fontWeight: 700, color: index < 3 ? '#fff' : T.textMuted }}>{index + 1}</span>
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{
-          fontSize: 13, fontWeight: 500, color: hov ? T.brown : T.text,
+          fontSize: isMobile ? 11.5 : 13, fontWeight: 500, color: hov ? T.brown : T.text,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           lineHeight: 1.3, transition: 'color 0.18s',
         }}>{school.name.split('(')[0].trim()}</p>
-        <p style={{ fontSize: 10.5, color: T.textMuted, display: 'flex', alignItems: 'center', gap: 3, marginTop: 2 }}>
-          <MapPin size={9}/>{school.city}
+        <p style={{ fontSize: 9.5, color: T.textMuted, display: 'flex', alignItems: 'center', gap: 3, marginTop: 1 }}>
+          <MapPin size={8}/>{school.city}
         </p>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
         <div style={{ textAlign: 'right' }}>
-          <p style={{ fontSize: 20, fontWeight: 800, color: hov ? T.brown : (index < 3 ? T.navy : T.brown), fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>
-            {school.total}
-          </p>
-          <p style={{ fontSize: 9.5, color: T.textMuted }}>öğrenci</p>
+          <p style={{
+            fontSize: isMobile ? 16 : 20, fontWeight: 800,
+            color: hov ? T.brown : (index < 3 ? T.navy : T.brown),
+            fontFamily: '"Playfair Display", serif', lineHeight: 1,
+          }}>{school.total}</p>
         </div>
-        <ExternalLink size={13} color={hov ? T.brown : T.textMuted} style={{ transition: 'color 0.18s' }} />
+        <ExternalLink size={11} color={hov ? T.brown : T.textMuted} style={{ transition: 'color 0.18s' }} />
       </div>
     </div>
   );
 };
 
 /* ─── Mezunların Liseleri pill butonu ─── */
-const SchoolBtn = ({ onClick }) => {
+const SchoolBtn = ({ onClick, isMobile }) => {
   const [hov, setHov] = useState(false);
+  if (isMobile) {
+    return (
+      <button onClick={onClick}
+        onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 5,
+          padding: '5px 10px', borderRadius: 7, cursor: 'pointer',
+          background: hov ? T.brownPale : `${T.brown}08`,
+          border: `1px solid ${hov ? T.brown + '44' : T.borderCard}`,
+          color: hov ? T.brown : T.textMuted,
+          transition: 'all 0.18s', outline: 'none', fontSize: 9.5,
+          fontWeight: 600, fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
+        }}
+      >
+        <School size={11} color={hov ? T.brown : T.textMuted} />
+        Lise Analizi
+      </button>
+    );
+  }
   return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
+    <button onClick={onClick}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       title="Mezunların Liseleri"
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        gap: 4, padding: '8px 10px', borderRadius: 10, cursor: 'pointer',
+        gap: 3, padding: '7px 9px', borderRadius: 9, cursor: 'pointer',
         background: hov ? T.brownPale : T.bgDeep,
         border: `1.5px solid ${hov ? T.brown + '55' : T.borderCard}`,
         color: hov ? T.brown : T.textMuted,
         transition: 'all 0.18s', outline: 'none', flexShrink: 0,
         boxShadow: hov ? `0 4px 14px ${T.brown}22` : 'none',
-        width: 52,
+        width: 48,
       }}
     >
-      <School size={15} color={hov ? T.brown : T.textMuted} style={{ transition: 'color 0.18s' }} />
+      <School size={14} color={hov ? T.brown : T.textMuted} style={{ transition: 'color 0.18s' }} />
       <span style={{
-        fontSize: 8.5, fontWeight: 700, letterSpacing: '0.05em', lineHeight: 1.2,
+        fontSize: 7.5, fontWeight: 700, letterSpacing: '0.04em', lineHeight: 1.15,
         textAlign: 'center', textTransform: 'uppercase', color: 'inherit',
         fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
       }}>Lise<br/>Analizi</span>
@@ -374,19 +393,196 @@ const SchoolBtn = ({ onClick }) => {
   );
 };
 
-/* ─── UNIV ROW ─── */
-const UnivRow = ({ univ, index, navigate, data, onSchoolModal }) => {
+/* ─── UNIV ROW — Fully responsive ─── */
+const UnivRow = ({ univ, index, navigate, data, onSchoolModal, isMobile, isTablet }) => {
   const [hov, setHov] = useState(false);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-20px' });
+  const isTop3 = index < 3;
+  const medals = ['#C9A84C', '#A8A8A8', '#B87333'];
 
+  /* ── MOBILE LAYOUT ── */
+  if (isMobile) {
+    return (
+      <motion.div ref={ref}
+        initial={{ opacity: 0, y: 14 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.4, delay: Math.min(index * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
+        onClick={() => navigate(`/universities/v2/${encodeURIComponent(univ.name)}`)}
+        style={{
+          background: T.bgCard,
+          border: `1px solid ${T.borderCard}`,
+          borderRadius: 12, padding: '12px 12px 10px',
+          boxShadow: `0 1px 4px ${T.shadow}`,
+          cursor: 'pointer', position: 'relative', overflow: 'hidden',
+        }}
+      >
+        {/* Top accent for top 3 */}
+        {isTop3 && (
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+            background: `linear-gradient(90deg, ${medals[index]}, ${medals[index]}44)`,
+          }} />
+        )}
+
+        {/* Row 1: Rank + Name + Count */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+            background: isTop3 ? `linear-gradient(135deg, ${medals[index]}, ${medals[index]}bb)` : T.bgDeep,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: isTop3 ? '#fff' : T.textMuted,
+            fontSize: 12, fontWeight: 800, fontFamily: '"Playfair Display", serif',
+          }}>{index + 1}</div>
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{
+              fontSize: 13.5, fontWeight: 600, color: T.text,
+              lineHeight: 1.3, marginBottom: 3,
+              /* KEY: Allow wrapping on mobile so name is fully visible */
+              wordBreak: 'break-word',
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}>{univ.name}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <Badge type={univ.type} />
+              {univ.city && (
+                <span style={{ fontSize: 10, color: T.textMuted, display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <MapPin size={8}/>{univ.city}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Count — right aligned */}
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <p style={{
+              fontSize: 20, fontWeight: 800, color: T.navy,
+              fontFamily: '"Playfair Display", serif', lineHeight: 1,
+            }}>{univ.count2025.toLocaleString('tr-TR')}</p>
+            <p style={{ fontSize: 9, color: T.textMuted, marginTop: 1 }}>2025</p>
+          </div>
+        </div>
+
+        {/* Row 2: Trend + School button */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          paddingTop: 8, borderTop: `1px solid ${T.borderCard}`,
+        }}>
+          {/* Trend compact */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11, color: T.textMuted }}>
+              '24: <strong style={{ color: T.textSub }}>{univ.count2024.toLocaleString('tr-TR')}</strong>
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              {univ.trend.direction === 'up'
+                ? <TrendingUp size={12} color="#22a55e"/>
+                : univ.trend.direction === 'down'
+                ? <TrendingDown size={12} color="#d94040"/>
+                : <span style={{ fontSize: 9, color: T.textMuted }}>—</span>}
+              <span style={{
+                fontSize: 11, fontWeight: 700,
+                color: univ.trend.direction === 'up' ? '#22a55e' : univ.trend.direction === 'down' ? '#d94040' : T.textMuted,
+              }}>
+                {univ.trend.direction === 'up' ? '+' : univ.trend.direction === 'down' ? '-' : ''}%{univ.trend.percentage}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <SchoolBtn isMobile onClick={e => { e.stopPropagation(); onSchoolModal(univ); }} />
+            <ChevronRight size={14} color={T.textMuted} />
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  /* ── TABLET LAYOUT ── */
+  if (isTablet) {
+    return (
+      <motion.div ref={ref}
+        initial={{ opacity: 0, y: 16 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.45, delay: Math.min(index * 0.025, 0.4), ease: [0.22, 1, 0.36, 1] }}
+        onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+        style={{
+          background: T.bgCard,
+          border: `1px solid ${hov ? T.brown + '30' : T.borderCard}`,
+          borderRadius: 13, padding: '12px 14px',
+          boxShadow: hov ? `0 6px 20px ${T.shadowMd}` : `0 1px 6px ${T.shadow}`,
+          transition: 'all 0.25s', cursor: 'default',
+        }}
+      >
+        {/* Top row: rank + name + count */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+            background: isTop3 ? `linear-gradient(135deg, ${medals[index]}, ${medals[index]}bb)` : T.bgDeep,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: isTop3 ? '#fff' : T.textMuted,
+            fontSize: 12, fontWeight: 800, fontFamily: '"Playfair Display", serif',
+          }}>{index + 1}</div>
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 3 }}>
+              <span onClick={() => navigate(`/universities/v2/${encodeURIComponent(univ.name)}`)}
+                style={{
+                  fontSize: 13.5, fontWeight: 600, color: hov ? T.brown : T.text,
+                  cursor: 'pointer', transition: 'color 0.2s',
+                  wordBreak: 'break-word',
+                }}>{univ.name}</span>
+              <Badge type={univ.type} />
+            </div>
+            <div style={{ display: 'flex', gap: 8, fontSize: 11, color: T.textMuted, flexWrap: 'wrap' }}>
+              {univ.city && <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}><MapPin size={9}/>{univ.city}</span>}
+              {univ.programCount && <span>{univ.programCount} program</span>}
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <p style={{ fontSize: 22, fontWeight: 800, color: T.navy, fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>
+              {univ.count2025.toLocaleString('tr-TR')}
+            </p>
+            <p style={{ fontSize: 9, color: T.textMuted, marginTop: 1 }}>2025</p>
+          </div>
+        </div>
+
+        {/* Bottom row: trend + buttons */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          paddingTop: 8, borderTop: `1px solid ${T.borderCard}`,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 11, color: T.textMuted }}>
+              '24: <strong style={{ color: T.textSub }}>{univ.count2024.toLocaleString('tr-TR')}</strong>
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              {univ.trend.direction === 'up' ? <TrendingUp size={13} color="#22a55e"/> : univ.trend.direction === 'down' ? <TrendingDown size={13} color="#d94040"/> : null}
+              <span style={{ fontSize: 12, fontWeight: 700, color: univ.trend.direction === 'up' ? '#22a55e' : univ.trend.direction === 'down' ? '#d94040' : T.textMuted }}>
+                {univ.trend.direction === 'up' ? '+' : univ.trend.direction === 'down' ? '-' : ''}%{univ.trend.percentage}
+              </span>
+            </div>
+            {univ.percentage && <span style={{ fontSize: 11, color: T.textMuted }}>%{univ.percentage} oran</span>}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <SchoolBtn isMobile onClick={e => { e.stopPropagation(); onSchoolModal(univ); }} />
+            <ChevronRight size={15} color={hov ? T.brown : T.textMuted}
+              style={{ cursor: 'pointer', transition: 'color 0.2s' }}
+              onClick={() => navigate(`/universities/v2/${encodeURIComponent(univ.name)}`)} />
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  /* ── DESKTOP LAYOUT ── */
   return (
     <motion.div ref={ref}
       initial={{ opacity: 0, y: 16 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.45, delay: Math.min(index * 0.025, 0.4), ease: [0.22, 1, 0.36, 1] }}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{
         background: T.bgCard,
         border: `1px solid ${hov ? T.brown + '30' : T.borderCard}`,
@@ -399,10 +595,11 @@ const UnivRow = ({ univ, index, navigate, data, onSchoolModal }) => {
       {/* Rank */}
       <div style={{
         width: 32, height: 32, borderRadius: 9, flexShrink: 0,
-        background: index < 3 ? `linear-gradient(135deg, ${T.navy}, ${T.navyMid})` : T.bgDeep,
+        background: isTop3 ? `linear-gradient(135deg, ${medals[index]}, ${medals[index]}bb)` : T.bgDeep,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: index < 3 ? '#fff' : T.textMuted,
-        fontSize: 12, fontWeight: 700,
+        color: isTop3 ? '#fff' : T.textMuted,
+        fontSize: 12, fontWeight: 800, fontFamily: '"Playfair Display", serif',
+        boxShadow: isTop3 ? `0 2px 8px ${medals[index]}33` : 'none',
       }}>{index + 1}</div>
 
       {/* Info */}
@@ -413,19 +610,15 @@ const UnivRow = ({ univ, index, navigate, data, onSchoolModal }) => {
             style={{
               fontSize: 14, fontWeight: 600, color: hov ? T.brown : T.text,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              transition: 'color 0.2s', cursor: 'pointer',
+              transition: 'color 0.2s', cursor: 'pointer', maxWidth: '100%',
             }}
           >{univ.name}</span>
           <Badge type={univ.type} />
         </div>
         <div style={{ display: 'flex', gap: 10, fontSize: 12, color: T.textMuted, flexWrap: 'wrap', alignItems: 'center' }}>
-          {univ.city && (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-              <MapPin size={10}/>{univ.city}
-            </span>
-          )}
+          {univ.city && <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={10}/>{univ.city}</span>}
           {univ.programCount && <span>{univ.programCount} program</span>}
-          {univ.percentage   && <span>%{univ.percentage} oran</span>}
+          {univ.percentage && <span>%{univ.percentage} oran</span>}
         </div>
       </div>
 
@@ -433,32 +626,32 @@ const UnivRow = ({ univ, index, navigate, data, onSchoolModal }) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderLeft: `1px solid ${T.borderCard}`, paddingLeft: 14, flexShrink: 0 }}>
         <SchoolBtn onClick={e => { e.stopPropagation(); onSchoolModal(univ); }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-        <div style={{ textAlign: 'right' }}>
-          <p style={{ fontSize: 9.5, color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>2024</p>
-          <p style={{ fontSize: 18, fontWeight: 700, color: T.textSub, fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>
-            {univ.count2024.toLocaleString('tr-TR')}
-          </p>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, width: 44 }}>
-          {univ.trend.direction === 'up'
-            ? <TrendingUp size={14} color="#22a55e"/>
-            : univ.trend.direction === 'down'
-            ? <TrendingDown size={14} color="#d94040"/>
-            : <span style={{ fontSize: 10, color: T.textMuted }}>—</span>}
-          <span style={{ fontSize: 11, fontWeight: 700, color: univ.trend.direction === 'up' ? '#22a55e' : univ.trend.direction === 'down' ? '#d94040' : T.textMuted }}>
-            {univ.trend.direction === 'up' ? '+' : univ.trend.direction === 'down' ? '-' : ''}%{univ.trend.percentage}
-          </span>
-        </div>
-        <div style={{ textAlign: 'left' }}>
-          <p style={{ fontSize: 9.5, color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>2025</p>
-          <p style={{ fontSize: 22, fontWeight: 800, color: T.navy, fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>
-            {univ.count2025.toLocaleString('tr-TR')}
-          </p>
-        </div>
-        <ChevronRight size={16} color={hov ? T.brown : T.textMuted}
-          style={{ transition: 'color 0.2s', cursor: 'pointer' }}
-          onClick={() => navigate(`/universities/v2/${encodeURIComponent(univ.name)}`)}
-        />
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ fontSize: 9.5, color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>2024</p>
+            <p style={{ fontSize: 18, fontWeight: 700, color: T.textSub, fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>
+              {univ.count2024.toLocaleString('tr-TR')}
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, width: 44 }}>
+            {univ.trend.direction === 'up'
+              ? <TrendingUp size={14} color="#22a55e"/>
+              : univ.trend.direction === 'down'
+              ? <TrendingDown size={14} color="#d94040"/>
+              : <span style={{ fontSize: 10, color: T.textMuted }}>—</span>}
+            <span style={{ fontSize: 11, fontWeight: 700, color: univ.trend.direction === 'up' ? '#22a55e' : univ.trend.direction === 'down' ? '#d94040' : T.textMuted }}>
+              {univ.trend.direction === 'up' ? '+' : univ.trend.direction === 'down' ? '-' : ''}%{univ.trend.percentage}
+            </span>
+          </div>
+          <div style={{ textAlign: 'left' }}>
+            <p style={{ fontSize: 9.5, color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>2025</p>
+            <p style={{ fontSize: 22, fontWeight: 800, color: T.navy, fontFamily: '"Playfair Display", serif', lineHeight: 1 }}>
+              {univ.count2025.toLocaleString('tr-TR')}
+            </p>
+          </div>
+          <ChevronRight size={16} color={hov ? T.brown : T.textMuted}
+            style={{ transition: 'color 0.2s', cursor: 'pointer' }}
+            onClick={() => navigate(`/universities/v2/${encodeURIComponent(univ.name)}`)}
+          />
         </div>
       </div>
     </motion.div>
@@ -468,13 +661,18 @@ const UnivRow = ({ univ, index, navigate, data, onSchoolModal }) => {
 /* ─── MAIN PAGE ─── */
 const Universities = ({ data }) => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm]     = useState('');
+  const vw = useWidth();
+  const isMobile = vw < 640;
+  const isTablet = vw >= 640 && vw < 1024;
+
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('Tümü');
   const [selectedCity, setSelectedCity] = useState('Tümü');
-  const [sortOrder, setSortOrder]       = useState('count_desc');
+  const [sortOrder, setSortOrder] = useState('count_desc');
   const [universities, setUniversities] = useState([]);
-  const [cities, setCities]             = useState([]);
-  const [schoolModal, setSchoolModal]   = useState(null);
+  const [cities, setCities] = useState([]);
+  const [schoolModal, setSchoolModal] = useState(null);
+  const [showFilters, setShowFilters] = useState(!isMobile);
 
   useEffect(() => {
     if (!data?.length) return;
@@ -504,98 +702,88 @@ const Universities = ({ data }) => {
   }, [universities, searchTerm, selectedType, selectedCity, sortOrder]);
 
   const fontBase = '"Plus Jakarta Sans", system-ui, sans-serif';
+  const pagePad = isMobile ? '20px 4vw 80px' : '36px 5vw 80px';
 
   const inputStyle = {
-    width: '100%', padding: '9px 12px',
+    width: '100%', padding: isMobile ? '8px 10px' : '9px 12px',
     border: `1px solid ${T.border}`, borderRadius: 10,
     background: T.bgCard, color: T.text, fontSize: 13,
     outline: 'none', fontFamily: fontBase, transition: 'border-color 0.2s',
+    boxSizing: 'border-box',
   };
 
+  const activeFiltersCount = [selectedType !== 'Tümü', selectedCity !== 'Tümü', sortOrder !== 'count_desc'].filter(Boolean).length;
+
   return (
-    <div style={{ background: T.bg, minHeight: '100vh', padding: '36px 5vw 80px', fontFamily: fontBase, color: T.text }}>
+    <div style={{ background: T.bg, minHeight: '100vh', padding: pagePad, fontFamily: fontBase, color: T.text }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');`}</style>
 
       <AnimatePresence>
-        {schoolModal && (
-          <SchoolModal univ={schoolModal} data={data} onClose={() => setSchoolModal(null)} />
-        )}
+        {schoolModal && <SchoolModal univ={schoolModal} data={data} onClose={() => setSchoolModal(null)} />}
       </AnimatePresence>
 
       {/* ══ HERO ══ */}
       <section style={{
-        margin: '-36px -5vw 32px',
-        padding: 'clamp(56px,8vw,96px) clamp(20px,6vw,80px) clamp(40px,5vw,72px)',
+        margin: isMobile ? '-20px -4vw 24px' : '-36px -5vw 32px',
+        padding: isMobile
+          ? 'clamp(40px,8vw,56px) clamp(16px,5vw,24px) clamp(32px,5vw,48px)'
+          : 'clamp(56px,8vw,96px) clamp(20px,6vw,80px) clamp(40px,5vw,72px)',
         position: 'relative', overflow: 'hidden',
         background: T.bg, borderBottom: `1px solid ${T.border}`,
       }}>
-        {/* Warm radial wash */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: `radial-gradient(ellipse 65% 55% at 85% 45%, ${T.brownPale} 0%, transparent 65%)` }} />
-        {/* Notebook lines */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 71px, ${T.border} 71px, ${T.border} 72px)`, opacity: 0.45 }} />
-        {/* Left margin rule */}
-        <div style={{ position: 'absolute', left: 'clamp(16px,4.5vw,56px)', top: 0, bottom: 0, width: 1, background: `linear-gradient(180deg, transparent, ${T.brown}33 15%, ${T.brown}33 85%, transparent)` }} />
-        {/* Ghost letter */}
-        <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)', fontSize: '32vw', fontWeight: 800, color: T.navy, opacity: 0.022, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>Ü</div>
+        <div style={{ position: 'absolute', left: 'clamp(12px,4vw,56px)', top: 0, bottom: 0, width: 1, background: `linear-gradient(180deg, transparent, ${T.brown}33 15%, ${T.brown}33 85%, transparent)` }} />
+        {!isMobile && <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)', fontSize: '32vw', fontWeight: 800, color: T.navy, opacity: 0.022, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>Ü</div>}
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 760 }}>
-          {/* Eyebrow */}
-          <motion.p
-            initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+          <motion.p initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            style={{ fontSize: 10, fontWeight: 700, color: T.brown, textTransform: 'uppercase', letterSpacing: '0.22em', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}
-          >
-            <span style={{ display: 'inline-block', width: 28, height: 1.5, background: T.brown, borderRadius: 1 }} />
-            İHL Mezunları · Kurumsal Analiz · YÖK Atlas
+            style={{ fontSize: isMobile ? 9 : 10, fontWeight: 700, color: T.brown, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: isMobile ? 12 : 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ display: 'inline-block', width: isMobile ? 20 : 28, height: 1.5, background: T.brown, borderRadius: 1 }} />
+            İHL Mezunları · Kurumsal Analiz
           </motion.p>
 
-          {/* Animasyonlu başlık */}
           <div style={{ overflow: 'hidden' }}>
-            {'Üniversi'.split('').map((ch, ci) => (
-              <motion.span key={ci}
-                initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.65, delay: 0.15 + ci * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                style={{ display: 'inline-block', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', color: T.navy, letterSpacing: '-0.02em' }}
-              >{ch}</motion.span>
-            ))}
             <motion.span
               initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              style={{ display: 'inline-block', paddingLeft: '0.05em', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', color: T.brown, letterSpacing: '-0.02em' }}
-            >teler</motion.span>
+              transition={{ duration: 0.65, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                display: 'inline-block',
+                fontSize: isMobile ? 'clamp(36px,11vw,52px)' : 'clamp(52px,9vw,108px)',
+                fontWeight: 800, lineHeight: 0.95,
+                fontFamily: '"Playfair Display", serif', fontStyle: 'italic',
+                color: T.navy, letterSpacing: '-0.02em',
+              }}
+            >Üniversiteler</motion.span>
           </div>
 
-          {/* Rule */}
-          <motion.div
-            initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-            transition={{ duration: 1.4, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            style={{ height: 2, width: 'min(55%, 320px)', originX: 0, marginTop: 20, background: `linear-gradient(90deg, ${T.brown}, ${T.brownLight}77, transparent)`, borderRadius: 1 }}
+          <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+            transition={{ duration: 1.4, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            style={{ height: 2, width: isMobile ? '70%' : 'min(55%, 320px)', originX: 0, marginTop: isMobile ? 14 : 20, background: `linear-gradient(90deg, ${T.brown}, ${T.brownLight}77, transparent)`, borderRadius: 1 }}
           />
 
-          {/* Açıklama */}
-          <motion.p
-            initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
-            style={{ fontSize: 15, color: T.textSub, marginTop: 20, lineHeight: 1.8, maxWidth: 460 }}
-          >
+          <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            style={{ fontSize: isMobile ? 13 : 15, color: T.textSub, marginTop: isMobile ? 14 : 20, lineHeight: 1.8, maxWidth: 460 }}>
             Türkiye'deki üniversitelere yerleşen İHL mezunu öğrenci sayıları, 3 yıllık trendler ve kaynak lise analizi.
           </motion.p>
 
           {/* Stat strip */}
-          <div style={{ display: 'flex', gap: 'clamp(16px,3vw,36px)', marginTop: 40, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: isMobile ? 12 : 'clamp(16px,3vw,36px)', marginTop: isMobile ? 24 : 40, flexWrap: 'wrap' }}>
             {[
-              { l: 'Üniversite', v: universities.length ? universities.length.toLocaleString('tr-TR') : '–', c: T.navy  },
-              { l: 'Devlet',     v: universities.filter(u => u.type === 'Devlet').length || '–',              c: T.brown },
-              { l: 'Vakıf',      v: universities.filter(u => u.type === 'Vakıf').length  || '–',             c: T.navy  },
-              { l: 'Şehir',      v: cities.length || '–',                                                    c: T.brown },
+              { l: 'Üniversite', v: universities.length ? universities.length.toLocaleString('tr-TR') : '–', c: T.navy },
+              { l: 'Devlet', v: universities.filter(u => u.type === 'Devlet').length || '–', c: T.brown },
+              { l: 'Vakıf', v: universities.filter(u => u.type === 'Vakıf').length || '–', c: T.navy },
+              { l: 'Şehir', v: cities.length || '–', c: T.brown },
             ].map((s, i) => (
               <motion.div key={i}
                 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.3 + i * 0.09, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                style={{ borderLeft: `2px solid ${s.c}33`, paddingLeft: 14 }}
+                transition={{ delay: 1.1 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                style={{ borderLeft: `2px solid ${s.c}33`, paddingLeft: isMobile ? 10 : 14 }}
               >
-                <p style={{ fontSize: 10, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5 }}>{s.l}</p>
-                <p style={{ fontSize: 'clamp(22px,3.5vw,32px)', fontWeight: 800, color: s.c, lineHeight: 1, fontFamily: '"Playfair Display", serif' }}>{s.v}</p>
+                <p style={{ fontSize: isMobile ? 8.5 : 10, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{s.l}</p>
+                <p style={{ fontSize: isMobile ? 'clamp(18px,5vw,24px)' : 'clamp(22px,3.5vw,32px)', fontWeight: 800, color: s.c, lineHeight: 1, fontFamily: '"Playfair Display", serif' }}>{s.v}</p>
               </motion.div>
             ))}
           </div>
@@ -603,67 +791,112 @@ const Universities = ({ data }) => {
       </section>
 
       {/* INFO BANNER */}
-      <Reveal delay={0.06}>
-        <div style={{ background: T.brownPale, border: `1px solid ${T.brown}22`, borderLeft: `3px solid ${T.brown}`, borderRadius: 12, padding: '14px 18px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-          <TrendingUp size={15} color={T.brown} style={{ flexShrink: 0, marginTop: 2 }}/>
-          <div style={{ fontSize: 13, color: T.textSub, lineHeight: 1.7 }}>
-            <strong style={{ color: T.navy }}>3 Yıllık Karşılaştırma</strong> · Trend göstergeleri ·{' '}
-            <strong style={{ color: T.navy }}>Devlet / Vakıf / KKTC</strong> ve şehir bazlı filtreleme ·
-            Her üniversitede <strong style={{ color: T.navy }}>Mezunların Liseleri</strong> butonuna tıklayarak hangi liselerden öğrenci geldiğini ve lise bazında bölüm detaylarını görün
+      {!isMobile && (
+        <Reveal delay={0.06}>
+          <div style={{ background: T.brownPale, border: `1px solid ${T.brown}22`, borderLeft: `3px solid ${T.brown}`, borderRadius: 12, padding: '14px 18px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <TrendingUp size={15} color={T.brown} style={{ flexShrink: 0, marginTop: 2 }}/>
+            <div style={{ fontSize: 13, color: T.textSub, lineHeight: 1.7 }}>
+              <strong style={{ color: T.navy }}>3 Yıllık Karşılaştırma</strong> · Trend göstergeleri ·{' '}
+              <strong style={{ color: T.navy }}>Devlet / Vakıf / KKTC</strong> ve şehir bazlı filtreleme ·
+              Her üniversitede <strong style={{ color: T.navy }}>Lise Analizi</strong> butonuna tıklayarak hangi liselerden öğrenci geldiğini görün
+            </div>
           </div>
+        </Reveal>
+      )}
+
+      {/* SEARCH + FILTER TOGGLE (Mobile) */}
+      <Reveal delay={0.08}>
+        <div style={{
+          background: T.bgCard, border: `1px solid ${T.borderCard}`,
+          borderRadius: isMobile ? 12 : 14,
+          padding: isMobile ? '12px 12px' : '20px 22px',
+          marginBottom: isMobile ? 12 : 20,
+          boxShadow: `0 2px 10px ${T.shadow}`,
+        }}>
+          {/* Search - always visible */}
+          <div style={{ position: 'relative', marginBottom: isMobile && !showFilters ? 0 : 12 }}>
+            <Search size={14} color={T.textMuted} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)' }}/>
+            <input type="text" placeholder="Üniversite adı ara..." value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{ ...inputStyle, paddingLeft: 34 }}
+              onFocus={e => e.target.style.borderColor = T.brown}
+              onBlur={e => e.target.style.borderColor = T.border}
+            />
+          </div>
+
+          {/* Filter toggle button (mobile only) */}
+          {isMobile && (
+            <button onClick={() => setShowFilters(!showFilters)}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                width: '100%', padding: '8px', marginTop: 8,
+                borderRadius: 8, border: `1px solid ${T.borderCard}`,
+                background: showFilters ? T.brownPale : T.bgDeep,
+                color: showFilters ? T.brown : T.textMuted,
+                fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                fontFamily: fontBase, transition: 'all 0.2s',
+              }}
+            >
+              <Filter size={12} />
+              Filtreler {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+              <ChevronRight size={12} style={{ transform: showFilters ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+            </button>
+          )}
+
+          {/* Filter fields */}
+          <AnimatePresence>
+            {(showFilters || !isMobile) && (
+              <motion.div
+                initial={isMobile ? { height: 0, opacity: 0 } : false}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={isMobile ? { height: 0, opacity: 0 } : undefined}
+                transition={{ duration: 0.25 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: isMobile ? 8 : 14,
+                  paddingTop: isMobile ? 10 : 0,
+                }}>
+                  <div>
+                    <label style={{ fontSize: 10, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Tip</label>
+                    <select value={selectedType} onChange={e => setSelectedType(e.target.value)} style={inputStyle}>
+                      {['Tümü', 'Devlet', 'Vakıf', 'KKTC'].map(o => <option key={o}>{o}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 10, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Şehir</label>
+                    <select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} style={inputStyle}>
+                      <option>Tümü</option>
+                      {cities.map(c => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ gridColumn: isMobile ? 'span 2' : 'auto' }}>
+                    <label style={{ fontSize: 10, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                      <ArrowUpDown size={10}/> Sıralama
+                    </label>
+                    <select value={sortOrder} onChange={e => setSortOrder(e.target.value)} style={inputStyle}>
+                      {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </Reveal>
 
-      {/* FILTERS */}
-      <Reveal delay={0.1}>
-        <div style={{ background: T.bgCard, border: `1px solid ${T.borderCard}`, borderRadius: 14, padding: '20px 22px', marginBottom: 20, boxShadow: `0 2px 10px ${T.shadow}` }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
-            <div style={{ gridColumn: 'span 2' }}>
-              <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Üniversite Ara</label>
-              <div style={{ position: 'relative' }}>
-                <Search size={14} color={T.textMuted} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)' }}/>
-                <input type="text" placeholder="Üniversite adı... (ör: istanbul, İstanbul, ISTANBUL)" value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  style={{ ...inputStyle, paddingLeft: 34 }}
-                  onFocus={e => e.target.style.borderColor = T.brown}
-                  onBlur={e => e.target.style.borderColor = T.border}
-                />
-              </div>
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Tip</label>
-              <select value={selectedType} onChange={e => setSelectedType(e.target.value)} style={inputStyle}>
-                {['Tümü', 'Devlet', 'Vakıf', 'KKTC'].map(o => <option key={o}>{o}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Şehir</label>
-              <select value={selectedCity} onChange={e => setSelectedCity(e.target.value)} style={inputStyle}>
-                <option>Tümü</option>
-                {cities.map(c => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
-                <ArrowUpDown size={11}/> Sıralama
-              </label>
-              <select value={sortOrder} onChange={e => setSortOrder(e.target.value)} style={inputStyle}>
-                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </div>
-          </div>
-        </div>
-      </Reveal>
-
-      <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, paddingLeft: 2 }}>
+      <div style={{ fontSize: 12, color: T.textMuted, marginBottom: isMobile ? 8 : 14, paddingLeft: 2 }}>
         <strong style={{ color: T.text }}>{filtered.length}</strong> üniversite
       </div>
 
       {/* LIST */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 6 : 8 }}>
         {filtered.map((univ, i) => (
           <UnivRow key={univ.name} univ={univ} index={i}
             navigate={navigate} data={data} onSchoolModal={setSchoolModal}
+            isMobile={isMobile} isTablet={isTablet}
           />
         ))}
         {filtered.length === 0 && (

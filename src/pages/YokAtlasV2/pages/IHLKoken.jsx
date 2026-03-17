@@ -129,7 +129,7 @@ const IHLKoken = ({ data }) => {
               <motion.span key={ci}
                 initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.65, delay: 0.15 + ci * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                style={{ display: 'inline-block', fontSize: 'clamp(52px,9vw,108px)', fontWeight: 800, lineHeight: 0.9, fontFamily: FONT_DISPLAY, fontStyle: 'italic', color: T.navy, letterSpacing: '-0.02em' }}
+                style={{ display: 'inline-block', fontSize: 'clamp(52px,9vw,108px)', marginTop:10, fontWeight: 800, lineHeight: 0.9, fontFamily: FONT_DISPLAY, fontStyle: 'italic', color: T.navy, letterSpacing: '-0.02em' }}
               >{ch === ' ' ? '\u00A0' : ch}</motion.span>
             ))}
             <motion.span

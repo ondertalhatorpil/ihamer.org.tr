@@ -789,7 +789,7 @@ const AllThesesPage = () => {
                   <div className="card-action-top shrink-0">
                     {thesis['Tez Dosyası'] && thesis['Tez Dosyası'] !== 'İzinsiz' ? (
                       <a
-                        href={thesis['Tez Dosyası'].replace('/TezGoster?', '/tezSorguSonucYeni.jsp?')}
+                        href={thesis['Tez Dosyası']}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="yoktez-button"
