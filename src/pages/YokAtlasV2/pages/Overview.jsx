@@ -226,7 +226,7 @@ const AnimatedCounter = ({ target, duration = 1.8, color, size = 52, suffix = ''
 ───────────────────────────────────────────────────────── */
 const SectionDots = ({ total = 6 }) => {
   const [active, setActive] = useState(0);
-  const labels = ['Hero', 'Özet', 'Oran', 'Bölüm', 'Üniversite', 'Şehir', 'Harita'];
+  const labels = ['Genel', 'Özet', 'Oran', 'Bölüm', 'Üniversİte', 'Şehİr', 'Harİta'];
   useEffect(() => {
     const onScroll = () => {
       const vh = window.innerHeight;
