@@ -142,11 +142,11 @@ const FloatingParticles = ({ count = 18, color = T.brown }) => {
 const TiltCard3D = ({ children, intensity = 8, style = {}, disabled = false }) => {
   const ref = useRef(null);
   const mouse = useMouse3D(ref);
-  
+
   if (disabled) {
     return <div style={style}>{children}</div>;
   }
-  
+
   return (
     <div ref={ref} style={{ perspective: 1000, ...style }}>
       <motion.div
@@ -336,14 +336,14 @@ const HorizScrollCards = ({ items, navigate, cardRef, topPx, isMobile }) => {
   if (isMobile) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
-        <div 
+        <div
           ref={scrollContainerRef}
-          style={{ 
-            overflowX: 'auto', 
+          style={{
+            overflowX: 'auto',
             overflowY: 'hidden',
-            flex: 1, 
-            minHeight: 0, 
-            display: 'flex', 
+            flex: 1,
+            minHeight: 0,
+            display: 'flex',
             alignItems: 'center',
             WebkitOverflowScrolling: 'touch',
             scrollSnapType: 'x mandatory',
@@ -352,10 +352,10 @@ const HorizScrollCards = ({ items, navigate, cardRef, topPx, isMobile }) => {
         >
           <div style={{ display: 'flex', gap: 12, paddingLeft: 4, paddingRight: 20 }}>
             {items.map((p, i) => (
-              <motion.div 
-                key={i} 
-                initial={{ opacity: 0, y: 20 }} 
-                whileInView={{ opacity: 1, y: 0 }} 
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05, duration: 0.4 }}
                 onClick={() => navigate(`/programs/v2/${encodeURIComponent(p.name)}`)}
@@ -364,14 +364,14 @@ const HorizScrollCards = ({ items, navigate, cardRef, topPx, isMobile }) => {
                   minWidth: 200,
                   height: 240,
                   background: 'linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))',
-                  border: '1px solid rgba(255,255,255,0.08)', 
-                  borderRadius: 16, 
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 16,
                   padding: 16,
-                  display: 'flex', 
-                  flexDirection: 'column', 
+                  display: 'flex',
+                  flexDirection: 'column',
                   justifyContent: 'space-between',
-                  flexShrink: 0, 
-                  backdropFilter: 'blur(12px)', 
+                  flexShrink: 0,
+                  backdropFilter: 'blur(12px)',
                   cursor: 'pointer',
                   boxShadow: '0 4px 24px rgba(0,0,0,0.2)',
                   scrollSnapAlign: 'start',
@@ -386,8 +386,10 @@ const HorizScrollCards = ({ items, navigate, cardRef, topPx, isMobile }) => {
                   </div>
                 </div>
                 <div>
-                  <h4 style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 6, lineHeight: 1.3, 
-                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <h4 style={{
+                    fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 6, lineHeight: 1.3,
+                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
+                  }}>
                     {p.name}
                   </h4>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
@@ -397,11 +399,11 @@ const HorizScrollCards = ({ items, navigate, cardRef, topPx, isMobile }) => {
                     <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 9 }}>öğrenci</p>
                   </div>
                   <div style={{ marginTop: 6, height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                    <div style={{ 
-                      height: '100%', 
+                    <div style={{
+                      height: '100%',
                       width: `${Math.min(p.percentage * 4, 100)}%`,
-                      background: `linear-gradient(90deg, ${T.brown}, ${T.brownLight})`, 
-                      borderRadius: 1 
+                      background: `linear-gradient(90deg, ${T.brown}, ${T.brownLight})`,
+                      borderRadius: 1
                     }} />
                   </div>
                   <p style={{ color: 'rgba(255,255,255,0.32)', fontSize: 9, marginTop: 4 }}>%{p.percentage}</p>
@@ -624,8 +626,8 @@ const UnivRow = ({ item, index, onClick, isMobile }) => {
         transition={{ type: 'spring', stiffness: 75, damping: 16, delay: index * 0.055 }}
         onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} onClick={onClick}
         style={{
-          display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14, 
-          padding: isMobile ? '12px 12px' : '14px 18px 14px 16px', 
+          display: 'flex', alignItems: 'center', gap: isMobile ? 10 : 14,
+          padding: isMobile ? '12px 12px' : '14px 18px 14px 16px',
           borderRadius: isMobile ? 12 : 16, cursor: 'pointer',
           background: hov ? T.bgDeep : T.bgCard, border: `1px solid ${hov ? T.brown + '33' : T.borderCard}`,
           boxShadow: hov ? `0 12px 32px ${T.shadowMd}` : `0 2px 8px ${T.shadow}`,
@@ -664,8 +666,8 @@ const Overview = ({ data }) => {
   const [stats, setStats] = useState(null);
   const containerRef = useRef(null);
   const kart2Ref = useRef(null);
-  const vw = useWidth(); 
-  const isMobile = vw < 640; 
+  const vw = useWidth();
+  const isMobile = vw < 640;
   const isTablet = vw >= 640 && vw < 1024;
   const { scrollYProgress } = useScroll({ target: containerRef });
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 80, damping: 25 });
@@ -683,8 +685,8 @@ const Overview = ({ data }) => {
       pct: { 2023: tot23 > 0 ? ((ihl23 / tot23) * 100).toFixed(2) : '0', 2024: tot24 > 0 ? ((ihl24 / tot24) * 100).toFixed(2) : '0', 2025: tot25 > 0 ? ((ihl25 / tot25) * 100).toFixed(2) : '0' },
       univ: new Set(data.map(r => r.university_name)).size,
       prog: new Set(data.map(r => normalizeProgramName(r.program_name))).size,
-      topCities: [...groupByCity(data, '2025')].sort((a, b) => b.count - a.count).slice(0, isMobile ? 8 : 15),
-      topCityPct: [...groupByCity(data, '2025')].sort((a, b) => b.percentage - a.percentage).filter(c => c.city !== 'BOSNA-HERSEK').slice(0, isMobile ? 8 : 15),
+      topCities: [...groupByCity(data, '2025')].sort((a, b) => b.count - a.count).slice(0, isMobile ? 15 : 15),
+      topCityPct: [...groupByCity(data, '2025')].sort((a, b) => b.percentage - a.percentage).filter(c => c.city !== 'BOSNA-HERSEK').slice(0, isMobile ? 15 : 15),
       topUniv: [...groupByUniversity(data, '2025')].sort((a, b) => b.count - a.count).slice(0, 10),
       topProg: [...groupByProgram(data, '2025')].filter(p => !isAcikogretim(p.name, '')).sort((a, b) => b.count - a.count).slice(0, 10),
       cities,
@@ -737,9 +739,9 @@ const Overview = ({ data }) => {
           <motion.div style={{
             height: '100%', minHeight: isMobile ? '100vh' : undefined,
             display: 'flex', flexDirection: 'column', justifyContent: 'center',
-            padding: isMobile ? '80px 5vw 60px' : '0 6vw', 
-            scale: isMobile ? 1 : heroScale, 
-            opacity: isMobile ? 1 : heroOpacity, 
+            padding: isMobile ? '80px 5vw 60px' : '0 6vw',
+            scale: isMobile ? 1 : heroScale,
+            opacity: isMobile ? 1 : heroOpacity,
             filter: isMobile ? 'none' : heroBlur,
             position: 'relative', overflow: 'hidden', background: T.bg,
           }}>
@@ -786,12 +788,12 @@ const Overview = ({ data }) => {
                   { label: 'Üniversite', value: String(stats.univ), color: T.navyMid, icon: Building2 },
                 ].map((s, i) => (
                   <motion.div key={i} whileHover={isMobile ? {} : { scale: 1.04, y: -2 }} transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    style={{ 
-                      padding: isMobile ? '10px 12px' : '14px 18px', 
-                      borderRadius: isMobile ? 12 : 16, 
-                      background: T.bgCard, 
-                      border: `1px solid ${T.borderCard}`, 
-                      boxShadow: `0 4px 16px ${T.shadow}`, 
+                    style={{
+                      padding: isMobile ? '10px 12px' : '14px 18px',
+                      borderRadius: isMobile ? 12 : 16,
+                      background: T.bgCard,
+                      border: `1px solid ${T.borderCard}`,
+                      boxShadow: `0 4px 16px ${T.shadow}`,
                       minWidth: isMobile ? 90 : 110,
                       flex: isMobile ? '1 1 calc(50% - 4px)' : 'none',
                     }}>
@@ -973,7 +975,7 @@ const Overview = ({ data }) => {
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
               {stats.topProg.map((p, i) => (
                 <Card key={i} delay={i * 0.03} accent={T.brown} dark>
-                  <div 
+                  <div
                     style={{ display: 'flex', alignItems: 'center', gap: 10 }}
                     onClick={() => navigate(`/programs/v2/${encodeURIComponent(p.name)}`)}
                   >
@@ -1020,7 +1022,7 @@ const Overview = ({ data }) => {
           <Reveal><SectionHeading label="Coğrafi Analiz" color={T.navy} isMobile={isMobile}>Şehir Dağılımları</SectionHeading></Reveal>
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? 12 : 16 }}>
             <TiltCard3D intensity={isMobile ? 0 : 4} disabled={isMobile}><Card delay={0.07} accent={T.navy}>
-              <p style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: T.navy, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>En Çok Öğrenci · İlk {isMobile ? 8 : 15} Şehir</p>
+              <p style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: T.navy, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>En Çok Öğrenci · İlk {isMobile ? 15 : 15} Şehir</p>
               <Divider color={T.navy} width="50%" />
               <div style={{ marginTop: 12 }}>
                 <ResponsiveContainer width="100%" height={isMobile ? 200 : 300}>
@@ -1036,7 +1038,7 @@ const Overview = ({ data }) => {
             </Card></TiltCard3D>
 
             <TiltCard3D intensity={isMobile ? 0 : 4} disabled={isMobile}><Card delay={0.17} accent={T.brown}>
-              <p style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: T.brown, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>En Yüksek Oran · İlk {isMobile ? 8 : 15} Şehir</p>
+              <p style={{ fontSize: isMobile ? 10 : 11, fontWeight: 700, color: T.brown, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>En Yüksek Oran · İlk {isMobile ? 15 : 15} Şehir</p>
               <Divider color={T.brown} width="50%" />
               <div style={{ marginTop: 12 }}>
                 <ResponsiveContainer width="100%" height={isMobile ? 200 : 300}>
@@ -1062,7 +1064,7 @@ const Overview = ({ data }) => {
           <motion.div initial={{ scale: 0.92, opacity: 0 }} whileInView={{ scale: 1, opacity: 1 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>
             <Card delay={0} accent={T.navy}>
               <p style={{ fontSize: isMobile ? 11 : 13, color: T.textSub, marginBottom: isMobile ? 12 : 18, lineHeight: 1.7 }}>
-                {isMobile 
+                {isMobile
                   ? 'Bir şehre tıklayarak o ilin üniversitelerini görüntüleyin.'
                   : 'Bir şehre geldiğinizde İHL mezunu öğrenci sayısını görebilirsiniz. Tıklayarak o ilin üniversitelerini görüntüleyin.'}
               </p>
