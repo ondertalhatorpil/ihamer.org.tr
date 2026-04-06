@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 
+import V2PasswordGate from "./components/common/V2PasswordGate";
+
 // Ortak Bileşenler
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
@@ -50,8 +52,6 @@ import UluslararasiListPage from "./pages/anasayfa/UluslararasiListPage.jsx";
 import TeknolojiHomePage from "./pages/anasayfa/TeknolojiHomePage.jsx";
 import TeknolojiListPage from "./pages/anasayfa/TeknolojiListPage.jsx";
 
-// YÖK Atlas Analytics (V1)
-import YokAtlasAnalytics from "./pages/YokAtlasAnalytics";
 
 // Tez Analytics
 import TezAnalyticsDashboard from "./pages/YokTezAnalytics/Dashboard.jsx";
@@ -91,10 +91,8 @@ const YokAtlasV2Wrapper = ({ children }) => {
         const records = jsonData.data || jsonData;
         if (!Array.isArray(records) || records.length === 0)
           throw new Error("Geçersiz veri formatı veya boş veri");
-        console.log(`✅ ${records.length} kayıt yüklendi`);
         setData(records);
       } catch (err) {
-        console.error("Veri yükleme hatası:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -103,37 +101,36 @@ const YokAtlasV2Wrapper = ({ children }) => {
     loadData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Veriler yükleniyor...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="text-center max-w-lg">
-          <div className="bg-red-100 text-red-700 p-6 rounded-lg mb-4">
-            <p className="font-semibold text-lg mb-2">❌ Veri Yükleme Hatası</p>
-            <p className="text-sm">{error}</p>
+  // ✅ Gate burada — tüm V2 sayfaları otomatik korunuyor
+  return (
+    <V2PasswordGate>
+      {loading ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">Veriler yükleniyor...</p>
           </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            🔄 Sayfayı Yenile
-          </button>
         </div>
-      </div>
-    );
-  }
-
-  return children(data);
+      ) : error ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+          <div className="text-center max-w-lg">
+            <div className="bg-red-100 text-red-700 p-6 rounded-lg mb-4">
+              <p className="font-semibold text-lg mb-2">❌ Veri Yükleme Hatası</p>
+              <p className="text-sm">{error}</p>
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              🔄 Sayfayı Yenile
+            </button>
+          </div>
+        </div>
+      ) : (
+        children(data)
+      )}
+    </V2PasswordGate>
+  );
 };
 
 // --- LAYOUT CONTENT COMPONENT ---
@@ -171,10 +168,7 @@ const AppContent = () => {
         <Route path="/haberler" element={<NewsPage />} />
         <Route path="/haber/:newsId" element={<NewsDetail />} />
 
-        {/* YÖK Atlas Analytics V1 (Navbar/Footer GİZLİ) */}
-        <Route path="/analytics" element={<YokAtlasAnalytics />} />
-        <Route path="/analytics/university/:universityName" element={<YokAtlasAnalytics />} />
-        <Route path="/analytics/department/:departmentName" element={<YokAtlasAnalytics />} />
+       
 
         {/* YÖK Atlas V2 (Navbar/Footer GİZLİ) */}
         <Route path="/v2" element={
