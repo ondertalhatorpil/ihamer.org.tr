@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, TrendingUp, TrendingDown, Filter } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, Filter, ArrowUpDown, ArrowDown, ArrowUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { groupByProgram, calculateTrend, isAcikogretim } from '../utils/dataProcessor';
@@ -50,9 +50,10 @@ const Reveal = ({ children, delay = 0 }) => {
 /* ─── ANA SAYFA ─── */
 const Programs = ({ data }) => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm]         = useState('');
+  const [searchTerm, setSearchTerm]             = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tümü');
-  const [programs, setPrograms]             = useState([]);
+  const [sortOrder, setSortOrder]               = useState('desc'); // 'desc' | 'asc'
+  const [programs, setPrograms]                 = useState([]);
 
   useEffect(() => {
     if (!data?.length) return;
@@ -73,13 +74,23 @@ const Programs = ({ data }) => {
     setPrograms(merged);
   }, [data]);
 
-  const filtered = useMemo(() => programs.filter(p => {
-    const query = trNormalize(searchTerm);
-    const name  = trNormalize(p.name);
-    const ms = !query || name.includes(query);
-    const mc = selectedCategory === 'Tümü' || p.category === selectedCategory;
-    return ms && mc;
-  }), [programs, searchTerm, selectedCategory]);
+  const filtered = useMemo(() => {
+    const result = programs.filter(p => {
+      const query = trNormalize(searchTerm);
+      const name  = trNormalize(p.name);
+      const ms = !query || name.includes(query);
+      const mc = selectedCategory === 'Tümü' || p.category === selectedCategory;
+      return ms && mc;
+    });
+
+    result.sort((a, b) =>
+      sortOrder === 'desc'
+        ? b.count2025 - a.count2025
+        : a.count2025 - b.count2025
+    );
+
+    return result;
+  }, [programs, searchTerm, selectedCategory, sortOrder]);
 
   const inputStyle = {
     width: '100%', padding: '9px 12px',
@@ -98,6 +109,7 @@ const Programs = ({ data }) => {
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&display=swap');
+        select option { background: ${T.bgCard}; color: ${T.text}; }
       `}</style>
 
       {/* ══ HERO ══ */}
@@ -107,13 +119,9 @@ const Programs = ({ data }) => {
         position: 'relative', overflow: 'hidden',
         background: T.bg, borderBottom: `1px solid ${T.border}`,
       }}>
-        {/* Warm radial wash */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: `radial-gradient(ellipse 65% 55% at 85% 45%, ${T.brownPale} 0%, transparent 65%)` }} />
-        {/* Notebook lines */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 71px, ${T.border} 71px, ${T.border} 72px)`, opacity: 0.45 }} />
-        {/* Left margin rule */}
         <div style={{ position: 'absolute', left: 'clamp(16px,4.5vw,56px)', top: 0, bottom: 0, width: 1, background: `linear-gradient(180deg, transparent, ${T.brown}33 15%, ${T.brown}33 85%, transparent)` }} />
-        {/* Ghost letter */}
         <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)', fontSize: '32vw', fontWeight: 800, color: T.navy, opacity: 0.022, fontFamily: '"Playfair Display", serif', fontStyle: 'italic', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>B</div>
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 760 }}>
@@ -157,10 +165,10 @@ const Programs = ({ data }) => {
 
           <div style={{ display: 'flex', gap: 'clamp(16px,3vw,36px)', marginTop: 40, flexWrap: 'wrap' }}>
             {[
-              { l: 'Bölüm',       v: programs.length ? programs.length.toLocaleString('tr-TR') : '–',                            c: T.navy  },
-              { l: 'Sayısal',     v: programs.filter(p => p.category === 'Sayısal').length     || '–',                            c: T.brown },
-              { l: 'Sözel',       v: programs.filter(p => p.category === 'Sözel').length       || '–',                            c: T.navy  },
-              { l: 'Eşit Ağırlık', v: programs.filter(p => p.category === 'Eşit Ağırlık').length || '–',                          c: T.brown },
+              { l: 'Bölüm',        v: programs.length ? programs.length.toLocaleString('tr-TR') : '–', c: T.navy  },
+              { l: 'Sayısal',      v: programs.filter(p => p.category === 'Sayısal').length     || '–', c: T.brown },
+              { l: 'Sözel',        v: programs.filter(p => p.category === 'Sözel').length       || '–', c: T.navy  },
+              { l: 'Eşit Ağırlık', v: programs.filter(p => p.category === 'Eşit Ağırlık').length || '–', c: T.brown },
             ].map((s, i) => (
               <motion.div key={i}
                 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
@@ -199,6 +207,8 @@ const Programs = ({ data }) => {
           boxShadow: `0 2px 10px ${T.shadow}`,
         }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+
+            {/* Arama */}
             <div style={{ gridColumn: 'span 2' }}>
               <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Bölüm Ara</label>
               <div style={{ position: 'relative' }}>
@@ -214,6 +224,8 @@ const Programs = ({ data }) => {
                 />
               </div>
             </div>
+
+            {/* Alan */}
             <div>
               <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>Alan</label>
               <select
@@ -224,8 +236,51 @@ const Programs = ({ data }) => {
                 {['Tümü', 'Sayısal', 'Sözel', 'Eşit Ağırlık', 'Dil'].map(o => <option key={o}>{o}</option>)}
               </select>
             </div>
+
+            {/* Sıralama */}
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 600, color: T.textMuted, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: 6 }}>
+                Öğrenci Sıralaması
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {[
+                  { value: 'desc', label: 'Çoktan Aza', icon: ArrowDown },
+                  { value: 'asc',  label: 'Azdan Çoğa', icon: ArrowUp   },
+                ].map(opt => {
+                  const Icon = opt.icon;
+                  const active = sortOrder === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSortOrder(opt.value)}
+                      style={{
+                        flex: 1,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                        padding: '9px 10px',
+                        border: `1px solid ${active ? T.brown : T.border}`,
+                        borderRadius: 10,
+                        background: active
+                          ? `linear-gradient(135deg, ${T.brownPale}, ${T.brown}18)`
+                          : T.bgCard,
+                        color: active ? T.brown : T.textMuted,
+                        fontSize: 12, fontWeight: active ? 700 : 500,
+                        cursor: 'pointer',
+                        transition: 'all 0.18s ease',
+                        fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
+                        boxShadow: active ? `0 2px 8px ${T.brown}22` : 'none',
+                      }}
+                    >
+                      <Icon size={1} />
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
           </div>
 
+          {/* Aktif filtre badge'leri */}
           {(searchTerm || selectedCategory !== 'Tümü') && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
               {searchTerm && (
@@ -245,6 +300,9 @@ const Programs = ({ data }) => {
 
       <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, paddingLeft: 2 }}>
         <strong style={{ color: T.text }}>{filtered.length}</strong> bölüm
+        <span style={{ marginLeft: 8, color: T.brownLight, fontWeight: 600 }}>
+          {sortOrder === 'desc' ? '↓ Çoktan Aza' : '↑ Azdan Çoğa'}
+        </span>
       </div>
 
       {/* TABLE */}
@@ -259,24 +317,40 @@ const Programs = ({ data }) => {
               <thead>
                 <tr>
                   {[
-                    { l: 'Bölüm Adı',     align: 'left',   minW: 280 },
-                    { l: 'Alan',          align: 'center'            },
-                    { l: 'Üniversite',    align: 'center'            },
-                    { l: '2023',          align: 'center'            },
-                    { l: '2024',          align: 'center'            },
-                    { l: '2025',          align: 'center'            },
+                    { l: 'Bölüm Adı',            align: 'left',   minW: 280 },
+                    { l: 'Alan',                  align: 'center'            },
+                    { l: 'Üniversite',            align: 'center'            },
+                    { l: '2023',                  align: 'center'            },
+                    { l: '2024',                  align: 'center'            },
+                    { l: '2025 ↕',               align: 'center', sortable: true },
                     { l: 'Karşılaştırma 2024→25', align: 'center'            },
                   ].map(h => (
-                    <th key={h.l} style={{
-                      fontSize: 10, fontWeight: 700, color: T.textMuted,
-                      letterSpacing: '0.1em', textTransform: 'uppercase',
-                      textAlign: h.align, padding: '12px 14px',
-                      whiteSpace: 'nowrap', minWidth: h.minW,
-                      position: 'sticky', top: 0, zIndex: 10,
-                      background: T.bgDeep,
-                      borderBottom: `2px solid ${T.borderCard}`,
-                      boxShadow: '0 2px 8px rgba(28,31,46,0.06)',
-                    }}>{h.l}</th>
+                    <th
+                      key={h.l}
+                      onClick={h.sortable ? () => setSortOrder(o => o === 'desc' ? 'asc' : 'desc') : undefined}
+                      style={{
+                        fontSize: 10, fontWeight: 700,
+                        color: h.sortable ? T.brown : T.textMuted,
+                        letterSpacing: '0.1em', textTransform: 'uppercase',
+                        textAlign: h.align, padding: '12px 14px',
+                        whiteSpace: 'nowrap', minWidth: h.minW,
+                        position: 'sticky', top: 0, zIndex: 10,
+                        background: T.bgDeep,
+                        borderBottom: `2px solid ${h.sortable ? T.brown + '44' : T.borderCard}`,
+                        boxShadow: '0 2px 8px rgba(28,31,46,0.06)',
+                        cursor: h.sortable ? 'pointer' : 'default',
+                        userSelect: 'none',
+                      }}
+                    >
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                        {h.l}
+                        {h.sortable && (
+                          sortOrder === 'desc'
+                            ? <ArrowDown size={10} />
+                            : <ArrowUp size={10} />
+                        )}
+                      </span>
+                    </th>
                   ))}
                 </tr>
               </thead>

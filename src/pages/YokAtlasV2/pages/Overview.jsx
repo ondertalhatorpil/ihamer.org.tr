@@ -432,7 +432,7 @@ const HorizScrollCards = ({ items, navigate, cardRef, topPx, isMobile }) => {
       const vw = window.innerWidth; const padPx = vw * 0.12; const visibleW = vw - padPx;
       const cw = Math.round(Math.min(260, Math.max(160, visibleW * 0.21)));
       const gap = Math.round(Math.max(16, vw * 0.064));
-      const totalW = (cw + gap) * 10 - gap;
+      const totalW = (cw + gap) * items.length - gap;
       return { cw, gap, maxShift: Math.max(totalW - visibleW, 0) };
     };
     const onWheel = (e) => {
@@ -713,7 +713,6 @@ const Overview = ({ data }) => {
       </div>
     );
   }
-
   const trend = calculateTrend(stats.ihl[2025], stats.ihl[2024]);
   const secPad = isMobile ? '48px 4vw 40px' : isTablet ? '64px 5vw 56px' : '100px 6vw 96px';
   const tipStyle = { backgroundColor: T.bgCard, border: `1px solid ${T.borderCard}`, borderRadius: 10, color: T.text, fontSize: 11, boxShadow: `0 8px 32px ${T.shadow}`, padding: '6px 10px' };

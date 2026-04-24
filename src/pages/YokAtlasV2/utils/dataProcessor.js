@@ -25,6 +25,22 @@ export const normalizeProgramName = (programName) => {
   // Örnek: "İşletme (%50 İndirimli)" -> "İşletme"
   
   const normalized = programName.replace(/\s*\([^)]*\)\s*/g, '').trim();
+  const lc = normalized
+    .replace(/İ/g, 'i').replace(/I/g, 'ı')
+    .replace(/Ğ/g, 'ğ').replace(/Ü/g, 'ü')
+    .replace(/Ş/g, 'ş').replace(/Ö/g, 'ö')
+    .replace(/Ç/g, 'ç')
+    .toLowerCase();
+
+  if (
+    lc.includes('islami ilim') ||
+    lc.includes('islam ilim') ||
+    lc.includes('islam bilim') ||
+    lc.includes('dini ilim') ||
+    lc.includes('ilahiyat')
+  ) {
+    return 'İlahiyat ve İslami İlimler';
+  }
   return normalized;
 };
 

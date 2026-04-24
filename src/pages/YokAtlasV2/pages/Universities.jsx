@@ -751,7 +751,7 @@ const Universities = ({ data }) => {
               style={{
                 display: 'inline-block',
                 fontSize: isMobile ? 'clamp(36px,11vw,52px)' : 'clamp(52px,9vw,108px)',
-                fontWeight: 800, lineHeight: 0.95,
+                fontWeight: 800, lineHeight: 1.04,
                 fontFamily: '"Playfair Display", serif', fontStyle: 'italic',
                 color: T.navy, letterSpacing: '-0.02em',
               }}
