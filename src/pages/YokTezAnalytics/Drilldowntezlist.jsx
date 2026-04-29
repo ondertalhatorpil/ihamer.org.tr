@@ -369,12 +369,6 @@ export default function DrillDownTezList(){
                             </div>
                           </div>
                         )}
-                        {S(t['Araştırmanın Amacı'])&&(
-                          <div className="mb-6"><h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2"><span className="w-1 h-4 bg-green-500 rounded-full"></span>Araştırmanın Amacı</h4>
-                            <p className="text-gray-700 text-justify leading-relaxed font-light text-sm">{t['Araştırmanın Amacı']}</p></div>
-                        )}
-                        <div><h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2"><span className="w-1 h-4 bg-yellow-600 rounded-full"></span>Araştırmanın Özeti</h4>
-                          <p className="text-gray-700 text-justify leading-relaxed font-light text-sm md:text-[0.95rem]"><HL text={ozet} hl={searchTerm}/></p></div>
                       </div>
                     </div>
                   )}
