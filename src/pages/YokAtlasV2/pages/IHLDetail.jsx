@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, School, Building2, BookOpen, MapPin, ChevronRight, Users, Search, X } from 'lucide-react';
+import { ArrowLeft, School, Building2, BookOpen, MapPin, ChevronRight, Users, Search, X, Download } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { getIHLUniversityFlow } from '../utils/dataProcessor';
 
@@ -184,6 +184,116 @@ const IHLDetail = ({ data }) => {
     ),
   [detailData, progSearch]);
 
+
+  // === WORD DOSYASINA AKTARIM FONKSİYONU ===
+  const exportToWord = () => {
+    if (!detailData) return;
+
+    let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset='utf-8'>
+            <title>Lise Detay Raporu</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; color: #1c1f2e; }
+                h1 { color: #8b5e3c; text-align: left; border-bottom: 2px solid #f0e4d0; padding-bottom: 10px; font-size: 24px;}
+                h2 { color: #1c1f2e; margin-top: 30px; font-size: 16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                th, td { border: 1px solid #d1d5db; padding: 8px; text-align: left; vertical-align: middle; }
+                th { background-color: #f4f0e8; font-weight: bold; color: #4a4e65; }
+                .text-right { text-align: right; }
+                .text-center { text-align: center; }
+                .summary { background-color: #faf8f4; padding: 15px; border: 1px solid #e5e7eb; margin-bottom: 20px; }
+                .university-row { background-color: #f4f0e8; font-weight: bold; }
+                .program-row td { padding-left: 20px; color: #4a4e65; }
+            </style>
+        </head>
+        <body>
+            <h1>${detailData.displayName} - İHL Detay Raporu</h1>
+            
+            <div class="summary">
+                <p><strong>Şehir / İlçe:</strong> ${detailData.city}${detailData.district ? ` / ${detailData.district}` : ''}</p>
+                <p><strong>İncelenen Yıl:</strong> ${selectedYear}</p>
+                <p><strong>Toplam Yerleşen Öğrenci:</strong> ${detailData.totalStudents.toLocaleString('tr-TR')} Öğrenci</p>
+                <p><strong>Üniversite Çeşitliliği:</strong> ${detailData.universities.length} Farklı Üniversite</p>
+                <p><strong>Rapor Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+            </div>
+
+            <h2>${selectedYear} Yılı - En Çok Tercih Edilen 10 Bölüm</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th class='text-center'>Sıra</th>
+                        <th>Bölüm Adı</th>
+                        <th class='text-right'>Yerleşen Öğrenci</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    detailData.topPrograms.forEach((prog, idx) => {
+        htmlContent += `
+            <tr>
+                <td class='text-center'>${idx + 1}</td>
+                <td><strong>${prog.name}</strong></td>
+                <td class='text-right'>${prog.count.toLocaleString('tr-TR')}</td>
+            </tr>
+        `;
+    });
+    
+    htmlContent += `</tbody></table>`;
+
+    htmlContent += `<h2>Üniversite ve Bölüm Kırılımı (${filteredUnivDetails.length} Üniversite)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Üniversite / Bölüm Adı</th>
+                    <th class='text-center'>Şehir</th>
+                    <th class='text-center'>Tip</th>
+                    <th class='text-right'>Yerleşen</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    filteredUnivDetails.forEach((univ) => {
+        // Üniversite Başlık Satırı
+        htmlContent += `
+            <tr class="university-row">
+                <td>ÜNİVERSİTE: ${univ.name}</td>
+                <td class='text-center'>${univ.city}</td>
+                <td class='text-center'>${univ.type}</td>
+                <td class='text-right'>${univ.totalCount.toLocaleString('tr-TR')}</td>
+            </tr>
+        `;
+        
+        // İlgili Üniversitenin Bölüm Satırları
+        univ.programs.forEach(prog => {
+            htmlContent += `
+                <tr class="program-row">
+                    <td>- Bölüm: ${prog.name}</td>
+                    <td class='text-center'>-</td>
+                    <td class='text-center'>-</td>
+                    <td class='text-right'>${prog.count.toLocaleString('tr-TR')}</td>
+                </tr>
+            `;
+        });
+    });
+
+    htmlContent += `</tbody></table></body></html>`;
+
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${detailData.displayName.replace(/\s+/g, '_')}_Lise_Raporu.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+  // ===========================================
+
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
       <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
@@ -238,13 +348,26 @@ const IHLDetail = ({ data }) => {
         </div>
 
         <div style={{ position: 'relative', zIndex: 2 }}>
-          {/* Back */}
-          <motion.button onClick={() => navigate('/ihl/v2')} whileHover={{ x: -3 }}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none',
-              cursor: 'pointer', color: T.textSub, fontSize: 12, marginBottom: 20, padding: 0,
-              fontFamily: FONT_BODY, fontWeight: 600 }}>
-            <ArrowLeft size={14}/> İHL Köken Analizine Dön
-          </motion.button>
+          
+          {/* Buton Grubu: Geri Dön ve Word İndir */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+            <motion.button onClick={() => navigate('/ihl/v2')} whileHover={{ x: -3 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none',
+                cursor: 'pointer', color: T.textSub, fontSize: 12, padding: 0,
+                fontFamily: FONT_BODY, fontWeight: 600 }}>
+              <ArrowLeft size={14}/> İHL Köken Analizine Dön
+            </motion.button>
+
+            {/* WORD İNDİRME BUTONU BURAYA EKLENDİ */}
+            <motion.button onClick={exportToWord} whileHover={{ y: -1 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6,
+                background: T.brownPale, color: T.brown, border: `1px solid ${T.brown}44`,
+                borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                padding: '5px 12px', fontFamily: FONT_BODY, transition: 'all 0.2s' }}
+            >
+              <Download size={13}/> Word Raporu İndir
+            </motion.button>
+          </div>
 
           {/* Eyebrow */}
           <motion.p

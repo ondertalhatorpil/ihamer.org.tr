@@ -57,6 +57,9 @@ import TeknolojiListPage from "./pages/anasayfa/TeknolojiListPage.jsx";
 import TezAnalyticsDashboard from "./pages/YokTezAnalytics/Dashboard.jsx";
 import TezAnalyticsList from "./pages/YokTezAnalytics/TezList.jsx";
 import AllThesesPage from "./pages/YokTezAnalytics/AllThesesPage.jsx";
+import AnalyticsPage from "./pages/YokTezAnalytics/AnalyticsPage.jsx";
+import AnalyticsPage3   from "./pages/YokTezAnalytics/AnalyticsPage3.jsx";
+import DrillDownTezList from "./pages/YokTezAnalytics/DrillDownTezList.jsx";
 import FilteredTezList from "./pages/YokTezAnalytics/FilteredTezList.jsx";
 
 // YÖK Atlas V2 - Layout ve Sayfalar
@@ -233,7 +236,11 @@ const AppContent = () => {
         <Route path="/tez-analytics" element={<TezAnalyticsDashboard />} />
         <Route path="/tez-analytics/list" element={<TezAnalyticsList />} />
         <Route path="/tez-analytics/all" element={<AllThesesPage />} />
+        <Route path="/tez-analytics/analiz" element={<AnalyticsPage/>} />
+        <Route path="/tez-analytics/dogrudan-analiz"  element={<AnalyticsPage3/>}/>
+        <Route path="/tez-analytics/dogrudan-tezler"  element={<DrillDownTezList/>}/>
         <Route path="/tez-analytics/filter/:filterType/:filterValue" element={<FilteredTezList />} />
+
 
         {/* Hafızlık Programları */}
         <Route path="/HafizlikProgramlari" element={<HafizlikLayout />}>

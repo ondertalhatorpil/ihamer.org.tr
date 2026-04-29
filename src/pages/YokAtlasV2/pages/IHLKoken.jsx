@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { School, MapPin, Search, TrendingUp, ChevronRight, Trophy, Users } from 'lucide-react';
+import { School, MapPin, Search, TrendingUp, ChevronRight, Trophy, Users, Download } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { groupByIHL, groupIHLByCity } from '../utils/dataProcessor';
 
@@ -91,6 +91,105 @@ const IHLKoken = ({ data }) => {
   const top15 = cityData.slice(0, 15);
   const maxCount = top15[0]?.count || 1;
 
+  // === WORD DOSYASINA AKTARIM FONKSİYONU ===
+  const exportToWord = () => {
+    if (!filtered || filtered.length === 0) return;
+
+    let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset='utf-8'>
+            <title>İHL Köken Analizi Raporu</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; color: #1c1f2e; }
+                h1 { color: #8b5e3c; text-align: left; border-bottom: 2px solid #f0e4d0; padding-bottom: 10px; font-size: 24px;}
+                h2 { color: #1c1f2e; margin-top: 30px; font-size: 16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                th, td { border: 1px solid #d1d5db; padding: 8px; text-align: left; vertical-align: middle; }
+                th { background-color: #f4f0e8; font-weight: bold; color: #4a4e65; }
+                .text-right { text-align: right; }
+                .text-center { text-align: center; }
+                .summary { background-color: #faf8f4; padding: 15px; border: 1px solid #e5e7eb; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <h1>İHL Köken Analizi Raporu</h1>
+            
+            <div class="summary">
+                <p><strong>İncelenen Yıl:</strong> ${selectedYear}</p>
+                <p><strong>Arama Kriteri:</strong> ${search ? `"${search}"` : 'Tümü'}</p>
+                <p><strong>Şehir Filtresi:</strong> ${cityFilter || 'Tüm Şehirler'}</p>
+                <p><strong>Listelenen Okul Sayısı:</strong> ${filtered.length.toLocaleString('tr-TR')}</p>
+                <p><strong>Rapor Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+            </div>
+    `;
+
+    // 1. Şehir Bazlı Dağılım Tablosu (Sadece Top 15 veya mevcut liste eklenecek)
+    htmlContent += `<h2>En Çok Öğrenci Gönderen Şehirler (İlk 15)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Şehir</th>
+                    <th class='text-right'>Öğrenci Sayısı</th>
+                    <th class='text-right'>Okul Sayısı</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    top15.forEach(city => {
+        htmlContent += `
+            <tr>
+                <td><strong>${city.city}</strong></td>
+                <td class='text-right'>${city.count.toLocaleString('tr-TR')}</td>
+                <td class='text-right'>${city.schoolCount}</td>
+            </tr>
+        `;
+    });
+    htmlContent += `</tbody></table>`;
+
+    // 2. Okul Sıralaması Tablosu (Aktif filtrelenmiş veriler)
+    htmlContent += `<h2>Türkiye Geneli İHL Sıralaması (${filtered.length} Okul)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th class='text-center'>#</th>
+                    <th>Okul Adı</th>
+                    <th class='text-center'>Şehir</th>
+                    <th class='text-center'>Yerleşen</th>
+                    <th class='text-center'>Üniversite Çeşitliliği</th>
+                    <th class='text-center'>Bölüm Çeşitliliği</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    filtered.forEach((ihl, index) => {
+        htmlContent += `
+            <tr>
+                <td class='text-center'>${index + 1}</td>
+                <td><strong>${ihl.displayName}</strong></td>
+                <td class='text-center'>${ihl.city}</td>
+                <td class='text-center'>${ihl.totalCount.toLocaleString('tr-TR')}</td>
+                <td class='text-center'>${ihl.universityCount}</td>
+                <td class='text-center'>${ihl.programCount}</td>
+            </tr>
+        `;
+    });
+
+    htmlContent += `</tbody></table></body></html>`;
+
+    // Blob oluşturup dosyayı indirtme
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `IHL_Koken_Analiz_Raporu_${selectedYear}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+  // ===========================================
+
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
       <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
@@ -115,6 +214,19 @@ const IHLKoken = ({ data }) => {
         <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)', fontSize: '32vw', fontWeight: 800, color: T.navy, opacity: 0.022, fontFamily: FONT_DISPLAY, fontStyle: 'italic', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>İ</div>
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 760 }}>
+          
+          {/* WORD İNDİRME BUTONU */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+            <motion.button onClick={exportToWord} whileHover={{ y: -1 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6,
+                background: T.brownPale, color: T.brown, border: `1px solid ${T.brown}44`,
+                borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                padding: '5px 12px', fontFamily: FONT_BODY, transition: 'all 0.2s' }}
+            >
+              <Download size={13}/> Word Raporu İndir
+            </motion.button>
+          </div>
+
           <motion.p
             initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
