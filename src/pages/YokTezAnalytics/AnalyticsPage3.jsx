@@ -69,6 +69,33 @@ const MiniBar = ({ pct }) => (<div className="mini-bar-wrap"><div className="min
 const RC = ({ i }) => { const c = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other'; return <span className={`rank-circle ${c}`}>{i + 1}</span>; };
 const PH = ({ icon: Icon, title, sub, count: cnt }) => (<div className="sec-panel-head"><div><h4 className="font-display text-lg flex items-center gap-2 text-yellow-900"><Icon size={18} className="text-gray-400" />{title}</h4>{sub && <p className="font-label text-gray-400 mt-1">{sub}</p>}</div>{cnt != null && <span className="bg-white border border-gray-200 text-xs font-semibold px-2 py-1 rounded-md text-gray-500">{cnt}</span>}</div>);
 
+// === ÖRNEKLEM GRUPLAMA FONKSİYONU ===
+// === GÜNCELLENMİŞ ÖRNEKLEM GRUPLAMA FONKSİYONU ===
+const getOrneklemGrup = (val) => {
+    // 1. Türkçe karakterleri doğru küçültüyoruz
+    const v = S(val).toLocaleLowerCase('tr-TR');
+
+    // 2. Tam eşleşme yerine includes kullanmak daha güvenlidir
+    if (!v || v.includes('nan') || v.includes('belirtilmemiş')) return 'Belirtilmemiş';
+    
+    // 3. Öncelik sırasına göre dizilim (Hangisi daha spesifikse o üste)
+    if (v.includes('idareci') || v.includes('müdür') || v.includes('yönetici')) return 'İdareciler';
+    
+    // "Öğretmen" ve "Öğretim" kelimeleri karışabilir, öğretmeni önce kontrol ediyoruz
+    if (v.includes('öğretmen')) return 'Öğretmenler'; 
+    
+    if (v.includes('öğrenci')) return 'Öğrenciler';
+    if (v.includes('veli') || v.includes('anne') || v.includes('baba') || v.includes('ebeveyn')) return 'Veliler';
+    if (v.includes('mezun')) return 'Mezunlar';
+    
+    // Akademisyen için olası alternatifleri artırdık
+    if (v.includes('akademisyen') || v.includes('öğretim') || v.includes('araştırma görevlisi') || v.includes('akademik')) return 'Akademisyenler';
+    
+    if (v.includes('kitap') || v.includes('eser') || v.includes('doküman') || v.includes('rapor') || v.includes('belge') || v.includes('program')) return 'Doküman / Eser';
+    
+    return 'Diğer'; 
+};
+
 export default function AnalyticsPage3() {
     const navigate = useNavigate();
     const [rawData, setRawData] = useState([]);
@@ -98,7 +125,10 @@ export default function AnalyticsPage3() {
         if (f.advisorGender) r = r.filter(t => S(t['Danışmanın Cinsiyeti']) === f.advisorGender);
         if (f.desen) r = r.filter(t => S(t['_desenNorm']) === f.desen);
         if (f.veriToplama) r = r.filter(t => (t['_veriTopNorm'] || []).includes(f.veriToplama));
-        if (f.orneklem) r = r.filter(t => S(t['Araştırma Örneklemi']).toLowerCase().includes(f.orneklem.toLowerCase()));
+        
+        // ÖRNEKLEM FİLTRESİ (GRUP BAZLI)
+        if (f.orneklem) r = r.filter(t => getOrneklemGrup(t['Araştırma Örneklemi']) === f.orneklem);
+        
         if (f.orneklemMahiyet) r = r.filter(t => S(t['_mahiyetNorm']) === f.orneklemMahiyet);
         if (f.veriAnaliz) r = r.filter(t => S(t['_veriAnalizNorm']) === f.veriAnaliz);
         if (f.konu) r = r.filter(t => S(t['_konuNorm']) === f.konu);
@@ -117,6 +147,13 @@ export default function AnalyticsPage3() {
     const vaList = useMemo(() => [...new Set(rawData.map(t => S(t['_veriAnalizNorm'])).filter(v => v && v !== 'Belirtilmemiş'))].sort(), [rawData]);
     const konuList = useMemo(() => [...new Set(rawData.map(t => S(t['_konuNorm'])).filter(v => v && v !== 'Belirtilmemiş'))].sort(), [rawData]);
 
+    // Örneklem Seçenekleri Listesi (Sidebar için)
+    const orneklemGrupList = useMemo(() => {
+        const s = new Set();
+        rawData.forEach(t => s.add(getOrneklemGrup(t['Araştırma Örneklemi'])));
+        return [...s].filter(v => v !== 'Belirtilmemiş').sort();
+    }, [rawData]);
+
     /* Grouped tables */
     const mkNorm = (key, total) => { const m = {}; data.forEach(t => { const v = S(t[key]) || 'Belirtilmemiş'; m[v] = (m[v] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([label, count]) => ({ label, count, pct: total ? count / total * 100 : 0 })); };
     const mkVt = (total) => { const m = {}; data.forEach(t => { (t['_veriTopNorm'] || []).forEach(v => { m[v] = (m[v] || 0) + 1; }); }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([label, count]) => ({ label, count, pct: total ? count / total * 100 : 0 })); };
@@ -132,7 +169,6 @@ export default function AnalyticsPage3() {
     const vtChart = useMemo(() => mkPieVt(), [data]);
     const konuChart = useMemo(() => mkPie('_konuNorm'), [data]);
 
-    // === BETİMSEL GRUPLAMA MANTIĞI ===
     const groupedDesenChart = useMemo(() => {
         return desenChart.reduce((acc, curr) => {
             if (curr.name === 'Belirtilmemiş') return acc;
@@ -156,6 +192,21 @@ export default function AnalyticsPage3() {
             } else { acc.push({ ...curr, label: targetLabel }); }
             return acc;
         }, []).sort((a, b) => b.count - a.count); 
+    }, [data]);
+
+    // === YENİ GRUPLANMIŞ ÖRNEKLEM VERİSİ ===
+    const groupedOrneklemTable = useMemo(() => {
+        const m = {};
+        data.forEach(t => {
+            const grp = getOrneklemGrup(t['Araştırma Örneklemi']);
+            if (grp !== 'Belirtilmemiş') {
+                m[grp] = (m[grp] || 0) + 1;
+            }
+        });
+        const tot = data.length;
+        return Object.entries(m)
+            .sort((a, b) => b[1] - a[1])
+            .map(([label, count]) => ({ label, count, pct: tot ? (count / tot) * 100 : 0 }));
     }, [data]);
 
     const pageRows = useMemo(() => { const bins = [[0, 100, '0–100'], [101, 200, '101–200'], [201, 300, '201–300'], [301, 400, '301–400'], [401, 500, '401–500'], [501, 600, '501–600'], [601, Infinity, '601+']]; const counts = bins.map(() => 0); let filled = 0; data.forEach(t => { const p = parseInt(S(t['Sayfa Sayısı'])); if (!isNaN(p)) { filled++; for (let i = 0; i < bins.length; i++)if (p >= bins[i][0] && p <= bins[i][1]) { counts[i]++; break; } } }); return { rows: bins.map(([, , l], i) => ({ label: l, count: counts[i] })).filter(r => r.count > 0), filled }; }, [data]);
@@ -205,6 +256,15 @@ export default function AnalyticsPage3() {
             <div><p className="sf-label">Araştırma Deseni</p><select className="ap-select" value={f.desen} onChange={e => updD('desen', e.target.value)}><option value="">Tümü</option>{desenList.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
             <div><p className="sf-label">Veri Toplama Aracı</p><select className="ap-select" value={f.veriToplama} onChange={e => updD('veriToplama', e.target.value)}><option value="">Tümü</option>{vtList.map(v => <option key={v} value={v}>{v}</option>)}</select></div>
             <div><p className="sf-label">Örneklem Mahiyeti</p><select className="ap-select" value={f.orneklemMahiyet} onChange={e => updD('orneklemMahiyet', e.target.value)}><option value="">Tümü</option>{mahList.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
+            
+            {/* YENİ EKLENEN ÖRNEKLEM FİLTRESİ */}
+            <div><p className="sf-label">Araştırma Örneklemi</p>
+                <select className="ap-select" value={f.orneklem} onChange={e => updD('orneklem', e.target.value)}>
+                    <option value="">Tümü</option>
+                    {orneklemGrupList.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+            </div>
+
             <div><p className="sf-label">Veri Analiz Yöntemi</p><select className="ap-select" value={f.veriAnaliz} onChange={e => updD('veriAnaliz', e.target.value)}><option value="">Tümü</option>{vaList.map(v => <option key={v} value={v}>{v}</option>)}</select></div>
             <div><p className="sf-label">Araştırma Konusu</p><select className="ap-select" value={f.konu} onChange={e => updD('konu', e.target.value)}><option value="">Tümü</option>{konuList.map(k => <option key={k} value={k}>{k.length > 45 ? k.slice(0, 45) + '…' : k}</option>)}</select></div>
             <div><p className="sf-label">Danışman Unvanı</p><select className="ap-select" value={f.advisorUnvan} onChange={e => updD('advisorUnvan', e.target.value)}><option value="">Tümü</option><option value="PROF">PROF. DR.</option><option value="DOÇ">DOÇ. DR.</option><option value="YRD">YRD. DOÇ. DR.</option><option value="DR. ÖĞR">DR. ÖĞR. ÜYESİ</option></select></div>
@@ -214,7 +274,6 @@ export default function AnalyticsPage3() {
         </div>
     );
 
-    // === WORD DOSYASINA AKTARIM FONKSİYONU ===
     const exportToWord = () => {
         let htmlContent = `
             <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -238,12 +297,9 @@ export default function AnalyticsPage3() {
                 <p><strong>Görüntülenen Toplam Tez:</strong> ${data.length}</p>
         `;
 
-        // Sayfadaki tüm sec-panel sınıflı alanları (grafik+tablo bloklarını) tarar
         document.querySelectorAll('.sec-panel').forEach(sec => {
             const title = sec.querySelector('h4')?.innerText;
             const table = sec.querySelector('table');
-            
-            // Başlık ve tablo varsa HTML formatında ekler
             if (title && table) {
                 htmlContent += `<h3>${title}</h3>`;
                 htmlContent += `<table>${table.innerHTML}</table>`;
@@ -251,8 +307,6 @@ export default function AnalyticsPage3() {
         });
 
         htmlContent += `</body></html>`;
-
-        // UTF-8 formatında Blob oluşturup indirtme işlemi
         const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -263,7 +317,6 @@ export default function AnalyticsPage3() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     };
-    // =======================================
 
     if (loading) return (<div className="h-screen w-full bg-[#F9FAFB] flex flex-col items-center justify-center"><style>{styles}</style><div className="font-label text-gray-400 mb-4 animate-pulse">VERİLER ANALİZ EDİLİYOR</div><div className="w-16 h-16 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin" /></div>);
 
@@ -277,12 +330,9 @@ export default function AnalyticsPage3() {
                         <div>
                             <div className="flex flex-wrap items-center gap-4 mb-6">
                                 <button onClick={() => navigate('/tez-analytics')} className="font-label text-gray-400 flex items-center gap-1 hover:text-gray-700 transition-colors bg-transparent border-none cursor-pointer p-0"><ArrowRight size={12} className="rotate-180" />Dashboard'a Dön</button>
-                                
-                                {/* WORD İNDİRME BUTONU BURAYA EKLENDİ */}
                                 <button onClick={exportToWord} className="font-label text-yellow-700 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer">
                                     <Download size={14} /> Word Raporu İndir
                                 </button>
-                                
                             </div>
                             <h2 className="font-display text-5xl md:text-7xl leading-[0.95] text-yellow-600 reveal-up">Doğrudan <br /><span className="text-gray-900">Analizler</span></h2>
                         </div>
@@ -352,16 +402,9 @@ export default function AnalyticsPage3() {
 
                     {/* TABLO 1 – DESEN (GRUPLU) */}
                     <section className="sec-panel border-b-soft">
-                        <PH
-                            icon={BarChart2}
-                            title="Tablo 1 — Araştırma Deseni"
-                            sub="Gruplandırılmış · satıra tıkla → tezlere git"
-                            count={`${groupedDesenNorm.length} desen`}
-                        />
+                        <PH icon={BarChart2} title="Tablo 1 — Araştırma Deseni" sub="Gruplandırılmış · satıra tıkla → tezlere git" count={`${groupedDesenNorm.length} desen`} />
                         <div className="p-6 md:p-10">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                                {/* Sol Taraf: Pasta Grafik */}
                                 <div className="h-[240px]">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <RechartsPie>
@@ -373,12 +416,9 @@ export default function AnalyticsPage3() {
                                         </RechartsPie>
                                     </ResponsiveContainer>
                                 </div>
-
-                                {/* Sağ Taraf: Kaydırılabilir Tablo */}
                                 <div className="max-h-[240px] overflow-y-auto pr-2">
                                     <GT rows={groupedDesenNorm} fk="desen" activeVal={f.desen} />
                                 </div>
-
                             </div>
                         </div>
                     </section>
@@ -394,16 +434,9 @@ export default function AnalyticsPage3() {
 
                     {/* TABLO 3 – ÖRNEKLEM MAHİYETİ */}
                     <section className="sec-panel border-b-soft">
-                        <PH
-                            icon={Users}
-                            title="Tablo 3 — Örneklem Mahiyeti"
-                            sub="Gruplandırılmış örnekleme yöntemleri · satıra tıkla → tezlere git"
-                            count={`${mahList.length} grup`}
-                        />
+                        <PH icon={Users} title="Tablo 3 — Örneklem Mahiyeti" sub="Gruplandırılmış örnekleme yöntemleri · satıra tıkla → tezlere git" count={`${mahList.length} grup`} />
                         <div className="p-6 md:p-10">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                                {/* Sol Taraf: Pasta Grafik */}
                                 <div className="h-[240px]">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <RechartsPie>
@@ -415,28 +448,33 @@ export default function AnalyticsPage3() {
                                         </RechartsPie>
                                     </ResponsiveContainer>
                                 </div>
-
-                                {/* Sağ Taraf: Kaydırılabilir Tablo */}
                                 <div className="max-h-[240px] overflow-y-auto pr-2">
                                     <GT rows={mkNorm('_mahiyetNorm', data.length)} fk="orneklemMahiyet" activeVal={f.orneklemMahiyet} />
                                 </div>
+                            </div>
+                        </div>
+                    </section>
 
+                    {/* TABLO 4 – ARAŞTIRMA ÖRNEKLEMİ (GRUPLANDIRILMIŞ) */}
+                    <section className="sec-panel border-b-soft">
+                        <PH
+                            icon={Users}
+                            title="Tablo 4 — Araştırma Örneklemi (Çalışma Grubu)"
+                            sub="satıra tıkla → tezlere git"
+                            count={`${groupedOrneklemTable.length} ana grup`}
+                        />
+                        <div className="p-6 md:p-10">
+                            <div className="max-h-[300px] overflow-y-auto pr-2">
+                                <GT rows={groupedOrneklemTable} fk="orneklem" activeVal={f.orneklem} />
                             </div>
                         </div>
                     </section>
                     
-                    {/* TABLO 4 – VERİ ANALİZ YÖNTEMİ */}
+                    {/* TABLO 5 – VERİ ANALİZ YÖNTEMİ */}
                     <section className="sec-panel border-b-soft">
-                        <PH
-                            icon={BarChart2}
-                            title="Tablo 4 — Veri Analiz Yöntemi"
-                            sub="MAXQDA, SPSS, NVivo vb. · satıra tıkla → tezlere git"
-                            count={`${vaList.length} grup`}
-                        />
+                        <PH icon={BarChart2} title="Tablo 5 — Veri Analiz Yöntemi" sub="MAXQDA, SPSS, NVivo vb. · satıra tıkla → tezlere git" count={`${vaList.length} grup`} />
                         <div className="p-6 md:p-10">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                                {/* Sol Taraf: Çubuk Grafik */}
                                 <div className="h-[300px]">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={vaChart.filter(d => d.name !== 'Belirtilmemiş')} layout="vertical" margin={{ left: 10, right: 40 }}>
@@ -449,28 +487,18 @@ export default function AnalyticsPage3() {
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
-
-                                {/* Sağ Taraf: Kaydırılabilir Tablo */}
                                 <div className="max-h-[300px] overflow-y-auto pr-2">
                                     <GT rows={mkNorm('_veriAnalizNorm', data.length)} fk="veriAnaliz" activeVal={f.veriAnaliz} />
                                 </div>
-
                             </div>
                         </div>
                     </section>
 
-                    {/* TABLO 5 – ARAŞTIRMA KONUSU */}
+                    {/* TABLO 6 – ARAŞTIRMA KONUSU */}
                     <section className="sec-panel border-b-soft">
-                        <PH
-                            icon={Target}
-                            title="Tablo 5 — Araştırma Konusu"
-                            sub="Gruplandırılmış tematik kategoriler · satıra tıkla → tezlere git"
-                            count={`${konuList.length} grup`}
-                        />
+                        <PH icon={Target} title="Tablo 6 — Araştırma Konusu" sub="Gruplandırılmış tematik kategoriler · satıra tıkla → tezlere git" count={`${konuList.length} grup`} />
                         <div className="p-6 md:p-10">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                                {/* Sol Taraf: Grafik */}
                                 <div className="h-[360px]">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={konuChart.filter(d => d.name !== 'Belirtilmemiş')} layout="vertical" margin={{ left: 10, right: 40 }}>
@@ -483,19 +511,16 @@ export default function AnalyticsPage3() {
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
-
-                                {/* Sağ Taraf: Kaydırılabilir Tablo */}
                                 <div className="max-h-[360px] overflow-y-auto pr-2">
                                     <GT rows={mkNorm('_konuNorm', data.length)} fk="konu" activeVal={f.konu} />
                                 </div>
-
                             </div>
                         </div>
                     </section>
 
-                    {/* TABLO 6 – SAYFA UZUNLUĞU */}
+                    {/* TABLO 7 – SAYFA UZUNLUĞU */}
                     <section className="sec-panel border-b-soft">
-                        <PH icon={FileText} title="Tablo 6 — Sayfa Uzunlukları" sub={`${pageRows.filled} tezde veri mevcut · satıra tıkla → o aralıktaki tezlere git`} />
+                        <PH icon={FileText} title="Tablo 7 — Sayfa Uzunlukları" sub={`${pageRows.filled} tezde veri mevcut · satıra tıkla → o aralıktaki tezlere git`} />
                         <div className="p-6 md:p-10">{pageRows.rows.length ? (
                             <div className="dt-wrap"><table className="dt dt-clickable">
                                 <thead><tr><th>Sayfa Aralığı</th><th>Tez Sayısı</th><th>Dağılım</th><th>Tezlere Git</th></tr></thead>
@@ -504,9 +529,9 @@ export default function AnalyticsPage3() {
                         ) : <div className="no-data">Sayfa sayısı verisi yok</div>}</div>
                     </section>
 
-                    {/* TABLO 7 – CİNSİYET */}
+                    {/* TABLO 8 – CİNSİYET */}
                     <section className="sec-panel border-b-soft">
-                        <PH icon={Users} title="Tablo 7 — Cinsiyet Dağılımı" sub="Satıra tıkla → o cinsiyetin tezlerine git" />
+                        <PH icon={Users} title="Tablo 8 — Cinsiyet Dağılımı" sub="Satıra tıkla → o cinsiyetin tezlerine git" />
                         <div className="p-6 md:p-10">{(genderTable.yazar.length || genderTable.danisman.length) ? (
                             <div className="gender-grid">
                                 {[['Tez Yazarı', genderTable.yazar, 'gender'], ['Danışman', genderTable.danisman, 'advisorGender']].map(([title, rows, fkey]) => {
@@ -522,24 +547,22 @@ export default function AnalyticsPage3() {
                         ) : <div className="no-data">Cinsiyet verisi yok</div>}</div>
                     </section>
 
-                    {/* TABLO 8 – DANIŞMAN UNVAN */}
+                    {/* TABLO 9 – DANIŞMAN UNVAN */}
                     <section className="sec-panel border-b-soft">
-                        <PH icon={GraduationCap} title="Tablo 8 — Danışman Unvan Dağılımı" sub="Satıra tıkla → tezlere git" count={`${unvanTable.length} unvan`} />
+                        <PH icon={GraduationCap} title="Tablo 9 — Danışman Unvan Dağılımı" sub="Satıra tıkla → tezlere git" count={`${unvanTable.length} unvan`} />
                         <div className="p-6 md:p-10"><div className="dt-wrap"><table className="dt dt-clickable">
                             <thead><tr><th>#</th><th>Unvan</th><th>Tez Sayısı</th><th>Oran</th></tr></thead>
                             <tbody>{unvanTable.map((r, i) => (<tr key={i} onClick={() => drill('advisorUnvan', r.unvan)}><td><RC i={i} /></td><td style={{ fontWeight: i < 3 ? 700 : 400 }}>{r.unvan}</td><td className="font-bold">{r.count}</td><td><MiniBar pct={r.pct} /></td></tr>))}</tbody>
                         </table></div></div>
                     </section>
 
-                    {/* TABLO 9 – ÜNİVERSİTE */}
+                    {/* TABLO 10 – ÜNİVERSİTE */}
                     <section className="sec-panel border-b-soft">
-                        <PH icon={Building2} title="Tablo 9 — Üniversite Dağılımı" sub="Satıra tıkla → o üniversitenin tezlerine git" count={`${uniTable.length} üniversite`} />
+                        <PH icon={Building2} title="Tablo 10 — Üniversite Dağılımı" sub="Satıra tıkla → o üniversitenin tezlerine git" count={`${uniTable.length} üniversite`} />
                         <div className="p-6 md:p-10">
-                            {/* Scroll kapsayıcısı eklendi */}
                             <div className="max-h-[360px] overflow-y-auto pr-2">
                                 <div className="dt-wrap">
                                     <table className="dt dt-clickable relative">
-                                        {/* Başlığın yukarıda sabit kalması için sticky sınıfları eklendi */}
                                         <thead className="sticky top-0 bg-white shadow-sm z-10">
                                             <tr><th>#</th><th>Üniversite</th><th>Tez</th><th>Oran</th></tr>
                                         </thead>
@@ -559,15 +582,13 @@ export default function AnalyticsPage3() {
                         </div>
                     </section>
 
-                    {/* TABLO 10 – BÖLÜM */}
+                    {/* TABLO 11 – BÖLÜM */}
                     <section className="sec-panel border-b-soft">
-                        <PH icon={BookOpen} title="Tablo 10 — Anabilim Dalı / Bölüm" sub="Satıra tıkla → tezlere git" count={`${deptTable.length} bölüm`} />
+                        <PH icon={BookOpen} title="Tablo 11 — Anabilim Dalı / Bölüm" sub="Satıra tıkla → tezlere git" count={`${deptTable.length} bölüm`} />
                         <div className="p-6 md:p-10">
-                            {/* Scroll kapsayıcısı eklendi */}
                             <div className="max-h-[360px] overflow-y-auto pr-2">
                                 <div className="dt-wrap">
                                     <table className="dt dt-clickable relative">
-                                        {/* Başlığın yukarıda sabit kalması için sticky sınıfları eklendi */}
                                         <thead className="sticky top-0 bg-white shadow-sm z-10">
                                             <tr><th>#</th><th>Bölüm / ABD</th><th>Tez</th><th>Oran</th></tr>
                                         </thead>
@@ -626,9 +647,9 @@ export default function AnalyticsPage3() {
                         </div>
                     </section>
 
-                    {/* TABLO 11 – ANAHTAR KELİME FREKANS */}
+                    {/* TABLO 12 – ANAHTAR KELİME FREKANS */}
                     <section className="sec-panel border-b-soft">
-                        <PH icon={Hash} title="Tablo 11 — Anahtar Kelime Frekans" sub="En sık kullanılan kavramlar" />
+                        <PH icon={Hash} title="Tablo 12 — Anahtar Kelime Frekans" sub="En sık kullanılan kavramlar" />
                         <div className="p-6 md:p-10">
                             <div className="dt-wrap">
                                 <table className="dt">

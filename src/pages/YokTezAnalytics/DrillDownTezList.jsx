@@ -35,171 +35,204 @@ const styles = `
   .filter-active-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:20px;font-size:.78rem;font-weight:600;color:#92400E;}
 `;
 
-const TL = t=>(t||'').replace(/İ/g,'i').replace(/I/g,'ı').replace(/Ş/g,'ş').replace(/Ğ/g,'ğ').replace(/Ü/g,'ü').replace(/Ö/g,'ö').replace(/Ç/g,'ç').toLowerCase();
-const S  = v=>(v==null?'':String(v)).trim();
+const TL = t => (t || '').replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/Ş/g, 'ş').replace(/Ğ/g, 'ğ').replace(/Ü/g, 'ü').replace(/Ö/g, 'ö').replace(/Ç/g, 'ç').toLowerCase();
+const S = v => (v == null ? '' : String(v)).trim();
 
-const HL=({text,hl})=>{
-  if(!text)return null;if(!hl?.trim())return<>{text}</>;
-  const lt=TL(text),lh=TL(hl);if(!lt.includes(lh))return<>{text}</>;
-  const els=[];let li=0,ix=lt.indexOf(lh,li);
-  while(ix!==-1){if(ix>li)els.push(text.substring(li,ix));els.push(<span key={ix} className="bg-yellow-300 text-gray-900 rounded-[2px] px-0.5">{text.substring(ix,ix+lh.length)}</span>);li=ix+lh.length;ix=lt.indexOf(lh,li);}
-  if(li<text.length)els.push(text.substring(li));return<>{els}</>;
+// === ÖRNEKLEM GRUPLAMA FONKSİYONU ===
+// === GÜNCELLENMİŞ ÖRNEKLEM GRUPLAMA FONKSİYONU ===
+const getOrneklemGrup = (val) => {
+  // 1. Türkçe karakterleri doğru küçültüyoruz
+  const v = S(val).toLocaleLowerCase('tr-TR');
+
+  // 2. Tam eşleşme yerine includes kullanmak daha güvenlidir
+  if (!v || v.includes('nan') || v.includes('belirtilmemiş')) return 'Belirtilmemiş';
+  
+  // 3. Öncelik sırasına göre dizilim (Hangisi daha spesifikse o üste)
+  if (v.includes('idareci') || v.includes('müdür') || v.includes('yönetici')) return 'İdareciler';
+  
+  // "Öğretmen" ve "Öğretim" kelimeleri karışabilir, öğretmeni önce kontrol ediyoruz
+  if (v.includes('öğretmen')) return 'Öğretmenler'; 
+  
+  if (v.includes('öğrenci')) return 'Öğrenciler';
+  if (v.includes('veli') || v.includes('anne') || v.includes('baba') || v.includes('ebeveyn')) return 'Veliler';
+  if (v.includes('mezun')) return 'Mezunlar';
+  
+  // Akademisyen için olası alternatifleri artırdık
+  if (v.includes('akademisyen') || v.includes('öğretim') || v.includes('araştırma görevlisi') || v.includes('akademik')) return 'Akademisyenler';
+  
+  if (v.includes('kitap') || v.includes('eser') || v.includes('doküman') || v.includes('rapor') || v.includes('belge') || v.includes('program')) return 'Doküman / Eser';
+  
+  return 'Diğer'; 
 };
 
-const FInput=({label,placeholder,value,onChange,onToggle,isOpen,options,onSelect})=>(
+const HL = ({ text, hl }) => {
+  if (!text) return null; if (!hl?.trim()) return <>{text}</>;
+  const lt = TL(text), lh = TL(hl); if (!lt.includes(lh)) return <>{text}</>;
+  const els = []; let li = 0, ix = lt.indexOf(lh, li);
+  while (ix !== -1) { if (ix > li) els.push(text.substring(li, ix)); els.push(<span key={ix} className="bg-yellow-300 text-gray-900 rounded-[2px] px-0.5">{text.substring(ix, ix + lh.length)}</span>); li = ix + lh.length; ix = lt.indexOf(lh, li); }
+  if (li < text.length) els.push(text.substring(li)); return <>{els}</>;
+};
+
+const FInput = ({ label, placeholder, value, onChange, onToggle, isOpen, options, onSelect }) => (
   <div className="dropdown-container">
     <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">{label}</label>
     <div className="relative">
-      <input type="text" placeholder={placeholder} value={value} onChange={onChange} className="input-modern pr-10"/>
-      <div onClick={e=>{e.preventDefault();onToggle();}} className="absolute right-0 top-0 h-full w-10 flex items-center justify-center cursor-pointer">
-        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen?'rotate-180':''}`}/>
+      <input type="text" placeholder={placeholder} value={value} onChange={onChange} className="input-modern pr-10" />
+      <div onClick={e => { e.preventDefault(); onToggle(); }} className="absolute right-0 top-0 h-full w-10 flex items-center justify-center cursor-pointer">
+        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </div>
     </div>
-    {isOpen&&options.length>0&&(<div className="dropdown-modern custom-scrollbar">{options.map((opt,i)=>(<div key={i} onClick={()=>onSelect(opt)} className="dropdown-item">{opt}</div>))}</div>)}
+    {isOpen && options.length > 0 && (<div className="dropdown-modern custom-scrollbar">{options.map((opt, i) => (<div key={i} onClick={() => onSelect(opt)} className="dropdown-item">{opt}</div>))}</div>)}
   </div>
 );
 
-const FSelect=({label,value,onChange,options})=>(
+const FSelect = ({ label, value, onChange, options }) => (
   <div className="w-full">
     <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">{label}</label>
     <div className="relative">
       <select value={value} onChange={onChange} className="input-modern appearance-none cursor-pointer pr-10">
-        <option value="">Tümü</option>{options.map((opt,i)=><option key={i} value={opt}>{opt}</option>)}
+        <option value="">Tümü</option>{options.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
       </select>
-      <div className="absolute right-0 top-0 h-full w-10 flex items-center justify-center pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400"/></div>
+      <div className="absolute right-0 top-0 h-full w-10 flex items-center justify-center pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
     </div>
   </div>
 );
 
-export default function DrillDownTezList(){
-  const navigate=useNavigate();
-  const location=useLocation();
-  const [allTheses,setAllTheses]=useState([]);
-  const [searchTerm,setSearchTerm]=useState('');
-  const [expanded,setExpanded]=useState(null);
-  const [loading,setLoading]=useState(true);
-  const [isModalOpen,setIsModalOpen]=useState(false);
-  const [showFab,setShowFab]=useState(false);
+export default function DrillDownTezList() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [allTheses, setAllTheses] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expanded, setExpanded] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showFab, setShowFab] = useState(false);
 
-  // URL params → initial filters
-  const params=useMemo(()=>new URLSearchParams(location.search),[location.search]);
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
 
-  const [filters,setFilters]=useState({
-    year:params.get('year')||'',university:params.get('university')||'',department:params.get('department')||'',
-    method:params.get('method')||'',language:params.get('language')||'',
-    desen:params.get('desen')||'',veriToplama:params.get('veriToplama')||'',
-    orneklemMahiyet:params.get('orneklemMahiyet')||'',veriAnaliz:params.get('veriAnaliz')||'',
-    konu:params.get('konu')||'',gender:params.get('gender')||'',advisorGender:params.get('advisorGender')||'',
-    advisorUnvan:params.get('advisorUnvan')||'',category:params.get('category')||'',tezTuru:params.get('tezTuru')||'',
-    sayfa:params.get('sayfa')||''
+  const [filters, setFilters] = useState({
+    year: params.get('year') || '', university: params.get('university') || '', department: params.get('department') || '',
+    method: params.get('method') || '', language: params.get('language') || '',
+    desen: params.get('desen') || '', veriToplama: params.get('veriToplama') || '',
+    orneklem: params.get('orneklem') || '',
+    orneklemMahiyet: params.get('orneklemMahiyet') || '', veriAnaliz: params.get('veriAnaliz') || '',
+    konu: params.get('konu') || '', gender: params.get('gender') || '', advisorGender: params.get('advisorGender') || '',
+    advisorUnvan: params.get('advisorUnvan') || '', category: params.get('category') || '', tezTuru: params.get('tezTuru') || '',
+    sayfa: params.get('sayfa') || ''
   });
 
-  const [sd,setSd]=useState({year:'',university:'',department:''});
-  const [activeDD,setActiveDD]=useState(null);
+  const [sd, setSd] = useState({ year: '', university: '', department: '' });
+  const [activeDD, setActiveDD] = useState(null);
 
-  useEffect(()=>{const h=()=>setShowFab(window.scrollY>100);window.addEventListener('scroll',h);return()=>window.removeEventListener('scroll',h);},[]);
-  useEffect(()=>{const h=e=>{if(!e.target.closest('.dropdown-container'))setActiveDD(null);};document.addEventListener('mousedown',h);return()=>document.removeEventListener('mousedown',h);},[]);
+  useEffect(() => { const h = () => setShowFab(window.scrollY > 100); window.addEventListener('scroll', h); return () => window.removeEventListener('scroll', h); }, []);
+  useEffect(() => { const h = e => { if (!e.target.closest('.dropdown-container')) setActiveDD(null); }; document.addEventListener('mousedown', h); return () => document.removeEventListener('mousedown', h); }, []);
 
-  useEffect(()=>{
-    import('./data/tez3.json').then(m=>{setAllTheses(m.default);setLoading(false);}).catch(()=>setLoading(false));
-  },[]);
+  useEffect(() => {
+    import('./data/tez3.json').then(m => { setAllTheses(m.default); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
 
-  // Sayfa aralığı parse
-  const parsePageRange=(label)=>{
-    if(!label)return[null,null];
-    const m=label.match(/^(\d+)[–-](\d+)$/);
-    if(m)return[parseInt(m[1]),parseInt(m[2])];
-    if(label==='601+')return[601,Infinity];
-    return[null,null];
+  const parsePageRange = (label) => {
+    if (!label) return [null, null];
+    const m = label.match(/^(\d+)[–-](\d+)$/);
+    if (m) return [parseInt(m[1]), parseInt(m[2])];
+    if (label === '601+') return [601, Infinity];
+    return [null, null];
   };
 
-  const filtered=useMemo(()=>{
-    let r=[...allTheses];
-    if(searchTerm){const q=TL(searchTerm);r=r.filter(t=>TL(S(t['Tez Başlığı'])).includes(q)||TL(S(t['Tez Yazarı'])).includes(q)||TL(S(t['Danışman'])).includes(q)||TL(S(t['Üniversite'])).includes(q)||TL(S(t['Araştırmanın Özeti'])).includes(q)||TL(S(t['Araştırma Konusu'])).includes(q));}
-    if(filters.year)r=r.filter(t=>S(t['Yıl'])===filters.year);
-    if(filters.university)r=r.filter(t=>TL(S(t['Üniversite']))===TL(filters.university));
-    if(filters.department)r=r.filter(t=>TL(S(t['Bölüm']))===TL(filters.department));
-    if(filters.method)r=r.filter(t=>TL(S(t['Araştırmanın Yöntemi']))===TL(filters.method));
-    if(filters.language)r=r.filter(t=>TL(S(t['Araştırma Dili']))===TL(filters.language));
-    if(filters.desen)r=r.filter(t=>S(t['_desenNorm'])===filters.desen);
-    if(filters.veriToplama)r=r.filter(t=>(t['_veriTopNorm']||[]).includes(filters.veriToplama));
-    if(filters.orneklemMahiyet)r=r.filter(t=>S(t['_mahiyetNorm'])===filters.orneklemMahiyet);
-    if(filters.veriAnaliz)r=r.filter(t=>S(t['_veriAnalizNorm'])===filters.veriAnaliz);
-    if(filters.konu)r=r.filter(t=>S(t['_konuNorm'])===filters.konu);
-    if(filters.gender)r=r.filter(t=>S(t['Tez Yazarının Cinsiyeti'])===filters.gender);
-    if(filters.advisorGender)r=r.filter(t=>S(t['Danışmanın Cinsiyeti'])===filters.advisorGender);
-    if(filters.advisorUnvan)r=r.filter(t=>S(t['Danışman Unvanları']).startsWith(filters.advisorUnvan));
-    if(filters.category)r=r.filter(t=>S(t['Kategori'])===filters.category);
-    if(filters.tezTuru)r=r.filter(t=>S(t['Tez Türü'])===filters.tezTuru);
-    if(filters.sayfa){const[lo,hi]=parsePageRange(filters.sayfa);if(lo!==null)r=r.filter(t=>{const p=parseInt(S(t['Sayfa Sayısı']));return!isNaN(p)&&p>=lo&&p<=hi;});}
+  const filtered = useMemo(() => {
+    let r = [...allTheses];
+    if (searchTerm) { const q = TL(searchTerm); r = r.filter(t => TL(S(t['Tez Başlığı'])).includes(q) || TL(S(t['Tez Yazarı'])).includes(q) || TL(S(t['Danışman'])).includes(q) || TL(S(t['Üniversite'])).includes(q) || TL(S(t['Araştırmanın Özeti'])).includes(q) || TL(S(t['Araştırma Konusu'])).includes(q)); }
+    if (filters.year) r = r.filter(t => S(t['Yıl']) === filters.year);
+    if (filters.university) r = r.filter(t => TL(S(t['Üniversite'])) === TL(filters.university));
+    if (filters.department) r = r.filter(t => TL(S(t['Bölüm'])) === TL(filters.department));
+    if (filters.method) r = r.filter(t => TL(S(t['Araştırmanın Yöntemi'])) === TL(filters.method));
+    if (filters.language) r = r.filter(t => TL(S(t['Araştırma Dili'])) === TL(filters.language));
+    if (filters.desen) r = r.filter(t => S(t['_desenNorm']) === filters.desen);
+    if (filters.veriToplama) r = r.filter(t => (t['_veriTopNorm'] || []).includes(filters.veriToplama));
+    if (filters.orneklem) r = r.filter(t => getOrneklemGrup(t['Araştırma Örneklemi']) === filters.orneklem);
+    if (filters.orneklemMahiyet) r = r.filter(t => S(t['_mahiyetNorm']) === filters.orneklemMahiyet);
+    if (filters.veriAnaliz) r = r.filter(t => S(t['_veriAnalizNorm']) === filters.veriAnaliz);
+    if (filters.konu) r = r.filter(t => S(t['_konuNorm']) === filters.konu);
+    if (filters.gender) r = r.filter(t => S(t['Tez Yazarının Cinsiyeti']) === filters.gender);
+    if (filters.advisorGender) r = r.filter(t => S(t['Danışmanın Cinsiyeti']) === filters.advisorGender);
+    if (filters.advisorUnvan) r = r.filter(t => S(t['Danışman Unvanları']).startsWith(filters.advisorUnvan));
+    if (filters.category) r = r.filter(t => S(t['Kategori']) === filters.category);
+    if (filters.tezTuru) r = r.filter(t => S(t['Tez Türü']) === filters.tezTuru);
+    if (filters.sayfa) { const [lo, hi] = parsePageRange(filters.sayfa); if (lo !== null) r = r.filter(t => { const p = parseInt(S(t['Sayfa Sayısı'])); return !isNaN(p) && p >= lo && p <= hi; }); }
     return r;
-  },[allTheses,searchTerm,filters]);
+  }, [allTheses, searchTerm, filters]);
 
-  const uniq=k=>[...new Set(allTheses.map(t=>S(t[k])).filter(Boolean))].sort();
-  const years=useMemo(()=>[...new Set(allTheses.map(t=>S(t['Yıl'])).filter(Boolean))].sort().reverse(),[allTheses]);
-  const universities=useMemo(()=>uniq('Üniversite'),[allTheses]);
-  const departments=useMemo(()=>uniq('Bölüm'),[allTheses]);
-  const methods=useMemo(()=>uniq('Araştırmanın Yöntemi'),[allTheses]);
-  const languages=useMemo(()=>uniq('Araştırma Dili'),[allTheses]);
+  const uniq = k => [...new Set(allTheses.map(t => S(t[k])).filter(Boolean))].sort();
+  const years = useMemo(() => [...new Set(allTheses.map(t => S(t['Yıl'])).filter(Boolean))].sort().reverse(), [allTheses]);
+  const universities = useMemo(() => uniq('Üniversite'), [allTheses]);
+  const departments = useMemo(() => uniq('Bölüm'), [allTheses]);
+  const methods = useMemo(() => uniq('Araştırmanın Yöntemi'), [allTheses]);
+  const languages = useMemo(() => uniq('Araştırma Dili'), [allTheses]);
 
-  const fy=years.filter(y=>y.toString().includes(sd.year));
-  const fu=universities.filter(u=>TL(u).includes(TL(sd.university)));
-  const fd=departments.filter(d=>TL(d).includes(TL(sd.department)));
+  const orneklemGrupList = useMemo(() => {
+    const s = new Set();
+    allTheses.forEach(t => s.add(getOrneklemGrup(t['Araştırma Örneklemi'])));
+    return [...s].filter(v => v !== 'Belirtilmemiş').sort();
+  }, [allTheses]);
 
-  const clearFilters=()=>{setFilters({year:'',university:'',department:'',method:'',language:'',desen:'',veriToplama:'',orneklemMahiyet:'',veriAnaliz:'',konu:'',gender:'',advisorGender:'',advisorUnvan:'',category:'',tezTuru:'',sayfa:''});setSearchTerm('');setSd({year:'',university:'',department:''});setActiveDD(null);setIsModalOpen(false);};
+  const fy = years.filter(y => y.toString().includes(sd.year));
+  const fu = universities.filter(u => TL(u).includes(TL(sd.university)));
+  const fd = departments.filter(d => TL(d).includes(TL(sd.department)));
 
-  // Aktif filtre etiketi üst satırda göster
-  const activeFilters=Object.entries(filters).filter(([,v])=>v);
+  const clearFilters = () => { setFilters({ year: '', university: '', department: '', method: '', language: '', desen: '', veriToplama: '', orneklem: '', orneklemMahiyet: '', veriAnaliz: '', konu: '', gender: '', advisorGender: '', advisorUnvan: '', category: '', tezTuru: '', sayfa: '' }); setSearchTerm(''); setSd({ year: '', university: '', department: '' }); setActiveDD(null); setIsModalOpen(false); };
 
-  // Page title from active filters
-  const getTitle=()=>{
-    if(filters.desen)return`Desen: ${filters.desen}`;
-    if(filters.veriToplama)return`Veri Toplama: ${filters.veriToplama}`;
-    if(filters.orneklemMahiyet)return`Örneklem: ${filters.orneklemMahiyet}`;
-    if(filters.veriAnaliz)return`Analiz: ${filters.veriAnaliz}`;
-    if(filters.konu)return`Konu: ${filters.konu}`;
-    if(filters.year)return`${filters.year} Yılı Tezleri`;
-    if(filters.university)return filters.university;
-    if(filters.method)return`Yöntem: ${filters.method}`;
-    if(filters.language)return`Dil: ${filters.language}`;
-    if(filters.sayfa)return`Sayfa: ${filters.sayfa}`;
-    if(filters.gender)return`Yazar: ${filters.gender}`;
-    if(filters.advisorGender)return`Danışman: ${filters.advisorGender}`;
-    return'Doğrudan Tezler';
+  const activeFilters = Object.entries(filters).filter(([, v]) => v);
+
+  const getTitle = () => {
+    if (filters.orneklem) return `Çalışma Grubu: ${filters.orneklem}`;
+    if (filters.desen) return `Desen: ${filters.desen}`;
+    if (filters.veriToplama) return `Veri Toplama: ${filters.veriToplama}`;
+    if (filters.orneklemMahiyet) return `Örneklem Yöntemi: ${filters.orneklemMahiyet}`;
+    if (filters.veriAnaliz) return `Analiz: ${filters.veriAnaliz}`;
+    if (filters.konu) return `Konu: ${filters.konu}`;
+    if (filters.year) return `${filters.year} Yılı Tezleri`;
+    if (filters.university) return filters.university;
+    if (filters.method) return `Yöntem: ${filters.method}`;
+    if (filters.language) return `Dil: ${filters.language}`;
+    if (filters.sayfa) return `Sayfa: ${filters.sayfa}`;
+    if (filters.gender) return `Yazar: ${filters.gender}`;
+    if (filters.advisorGender) return `Danışman: ${filters.advisorGender}`;
+    return 'Doğrudan Tezler';
   };
 
-  const FC=(
+  const FC = (
     <>
-      <FInput label="Yıl" placeholder="Yıl" value={filters.year||sd.year}
-        onChange={e=>{setSd({...sd,year:e.target.value});if(activeDD!=='year')setActiveDD('year');}}
-        isOpen={activeDD==='year'} onToggle={()=>setActiveDD(p=>p==='year'?null:'year')}
-        options={fy} onSelect={val=>{setFilters({...filters,year:val});setSd({...sd,year:''});setActiveDD(null);}}/>
-      <FInput label="Üniversite" placeholder="Üniversite" value={filters.university||sd.university}
-        onChange={e=>{setSd({...sd,university:e.target.value});if(activeDD!=='uni')setActiveDD('uni');}}
-        isOpen={activeDD==='uni'} onToggle={()=>setActiveDD(p=>p==='uni'?null:'uni')}
-        options={fu} onSelect={val=>{setFilters({...filters,university:val});setSd({...sd,university:''});setActiveDD(null);}}/>
-      <FInput label="Bölüm" placeholder="Bölüm" value={filters.department||sd.department}
-        onChange={e=>{setSd({...sd,department:e.target.value});if(activeDD!=='dept')setActiveDD('dept');}}
-        isOpen={activeDD==='dept'} onToggle={()=>setActiveDD(p=>p==='dept'?null:'dept')}
-        options={fd} onSelect={val=>{setFilters({...filters,department:val});setSd({...sd,department:''});setActiveDD(null);}}/>
-      <FSelect label="Araştırma Yöntemi" value={filters.method} onChange={e=>setFilters({...filters,method:e.target.value})} options={methods}/>
-      <FSelect label="Araştırma Dili" value={filters.language} onChange={e=>setFilters({...filters,language:e.target.value})} options={languages}/>
-      <FSelect label="Kategori" value={filters.category} onChange={e=>setFilters({...filters,category:e.target.value})} options={['Doğrudan','Dolaylı']}/>
+      <FInput label="Yıl" placeholder="Yıl" value={filters.year || sd.year}
+        onChange={e => { setSd({ ...sd, year: e.target.value }); if (activeDD !== 'year') setActiveDD('year'); }}
+        isOpen={activeDD === 'year'} onToggle={() => setActiveDD(p => p === 'year' ? null : 'year')}
+        options={fy} onSelect={val => { setFilters({ ...filters, year: val }); setSd({ ...sd, year: '' }); setActiveDD(null); }} />
+      <FInput label="Üniversite" placeholder="Üniversite" value={filters.university || sd.university}
+        onChange={e => { setSd({ ...sd, university: e.target.value }); if (activeDD !== 'uni') setActiveDD('uni'); }}
+        isOpen={activeDD === 'uni'} onToggle={() => setActiveDD(p => p === 'uni' ? null : 'uni')}
+        options={fu} onSelect={val => { setFilters({ ...filters, university: val }); setSd({ ...sd, university: '' }); setActiveDD(null); }} />
+      <FInput label="Bölüm" placeholder="Bölüm" value={filters.department || sd.department}
+        onChange={e => { setSd({ ...sd, department: e.target.value }); if (activeDD !== 'dept') setActiveDD('dept'); }}
+        isOpen={activeDD === 'dept'} onToggle={() => setActiveDD(p => p === 'dept' ? null : 'dept')}
+        options={fd} onSelect={val => { setFilters({ ...filters, department: val }); setSd({ ...sd, department: '' }); setActiveDD(null); }} />
+      <FSelect label="Araştırma Yöntemi" value={filters.method} onChange={e => setFilters({ ...filters, method: e.target.value })} options={methods} />
+      <FSelect label="Araştırma Dili" value={filters.language} onChange={e => setFilters({ ...filters, language: e.target.value })} options={languages} />
+      <FSelect label="Çalışma Grubu" value={filters.orneklem} onChange={e => setFilters({ ...filters, orneklem: e.target.value })} options={orneklemGrupList} />
+      <FSelect label="Kategori" value={filters.category} onChange={e => setFilters({ ...filters, category: e.target.value })} options={['Doğrudan', 'Dolaylı']} />
       <div className="w-full">
         <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Tez Türü</label>
         <div className="relative">
-          <select value={filters.tezTuru} onChange={e=>setFilters({...filters,tezTuru:e.target.value})} className="input-modern appearance-none cursor-pointer pr-10">
+          <select value={filters.tezTuru} onChange={e => setFilters({ ...filters, tezTuru: e.target.value })} className="input-modern appearance-none cursor-pointer pr-10">
             <option value="">Tümü</option><option value="Doktora">Doktora</option><option value="Yüksek Lisans">Yüksek Lisans</option>
           </select>
-          <div className="absolute right-0 top-0 h-full w-10 flex items-center justify-center pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400"/></div>
+          <div className="absolute right-0 top-0 h-full w-10 flex items-center justify-center pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
         </div>
       </div>
     </>
   );
 
-  if(loading)return null;
+  if (loading) return null;
 
-  return(
+  return (
     <div className="min-h-screen pb-10 relative">
       <style>{styles}</style>
 
@@ -207,8 +240,8 @@ export default function DrillDownTezList(){
         <div className="max-w-7xl mx-auto px-3 md:px-6 py-6 md:py-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
             <div className="w-full">
-              <button onClick={()=>navigate('/tez-analytics/dogrudan-analiz')} className="text-sm font-medium text-gray-500 hover:text-black mb-2 flex items-center gap-1">
-                <ArrowRight className="rotate-180 w-4 h-4"/>Analize Dön
+              <button onClick={() => navigate('/tez-analytics/dogrudan-analiz')} className="text-sm font-medium text-gray-500 hover:text-black mb-2 flex items-center gap-1">
+                <ArrowRight className="rotate-180 w-4 h-4" />Analize Dön
               </button>
               <div className="flex items-center justify-between gap-3">
                 <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-[#111827] break-words flex-1">{getTitle()}</h1>
@@ -217,66 +250,70 @@ export default function DrillDownTezList(){
             </div>
           </div>
 
-          {/* Aktif filtre pill'leri */}
-          {activeFilters.length>0&&(
+          {activeFilters.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
-              {activeFilters.map(([k,v])=>(
+              {activeFilters.map(([k, v]) => (
                 <span key={k} className="filter-active-pill">
-                  {v.length>30?v.slice(0,30)+'…':v}
-                  <button onClick={()=>setFilters({...filters,[k]:''})} className="ml-1"><X size={12}/></button>
+                  {v.length > 30 ? v.slice(0, 30) + '…' : v}
+                  <button onClick={() => setFilters({ ...filters, [k]: '' })} className="ml-1"><X size={12} /></button>
                 </span>
               ))}
               <button onClick={clearFilters} className="text-xs text-red-500 font-semibold hover:text-red-700 ml-1">Tümünü Temizle</button>
             </div>
           )}
 
-          {/* Desktop filter bar */}
           <div className="hidden lg:block bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
             <div className="mb-4 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-              <input type="text" placeholder="Başlık, yazar, konu, özet ara…" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-gray-200 rounded-xl outline-none font-medium text-gray-700"/>
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input type="text" placeholder="Başlık, yazar, konu, özet ara…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-gray-200 rounded-xl outline-none font-medium text-gray-700" />
             </div>
             <div className="grid grid-cols-4 gap-3">{FC}</div>
-            {(activeFilters.length>0||searchTerm)&&(<div className="mt-3 flex justify-end"><button onClick={clearFilters} className="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1"><X size={16}/>Temizle</button></div>)}
+            {(activeFilters.length > 0 || searchTerm) && (<div className="mt-3 flex justify-end"><button onClick={clearFilters} className="text-sm font-medium text-red-500 hover:text-red-700 flex items-center gap-1"><X size={16} />Temizle</button></div>)}
           </div>
           <div className="lg:hidden w-full">
-            <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-              <input type="text" placeholder="Tezlerde ara…" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm outline-none text-sm"/>
+            <div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input type="text" placeholder="Tezlerde ara…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm outline-none text-sm" />
             </div>
           </div>
         </div>
       </header>
 
-      <button className={`floating-filter-btn ${showFab?'visible':''}`} onClick={()=>setIsModalOpen(true)}><SlidersHorizontal size={24}/></button>
-      <div className={`filter-overlay ${isModalOpen?'open':''}`} onClick={()=>setIsModalOpen(false)}/>
-      <div className={`filter-modal ${isModalOpen?'open':''}`}>
+      <button className={`floating-filter-btn ${showFab ? 'visible' : ''}`} onClick={() => setIsModalOpen(true)}><SlidersHorizontal size={24} /></button>
+      <div className={`filter-overlay ${isModalOpen ? 'open' : ''}`} onClick={() => setIsModalOpen(false)} />
+      <div className={`filter-modal ${isModalOpen ? 'open' : ''}`}>
         <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
           <h3 className="text-lg font-bold text-gray-900">Filtrele</h3>
-          <button onClick={()=>setIsModalOpen(false)} className="p-2 bg-gray-100 rounded-full"><X size={20} className="text-gray-600"/></button>
+          <button onClick={() => setIsModalOpen(false)} className="p-2 bg-gray-100 rounded-full"><X size={20} className="text-gray-600" /></button>
         </div>
         <div className="p-5 custom-scrollbar flex-1 overflow-y-auto"><div className="filter-grid-mobile">{FC}</div></div>
         <div className="p-5 border-t border-gray-100 bg-gray-50 shrink-0 flex gap-3">
           <button onClick={clearFilters} className="flex-1 py-3 bg-white border border-gray-200 text-red-500 rounded-xl font-medium">Temizle</button>
-          <button onClick={()=>setIsModalOpen(false)} className="flex-[2] py-3 bg-[#111827] text-white rounded-xl font-medium">Göster ({filtered.length})</button>
+          <button onClick={() => setIsModalOpen(false)} className="flex-[2] py-3 bg-[#111827] text-white rounded-xl font-medium">Göster ({filtered.length})</button>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-3 md:px-6 py-6">
-        {filtered.length===0?(
+        {filtered.length === 0 ? (
           <div className="text-center py-20 flex flex-col items-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4"><Filter className="w-8 h-8 text-gray-400"/></div>
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4"><Filter className="w-8 h-8 text-gray-400" /></div>
             <h3 className="text-xl font-bold text-gray-900">Sonuç Yok</h3>
             <button onClick={clearFilters} className="mt-4 text-yellow-600 font-medium">Filtreleri Temizle</button>
           </div>
-        ):(
+        ) : (
           <div className="space-y-4 md:space-y-6">
-            {filtered.map((t,index)=>{
-              const ozet=S(t['Araştırmanın Özeti'])||S(t['Özet (Türkçe)'])||'';
-              const link=S(t['Tez Bağlantı Linki'])||S(t['Tez Dosyası'])||'';
-              const unvanDan=S(t['Danışman Unvanları'])?`${S(t['Danışman Unvanları'])} ${S(t['Danışman'])}`:S(t['Danışman']);
-              const yazar=S(t['Tez Yazarı'])||S(t['Yazar'])||'';
-              return(
+            {filtered.map((t, index) => {
+              const ozet = S(t['Özet (Türkçe)']) || S(t['Özet (Türkçe)']) || '';
+              const link = S(t['Tez Bağlantı Linki']) || S(t['Tez Dosyası']) || '';
+              const unvanDan = S(t['Danışman Unvanları']) ? `${S(t['Danışman Unvanları'])} ${S(t['Danışman'])}` : S(t['Danışman']);
+              const yazar = S(t['Tez Yazarı']) || S(t['Yazar']) || '';
+              
+              // === ANAHTAR KELİMELERİ AYIKLAMA İŞLEMİ EKLENDİ ===
+              const keywords = ['1. Anahtar Kelime', '2. Anahtar Kelime', '3. Anahtar Kelime', '4. Anahtar Kelime', '5. ve Üstü Anahtar Kelimeler']
+                .map(c => S(t[c]))
+                .filter(kw => kw && kw.toLowerCase() !== 'belirtilmemiş' && kw.toLowerCase() !== 'nan');
+
+              return (
                 <div key={index} className="card-modern group">
                   <div className="card-hf flex mb-4 md:mb-6">
                     <div className="flex-1 min-w-0">
@@ -284,91 +321,120 @@ export default function DrillDownTezList(){
                         <span className="badge badge-dark">{t['Tez No']}</span>
                         <span className="badge bg-yellow-50 text-yellow-700 border border-yellow-100">{t['Tez Türü']}</span>
                         <span className="badge bg-orange-50 text-orange-800 border border-orange-100">{t['Yıl']}</span>
-                        {S(t['Araştırma Dili'])&&<span className="badge bg-blue-50 text-blue-700 border border-blue-100">{t['Araştırma Dili']}</span>}
-                        {S(t['Araştırmanın Yöntemi'])&&<span className="badge bg-purple-50 text-purple-700 border border-purple-100">{t['Araştırmanın Yöntemi']}</span>}
-                        {S(t['_veriAnalizNorm'])&&S(t['_veriAnalizNorm'])!=='Belirtilmemiş'&&<span className="badge bg-gray-50 text-gray-600 border border-gray-200">{t['_veriAnalizNorm']}</span>}
+                        {S(t['Araştırma Dili']) && <span className="badge bg-blue-50 text-blue-700 border border-blue-100">{t['Araştırma Dili']}</span>}
+                        {S(t['Araştırmanın Yöntemi']) && <span className="badge bg-purple-50 text-purple-700 border border-purple-100">{t['Araştırmanın Yöntemi']}</span>}
+                        {S(t['_veriAnalizNorm']) && S(t['_veriAnalizNorm']) !== 'Belirtilmemiş' && <span className="badge bg-gray-50 text-gray-600 border border-gray-200">{t['_veriAnalizNorm']}</span>}
                       </div>
                       <h2 className="text-xl font-bold text-justify text-gray-900 leading-snug group-hover:text-[#c7972f] transition-colors break-words">
-                        <HL text={t['Tez Başlığı']} hl={searchTerm}/>
+                        <HL text={t['Tez Başlığı']} hl={searchTerm} />
                       </h2>
                     </div>
                     <div className="card-act shrink-0">
-                      {link&&link!=='İzinsiz'?(
+                      {link && link !== 'İzinsiz' ? (
                         <a href={link} target="_blank" rel="noopener noreferrer" className="yoktez-button">
-                          <span className="text-xs font-semibold">YÖKTEZ</span><ExternalLink size={14}/>
+                          <span className="text-xs font-semibold">YÖKTEZ</span><ExternalLink size={14} />
                         </a>
-                      ):<span className="text-xs font-medium text-gray-400 px-2 py-1 bg-gray-100 rounded">Kısıtlı</span>}
+                      ) : <span className="text-xs font-medium text-gray-400 px-2 py-1 bg-gray-100 rounded">Kısıtlı</span>}
                     </div>
                   </div>
 
                   <div className="grid card-grid md:grid-cols-3 gap-4 md:gap-6 py-4 md:py-6 border-t border-b border-gray-100">
                     <div>
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Yazar</p>
-                      <p className="font-medium text-gray-900 text-sm md:text-base"><HL text={yazar} hl={searchTerm}/></p>
-                      {S(t['Tez Yazarının Cinsiyeti'])&&<span className="text-xs text-gray-400">{t['Tez Yazarının Cinsiyeti']}</span>}
+                      <p className="font-medium text-gray-900 text-sm md:text-base"><HL text={yazar} hl={searchTerm} /></p>
+                      {S(t['Tez Yazarının Cinsiyeti']) && <span className="text-xs text-gray-400">{t['Tez Yazarının Cinsiyeti']}</span>}
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Danışman</p>
-                      <p className="font-medium text-gray-900 text-sm md:text-base"><HL text={unvanDan||'—'} hl={searchTerm}/></p>
-                      {S(t['Danışmanın Cinsiyeti'])&&<span className="text-xs text-gray-400">{t['Danışmanın Cinsiyeti']}</span>}
+                      <p className="font-medium text-gray-900 text-sm md:text-base"><HL text={unvanDan || '—'} hl={searchTerm} /></p>
+                      {S(t['Danışmanın Cinsiyeti']) && <span className="text-xs text-gray-400">{t['Danışmanın Cinsiyeti']}</span>}
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Kurum</p>
-                      <p className="font-medium text-gray-900 truncate text-sm md:text-base"><HL text={t['Üniversite']} hl={searchTerm}/></p>
+                      <p className="font-medium text-gray-900 truncate text-sm md:text-base"><HL text={t['Üniversite']} hl={searchTerm} /></p>
                       <p className="text-xs md:text-sm text-gray-500 truncate">{t['Enstitü']}</p>
                     </div>
                   </div>
 
-                  {/* Araştırma metodoloji bilgileri */}
-                  {(S(t['_desenNorm'])||S(t['_veriTopNorm']?.join?.(', '))||S(t['Araştırma Konusu']))&&(
+                  {(S(t['_desenNorm']) || S(t['_veriTopNorm']?.join?.(', ')) || S(t['Araştırma Konusu'])) && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                      {S(t['Araştırma Konusu'])&&<span className="meta-tag bg-yellow-50 text-yellow-700">{t['_konuNorm']||t['Araştırma Konusu']}</span>}
-                      {S(t['_desenNorm'])&&S(t['_desenNorm'])!=='Belirtilmemiş'&&<span className="meta-tag bg-indigo-50 text-indigo-700">{t['_desenNorm']}</span>}
-                      {(t['_veriTopNorm']||[]).map((v,i)=><span key={i} className="meta-tag bg-green-50 text-green-700">{v}</span>)}
-                      {S(t['Sayfa Sayısı'])&&<span className="meta-tag bg-gray-100 text-gray-600">{t['Sayfa Sayısı']} sf.</span>}
+                      {S(t['Araştırma Konusu']) && <span className="meta-tag bg-yellow-50 text-yellow-700">{t['_konuNorm'] || t['Araştırma Konusu']}</span>}
+                      {S(t['_desenNorm']) && S(t['_desenNorm']) !== 'Belirtilmemiş' && <span className="meta-tag bg-indigo-50 text-indigo-700">{t['_desenNorm']}</span>}
+                      {(t['_veriTopNorm'] || []).map((v, i) => <span key={i} className="meta-tag bg-green-50 text-green-700">{v}</span>)}
+                      {S(t['Sayfa Sayısı']) && <span className="meta-tag bg-gray-100 text-gray-600">{t['Sayfa Sayısı']} sf.</span>}
                     </div>
                   )}
 
-                  {/* Anahtar kelimeler */}
-                  {(S(t['1. Anahtar Kelime'])||S(t['2. Anahtar Kelime']))&&(
+                  {/* === GÜNCELLENEN ANAHTAR KELİME KISMI === */}
+                  {keywords.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {['1. Anahtar Kelime','2. Anahtar Kelime','3. Anahtar Kelime','4. Anahtar Kelime','5. ve Üstü Anahtar Kelimeler']
-                        .map(c=>S(t[c])).filter(Boolean).map((kw,i)=>(
-                        <span key={i} className="meta-tag bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md">{kw.trim()}</span>
+                      {keywords.map((kw, i) => (
+                          <span key={i} className="meta-tag bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md">{kw}</span>
                       ))}
                     </div>
                   )}
 
                   <div className="mt-4 md:mt-6 flex items-center justify-between">
                     <div className="text-xs md:text-sm text-gray-400 font-light truncate max-w-[50%]">{t['Bölüm']}</div>
-                    {ozet?(
-                      <button onClick={()=>setExpanded(expanded===index?null:index)} className="btn-modern py-1.5 px-3 md:py-2 md:px-4 gap-2 text-xs md:text-sm border-gray-200">
-                        {expanded===index?<Minus size={14}/>:<Plus size={14}/>}
-                        <span>{expanded===index?'Gizle':'Özet'}</span>
+                    {ozet ? (
+                      <button onClick={() => setExpanded(expanded === index ? null : index)} className="btn-modern py-1.5 px-3 md:py-2 md:px-4 gap-2 text-xs md:text-sm border-gray-200">
+                        {expanded === index ? <Minus size={14} /> : <Plus size={14} />}
+                        <span>{expanded === index ? 'Gizle' : 'Özet'}</span>
                       </button>
-                    ):<span className="text-xs text-gray-300 italic">Özet Yok</span>}
+                    ) : <span className="text-xs text-gray-300 italic">Özet Yok</span>}
                   </div>
 
-                  {expanded===index&&(
+                  {expanded === index && (
                     <div className="mt-6 bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
                       <div className="p-5 md:p-8 max-h-[400px] overflow-y-auto custom-scrollbar">
-                        {/* Araştırma detayları */}
-                        {(S(t['Araştırmanın Yöntemi'])||S(t['_desenNorm'])||S(t['Araştırma Örneklemi']))&&(
+                        {(S(t['Araştırmanın Yöntemi']) || S(t['_desenNorm']) || S(t['Araştırma Örneklemi'])) && (
                           <div className="mb-6 p-4 bg-white rounded-lg border border-gray-200">
                             <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Araştırma Detayları</h4>
                             <div className="grid grid-cols-2 gap-3">
-                              {S(t['Araştırmanın Yöntemi'])&&<div><p className="text-xs text-gray-400 mb-0.5">Yöntem</p><p className="text-sm font-medium text-gray-900">{t['Araştırmanın Yöntemi']}</p></div>}
-                              {S(t['_desenNorm'])&&S(t['_desenNorm'])!=='Belirtilmemiş'&&<div><p className="text-xs text-gray-400 mb-0.5">Desen</p><p className="text-sm font-medium text-gray-900">{t['_desenNorm']}</p></div>}
-                              {S(t['_veriAnalizNorm'])&&S(t['_veriAnalizNorm'])!=='Belirtilmemiş'&&<div className="col-span-2"><p className="text-xs text-gray-400 mb-0.5">Veri Analiz Yöntemi</p><p className="text-sm font-medium text-gray-900">{t['Veri Analiz Yöntemi']}</p></div>}
-                              {S(t['Araştırma Örneklemi'])&&<div><p className="text-xs text-gray-400 mb-0.5">Örneklem</p><p className="text-sm font-medium text-gray-900">{t['Araştırma Örneklemi']}</p></div>}
-                              {S(t['Örneklem Büyüklüğü'])&&<div><p className="text-xs text-gray-400 mb-0.5">Örneklem Büyüklüğü</p><p className="text-sm font-medium text-gray-900">{t['Örneklem Büyüklüğü']}</p></div>}
-                              {S(t['_mahiyetNorm'])&&S(t['_mahiyetNorm'])!=='Belirtilmemiş'&&<div><p className="text-xs text-gray-400 mb-0.5">Örneklem Mahiyeti</p><p className="text-sm font-medium text-gray-900">{t['_mahiyetNorm']}</p></div>}
-                              {S(t['Veri Toplama Araçları'])&&<div className="col-span-2"><p className="text-xs text-gray-400 mb-0.5">Veri Toplama Araçları</p><p className="text-sm font-medium text-gray-900">{t['Veri Toplama Araçları']}</p></div>}
-                              {S(t['Araştırma Konusu'])&&<div className="col-span-2"><p className="text-xs text-gray-400 mb-0.5">Araştırma Konusu</p><p className="text-sm font-medium text-gray-900">{t['Araştırma Konusu']}</p></div>}
-                              {S(t['Sayfa Sayısı'])&&<div><p className="text-xs text-gray-400 mb-0.5">Sayfa Sayısı</p><p className="text-sm font-medium text-gray-900">{t['Sayfa Sayısı']}</p></div>}
+                              {S(t['Araştırmanın Yöntemi']) && <div><p className="text-xs text-gray-400 mb-0.5">Yöntem</p><p className="text-sm font-medium text-gray-900">{t['Araştırmanın Yöntemi']}</p></div>}
+                              {S(t['_desenNorm']) && S(t['_desenNorm']) !== 'Belirtilmemiş' && <div><p className="text-xs text-gray-400 mb-0.5">Desen</p><p className="text-sm font-medium text-gray-900">{t['_desenNorm']}</p></div>}
+                              {S(t['_veriAnalizNorm']) && S(t['_veriAnalizNorm']) !== 'Belirtilmemiş' && <div className="col-span-2"><p className="text-xs text-gray-400 mb-0.5">Veri Analiz Yöntemi</p><p className="text-sm font-medium text-gray-900">{t['Veri Analiz Yöntemi']}</p></div>}
+                              {S(t['Araştırma Örneklemi']) && <div><p className="text-xs text-gray-400 mb-0.5">Örneklem</p><p className="text-sm font-medium text-gray-900">{t['Araştırma Örneklemi']}</p></div>}
+                              {S(t['Örneklem Büyüklüğü']) && <div><p className="text-xs text-gray-400 mb-0.5">Örneklem Büyüklüğü</p><p className="text-sm font-medium text-gray-900">{t['Örneklem Büyüklüğü']}</p></div>}
+                              {S(t['_mahiyetNorm']) && S(t['_mahiyetNorm']) !== 'Belirtilmemiş' && <div><p className="text-xs text-gray-400 mb-0.5">Örneklem Mahiyeti</p><p className="text-sm font-medium text-gray-900">{t['_mahiyetNorm']}</p></div>}
+                              {S(t['Veri Toplama Araçları']) && <div className="col-span-2"><p className="text-xs text-gray-400 mb-0.5">Veri Toplama Araçları</p><p className="text-sm font-medium text-gray-900">{t['Veri Toplama Araçları']}</p></div>}
+                              {S(t['Araştırma Konusu']) && <div className="col-span-2"><p className="text-xs text-gray-400 mb-0.5">Araştırma Konusu</p><p className="text-sm font-medium text-gray-900">{t['Araştırma Konusu']}</p></div>}
+                              {S(t['Sayfa Sayısı']) && <div><p className="text-xs text-gray-400 mb-0.5">Sayfa Sayısı</p><p className="text-sm font-medium text-gray-900">{t['Sayfa Sayısı']}</p></div>}
                             </div>
                           </div>
                         )}
+
+                        {S(t['Araştırmanın Amacı']) && (
+                          <div className="mb-6">
+                            <h4 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                              <span className="w-1 h-4 bg-green-500 rounded-full"></span> Araştırmanın Amacı
+                            </h4>
+                            <p className="text-gray-700 text-justify leading-relaxed font-light text-sm">{t['Araştırmanın Amacı']}</p>
+                          </div>
+                        )}
+
+                        {ozet && (
+                          <div>
+                            <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                              <span className="w-1 h-4 bg-yellow-600 rounded-full"></span> Türkçe Özet
+                            </h4>
+                            <p className="text-gray-700 text-justify leading-relaxed font-light text-sm md:text-[0.95rem]">
+                              <HL text={ozet} hl={searchTerm} />
+                            </p>
+                          </div>
+                        )}
+
+                        {S(t['Özet (İngilizce)']) && (
+                          <div className="mt-8 pt-8 border-t border-gray-200">
+                            <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                              <span className="w-1 h-4 bg-orange-500 rounded-full"></span> English Abstract
+                            </h4>
+                            <p className="text-gray-600 text-justify leading-relaxed font-light text-sm md:text-[0.95rem]">
+                              {t['Özet (İngilizce)']}
+                            </p>
+                          </div>
+                        )}
+
                       </div>
                     </div>
                   )}
