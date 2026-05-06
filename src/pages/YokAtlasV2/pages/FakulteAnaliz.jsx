@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { BookOpen, Search, X } from 'lucide-react';
+import { BookOpen, Search, X, Download } from 'lucide-react';
 import { groupByFakulte, groupByFakulteKategori } from '../utils/dataProcessor';
 
 const T = {
@@ -366,6 +366,81 @@ const FakulteAnaliz = ({ data }) => {
 
   const visible = filtered;
 
+  // === WORD DOSYASINA AKTARIM FONKSİYONU ===
+  const exportToWord = () => {
+    if (!filtered || filtered.length === 0) return;
+
+    let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset='utf-8'>
+            <title>Fakülte Analiz Raporu</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; color: #1c1f2e; }
+                h1 { color: #8b5e3c; text-align: left; border-bottom: 2px solid #f0e4d0; padding-bottom: 10px; font-size: 24px;}
+                h2 { color: #1c1f2e; margin-top: 30px; font-size: 16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                th, td { border: 1px solid #d1d5db; padding: 8px; text-align: left; vertical-align: middle; }
+                th { background-color: #f4f0e8; font-weight: bold; color: #4a4e65; }
+                .text-right { text-align: right; }
+                .text-center { text-align: center; }
+                .summary { background-color: #faf8f4; padding: 15px; border: 1px solid #e5e7eb; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <h1>İHL Mezunları Fakülte Analizi Raporu</h1>
+            
+            <div class="summary">
+                <p><strong>Arama Kriteri:</strong> ${search ? `"${search}"` : 'Tümü'}</p>
+                <p><strong>Seçilen Kategori:</strong> ${selectedKategori || 'Tümü'}</p>
+                <p><strong>Seçilen Yıl:</strong> ${selectedYear}</p>
+                <p><strong>Listelenen Fakülte Sayısı:</strong> ${filtered.length.toLocaleString('tr-TR')}</p>
+                <p><strong>Rapor Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+            </div>
+
+            <h2>Fakülte Listesi</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fakülte Adı</th>
+                        <th class='text-center'>Kategori</th>
+                        <th class='text-right'>İHL Öğrenci</th>
+                        <th class='text-right'>Toplam</th>
+                        <th class='text-center'>Oran</th>
+                        <th class='text-center'>Üniversite</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    filtered.forEach(fak => {
+        htmlContent += `
+            <tr>
+                <td><strong>${fak.name}</strong></td>
+                <td class='text-center'>${fak.kategori || '-'}</td>
+                <td class='text-right'>${fak.count?.toLocaleString('tr-TR') || '0'}</td>
+                <td class='text-right'>${fak.total?.toLocaleString('tr-TR') || '0'}</td>
+                <td class='text-center'>%${fak.percentage || '0'}</td>
+                <td class='text-center'>${fak.universityCount || '0'}</td>
+            </tr>
+        `;
+    });
+
+    htmlContent += `</tbody></table></body></html>`;
+
+    // Blob oluşturup dosyayı indirtme
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Fakulte_Analiz_Raporu_${selectedYear}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+  // ===========================================
+
   if (loading) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 14, background: T.bg }}>
       <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
@@ -389,6 +464,19 @@ const FakulteAnaliz = ({ data }) => {
         <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)', fontSize: '32vw', fontWeight: 800, color: T.navy, opacity: 0.022, fontFamily: FONT_DISPLAY, fontStyle: 'italic', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>F</div>
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 760 }}>
+
+          {/* WORD İNDİRME BUTONU BURAYA EKLENDİ */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+            <motion.button onClick={exportToWord} whileHover={{ y: -1 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6,
+                background: T.brownPale, color: T.brown, border: `1px solid ${T.brown}44`,
+                borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                padding: '5px 12px', fontFamily: FONT_BODY, transition: 'all 0.2s' }}
+            >
+              <Download size={13}/> Word Raporu İndir
+            </motion.button>
+          </div>
+
           <motion.p
             initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, Download } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend, Cell } from 'recharts';
 import { motion, useInView } from 'framer-motion';
 import { groupByPuanTuruYearly, groupByIHLTipi } from '../utils/dataProcessor';
@@ -102,6 +102,83 @@ const PuanTuruAnaliz = ({ data }) => {
 
   const total = ihlTipiData.reduce((s, t) => s + t.count, 0);
 
+  // === WORD DOSYASINA AKTARIM FONKSİYONU ===
+  const exportToWord = () => {
+    if (!comparison || comparison.length === 0) return;
+
+    let htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset='utf-8'>
+            <title>Puan Türü Analiz Raporu</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; color: #1c1f2e; }
+                h1 { color: #8b5e3c; text-align: left; border-bottom: 2px solid #f0e4d0; padding-bottom: 10px; font-size: 24px;}
+                h2 { color: #1c1f2e; margin-top: 30px; font-size: 16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                th, td { border: 1px solid #d1d5db; padding: 8px; text-align: left; vertical-align: middle; }
+                th { background-color: #f4f0e8; font-weight: bold; color: #4a4e65; }
+                .text-right { text-align: right; }
+                .text-center { text-align: center; }
+                .summary { background-color: #faf8f4; padding: 15px; border: 1px solid #e5e7eb; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <h1>İHL Mezunları Puan Türü Analizi Raporu</h1>
+            
+            <div class="summary">
+                <p><strong>Rapor Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
+                <p><strong>Listelenen Puan Türü Sayısı:</strong> ${comparison.length}</p>
+            </div>
+
+            <h2>Puan Türü Listesi ve Karşılaştırması</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Puan Türü</th>
+                        <th class='text-right'>2023 Sayı</th>
+                        <th class='text-right'>2023 %</th>
+                        <th class='text-right'>2024 Sayı</th>
+                        <th class='text-right'>2024 %</th>
+                        <th class='text-right'>2025 Sayı</th>
+                        <th class='text-right'>2025 %</th>
+                        <th class='text-center'>Trend (24→25)</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    comparison.forEach(p => {
+        let trendText = p.trend !== 'neutral' ? (p.trend === 'up' ? '+' : '-') + '%' + p.trendPct : '-';
+        htmlContent += `
+            <tr>
+                <td><strong>${p.label}</strong></td>
+                <td class='text-right'>${p.count_2023?.toLocaleString('tr-TR') || '0'}</td>
+                <td class='text-right'>%${p.pct_2023 || '0'}</td>
+                <td class='text-right'>${p.count_2024?.toLocaleString('tr-TR') || '0'}</td>
+                <td class='text-right'>%${p.pct_2024 || '0'}</td>
+                <td class='text-right'>${p.count_2025?.toLocaleString('tr-TR') || '0'}</td>
+                <td class='text-right'>%${p.pct_2025 || '0'}</td>
+                <td class='text-center'>${trendText}</td>
+            </tr>
+        `;
+    });
+
+    htmlContent += `</tbody></table></body></html>`;
+
+    // Blob oluşturup dosyayı indirtme
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Puan_Turu_Analiz_Raporu.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+  // ===========================================
+
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
       <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
@@ -126,6 +203,19 @@ const PuanTuruAnaliz = ({ data }) => {
         <div style={{ position: 'absolute', right: '-1%', top: '50%', transform: 'translateY(-52%)', fontSize: '32vw', fontWeight: 800, color: T.navy, opacity: 0.022, fontFamily: FONT_DISPLAY, fontStyle: 'italic', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>P</div>
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 760 }}>
+          
+          {/* WORD İNDİRME BUTONU BURAYA EKLENDİ */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+            <motion.button onClick={exportToWord} whileHover={{ y: -1 }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6,
+                background: T.brownPale, color: T.brown, border: `1px solid ${T.brown}44`,
+                borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                padding: '5px 12px', fontFamily: FONT_BODY, transition: 'all 0.2s' }}
+            >
+              <Download size={13}/> Word Raporu İndir
+            </motion.button>
+          </div>
+
           <motion.p
             initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}

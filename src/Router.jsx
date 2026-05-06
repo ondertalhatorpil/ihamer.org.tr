@@ -60,6 +60,7 @@ import AllThesesPage from "./pages/YokTezAnalytics/AllThesesPage.jsx";
 import AnalyticsPage from "./pages/YokTezAnalytics/AnalyticsPage.jsx";
 import AnalyticsPage3   from "./pages/YokTezAnalytics/AnalyticsPage3.jsx";
 import DrillDownTezList from "./pages/YokTezAnalytics/DrillDownTezList.jsx";
+import DrillDownTezList2 from "./pages/YokTezAnalytics/DrillDownTezList2.jsx";
 import FilteredTezList from "./pages/YokTezAnalytics/FilteredTezList.jsx";
 
 // YÖK Atlas V2 - Layout ve Sayfalar
@@ -239,6 +240,7 @@ const AppContent = () => {
         <Route path="/tez-analytics/analiz" element={<AnalyticsPage/>} />
         <Route path="/tez-analytics/dogrudan-analiz"  element={<AnalyticsPage3/>}/>
         <Route path="/tez-analytics/dogrudan-tezler"  element={<DrillDownTezList/>}/>
+        <Route path="/tez-analytics/dogrudan-tezler2"  element={<DrillDownTezList2/>}/>
         <Route path="/tez-analytics/filter/:filterType/:filterValue" element={<FilteredTezList />} />
 
 

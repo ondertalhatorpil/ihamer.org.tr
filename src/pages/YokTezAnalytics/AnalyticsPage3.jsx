@@ -1,29 +1,51 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Users, Building2, BookOpen, Hash, TrendingUp, FileText, GraduationCap, SlidersHorizontal, X, Search, BarChart2, Target, Download } from 'lucide-react';
+import { ArrowRight, Users, Building2, BookOpen, Hash, TrendingUp, FileText, GraduationCap, SlidersHorizontal, X, Search, BarChart2, Target, Download, ChevronDown } from 'lucide-react';
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 
 const styles = `
   @import url("https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap");
-  :root{--bg-main:#F9FAFB;--text-primary:#111827;--text-secondary:#6B7280;--border-color:#E5E7EB;--gold:#c7972f;}
+  :root{--bg-main:#F9FAFB;--text-primary:#111827;--text-secondary:#6B7280;--border-color:#E5E7EB;--primary-color:#111827;--gold:#c7972f;}
   *{font-family:"Lexend",sans-serif;box-sizing:border-box;}
   body{background-color:var(--bg-main);color:var(--text-primary);-webkit-font-smoothing:antialiased;}
-  .font-display{font-weight:600;letter-spacing:-0.02em;}.font-data{font-weight:300;}
-  .font-label{font-weight:600;text-transform:uppercase;letter-spacing:0.05em;font-size:0.70rem;}
-  .border-r-soft{border-right:1px solid var(--border-color);}.border-b-soft{border-bottom:1px solid var(--border-color);}
+  
+  .font-display{font-weight:600;letter-spacing:-0.02em;}
+  .font-data{font-weight:300;}
+  .border-r-soft{border-right:1px solid var(--border-color);}
+  .border-b-soft{border-bottom:1px solid var(--border-color);}
+  
   .reveal-up{animation:revealUp .8s cubic-bezier(.16,1,.3,1) forwards;opacity:0;transform:translateY(20px);}
   .delay-100{animation-delay:.1s;}.delay-200{animation-delay:.2s;}.delay-300{animation-delay:.3s;}
   @keyframes revealUp{to{opacity:1;transform:translateY(0);}}
+  
   .rank-circle{width:28px;height:28px;min-width:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:.75rem;font-weight:600;margin-right:1rem;}
   .rank-1{background:#111827;color:white;}.rank-2{background:#374151;color:white;}.rank-3{background:#4B5563;color:white;}.rank-other{background:#F3F4F6;color:#6B7280;}
-  .custom-scrollbar::-webkit-scrollbar{width:5px;}.custom-scrollbar::-webkit-scrollbar-track{background:transparent;}
-  .custom-scrollbar::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:10px;}
+  .custom-scrollbar::-webkit-scrollbar{width:6px;}.custom-scrollbar::-webkit-scrollbar-track{background:transparent;}.custom-scrollbar::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:10px;}
+  
   .btn-primary{display:inline-flex;align-items:center;gap:.5rem;background:var(--text-primary);color:white;padding:1rem 2rem;border-radius:12px;font-weight:500;transition:all .2s;border:1px solid transparent;cursor:pointer;font-family:"Lexend",sans-serif;}
   .btn-primary:hover{background:white;color:var(--text-primary);border-color:var(--text-primary);}
-  .mini-search-input{width:100%;padding:6px 10px 6px 30px;font-size:.8rem;border:1px solid #E5E7EB;border-radius:6px;background:white;font-family:"Lexend",sans-serif;}
-  .mini-search-input:focus{outline:none;border-color:#111827;}
-  .ap-select{width:100%;padding:6px 28px 6px 10px;font-size:.8rem;border:1px solid #E5E7EB;border-radius:6px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center;appearance:none;font-family:"Lexend",sans-serif;color:var(--text-primary);cursor:pointer;}
-  .ap-select:focus{outline:none;border-color:#111827;}
+
+  .input-modern{width:100%;background:white;border:1px solid var(--border-color);padding:.875rem 1rem;font-size:.9rem;color:var(--text-primary);border-radius:12px;transition:all .2s ease;font-family:"Lexend",sans-serif;}
+  .input-modern:focus{outline:none;border-color:var(--primary-color);}
+  .dropdown-container{position:relative;width:100%;}
+  .dropdown-modern{position:absolute;top:calc(100% + 4px);left:0;width:100%;background:white;border:1px solid var(--border-color);border-radius:12px;max-height:300px;overflow-y:auto;z-index:9999;box-shadow:0 20px 25px -5px rgba(0,0,0,.1);}
+  .dropdown-item{padding:.875rem 1rem;font-size:.9rem;cursor:pointer;border-bottom:1px solid #F3F4F6;}
+  .dropdown-item:hover{background:#F3F4F6;}
+  
+  .floating-filter-btn{position:fixed;bottom:24px;right:24px;width:56px;height:56px;background:var(--primary-color);color:white;border:none;border-radius:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(0,0,0,.25);cursor:pointer;z-index:1000;transition:all .3s cubic-bezier(.175,.885,.32,1.275);transform:scale(0) translateY(20px);opacity:0;}
+  @media(min-width:1024px){.floating-filter-btn{display:none;}}
+  .floating-filter-btn.visible{transform:scale(1) translateY(0);opacity:1;}
+  .floating-filter-btn:hover{transform:scale(1.05);background:black;}
+  .filter-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+  .filter-overlay.open{opacity:1;pointer-events:all;}
+  .filter-modal{position:fixed;background:white;z-index:2001;display:flex;flex-direction:column;box-shadow:0 -10px 40px rgba(0,0,0,.2);transition:transform .4s cubic-bezier(.16,1,.3,1);}
+  @media(min-width:1024px){.filter-modal{display:none;}}
+  @media(max-width:1023px){
+      .filter-modal{left:0;right:0;bottom:0;width:100%;height:85vh;border-radius:24px 24px 0 0;transform:translateY(100%);}
+      .filter-overlay.open + .filter-modal{transform:translateY(0);}
+      .filter-grid-mobile{display:flex;flex-direction:column;gap:1rem;padding-bottom:3rem;}
+  }
+
   .dt-wrap{overflow-x:auto;border:1px solid var(--border-color);border-radius:12px;}
   .dt{width:100%;border-collapse:collapse;font-size:.82rem;}
   .dt th{background:#111827;color:white;padding:.6rem 1rem;text-align:left;font-weight:600;font-size:.70rem;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
@@ -35,6 +57,7 @@ const styles = `
   .mini-bar-track{flex:1;height:5px;background:#E5E7EB;border-radius:3px;}
   .mini-bar-fill{height:100%;border-radius:3px;background:var(--gold);}
   .mini-bar-pct{font-size:.70rem;color:var(--text-secondary);width:32px;text-align:right;flex-shrink:0;}
+  
   .gender-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
   @media(max-width:700px){.gender-grid{grid-template-columns:1fr;}}
   .gender-card{border:1px solid var(--border-color);border-radius:12px;overflow:hidden;background:white;}
@@ -46,74 +69,105 @@ const styles = `
   .gender-pct{font-size:.72rem;color:var(--text-secondary);margin-left:4px;}
   .gender-bar-wrap{height:4px;background:#E5E7EB;margin:0 1.25rem 6px;border-radius:3px;}
   .gender-bar-fill{height:100%;border-radius:3px;}
+  
   .wc-container{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:2rem;min-height:180px;}
   .wc-word{border-radius:6px;padding:4px 12px;font-weight:600;cursor:default;transition:transform .15s,box-shadow .15s;}
   .wc-word:hover{transform:scale(1.08);box-shadow:0 4px 12px rgba(0,0,0,.12);}
-  .sf-label{font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:.70rem;color:var(--text-secondary);margin-bottom:.4rem;display:flex;align-items:center;gap:5px;}
-  .sf-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;background:#FEF9C3;color:#92400E;font-size:.70rem;font-weight:600;border:1px solid #FDE68A;}
-  .sf-chip button{background:none;border:none;cursor:pointer;color:#92400E;display:flex;align-items:center;}
+  
+  .filter-active-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:20px;font-size:.78rem;font-weight:600;color:#92400E;}
+  .filter-active-pill button{background:none;border:none;cursor:pointer;color:#92400E;display:flex;align-items:center;}
   .sec-panel{background:white;border-bottom:1px solid var(--border-color);}
   .sec-panel-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;}
-  .mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;}
-  .mob-overlay.open{display:block;}
-  .mob-drawer{position:fixed;bottom:0;left:0;right:0;background:white;border-radius:20px 20px 0 0;z-index:301;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);padding:1.5rem;}
-  .mob-drawer.open{transform:translateY(0);}
   .no-data{text-align:center;padding:3rem 1rem;color:var(--text-secondary);font-size:.85rem;}
   .drill-badge{font-size:.68rem;font-weight:700;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;white-space:nowrap;}
 `;
 
 const S = v => (v == null ? '' : String(v)).trim();
+const TL = t => (t || '').replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/Ş/g, 'ş').replace(/Ğ/g, 'ğ').replace(/Ü/g, 'ü').replace(/Ö/g, 'ö').replace(/Ç/g, 'ç').toLowerCase();
 const COLORS = ['#111827', '#c7972f', '#6B7280', '#374151', '#9CA3AF', '#D1D5DB', '#4B5563', '#c4a97a'];
+
 const CT = ({ active, payload, label }) => { if (!active || !payload?.length) return null; return (<div className="bg-white p-3 border border-gray-100 shadow-xl rounded-xl"><p className="text-xs text-gray-400 uppercase font-medium mb-1">{label || payload[0].name}</p><p className="text-lg font-semibold text-gray-900">{payload[0].value}</p></div>); };
 const MiniBar = ({ pct }) => (<div className="mini-bar-wrap"><div className="mini-bar-track"><div className="mini-bar-fill" style={{ width: `${Math.min(pct, 100)}%` }} /></div><span className="mini-bar-pct">{pct.toFixed(0)}%</span></div>);
 const RC = ({ i }) => { const c = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other'; return <span className={`rank-circle ${c}`}>{i + 1}</span>; };
-const PH = ({ icon: Icon, title, sub, count: cnt }) => (<div className="sec-panel-head"><div><h4 className="font-display text-lg flex items-center gap-2 text-yellow-900"><Icon size={18} className="text-gray-400" />{title}</h4>{sub && <p className="font-label text-gray-400 mt-1">{sub}</p>}</div>{cnt != null && <span className="bg-white border border-gray-200 text-xs font-semibold px-2 py-1 rounded-md text-gray-500">{cnt}</span>}</div>);
+const PH = ({ icon: Icon, title, sub, count: cnt }) => (<div className="sec-panel-head"><div><h4 className="font-display text-lg flex items-center gap-2 text-yellow-900"><Icon size={18} className="text-gray-400" />{title}</h4>{sub && <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider font-semibold">{sub}</p>}</div>{cnt != null && <span className="bg-white border border-gray-200 text-xs font-semibold px-2 py-1 rounded-md text-gray-500">{cnt}</span>}</div>);
 
-// === ÖRNEKLEM GRUPLAMA FONKSİYONU ===
-// === GÜNCELLENMİŞ ÖRNEKLEM GRUPLAMA FONKSİYONU ===
+const FInput = ({ label, placeholder, value, onChange, onToggle, isOpen, options, onSelect }) => (
+    <div className="dropdown-container">
+      <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">{label}</label>
+      <div className="relative">
+        <input type="text" placeholder={placeholder} value={value} onChange={onChange} className="input-modern pr-10" />
+        <div onClick={e => { e.preventDefault(); onToggle(); }} className="absolute right-0 top-0 h-full w-10 flex items-center justify-center cursor-pointer">
+          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </div>
+      </div>
+      {isOpen && options.length > 0 && (<div className="dropdown-modern custom-scrollbar">{options.map((opt, i) => (<div key={i} onClick={() => onSelect(opt)} className="dropdown-item">{opt}</div>))}</div>)}
+    </div>
+);
+
+const FSelect = ({ label, value, onChange, options }) => (
+    <div className="w-full">
+      <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">{label}</label>
+      <div className="relative">
+        <select value={value} onChange={onChange} className="input-modern appearance-none cursor-pointer pr-10">
+          <option value="">Tümü</option>{options.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
+        </select>
+        <div className="absolute right-0 top-0 h-full w-10 flex items-center justify-center pointer-events-none"><ChevronDown className="w-4 h-4 text-gray-400" /></div>
+      </div>
+    </div>
+);
+
 const getOrneklemGrup = (val) => {
-    // 1. Türkçe karakterleri doğru küçültüyoruz
     const v = S(val).toLocaleLowerCase('tr-TR');
-
-    // 2. Tam eşleşme yerine includes kullanmak daha güvenlidir
     if (!v || v.includes('nan') || v.includes('belirtilmemiş')) return 'Belirtilmemiş';
-    
-    // 3. Öncelik sırasına göre dizilim (Hangisi daha spesifikse o üste)
     if (v.includes('idareci') || v.includes('müdür') || v.includes('yönetici')) return 'İdareciler';
-    
-    // "Öğretmen" ve "Öğretim" kelimeleri karışabilir, öğretmeni önce kontrol ediyoruz
     if (v.includes('öğretmen')) return 'Öğretmenler'; 
-    
     if (v.includes('öğrenci')) return 'Öğrenciler';
     if (v.includes('veli') || v.includes('anne') || v.includes('baba') || v.includes('ebeveyn')) return 'Veliler';
     if (v.includes('mezun')) return 'Mezunlar';
-    
-    // Akademisyen için olası alternatifleri artırdık
     if (v.includes('akademisyen') || v.includes('öğretim') || v.includes('araştırma görevlisi') || v.includes('akademik')) return 'Akademisyenler';
-    
     if (v.includes('kitap') || v.includes('eser') || v.includes('doküman') || v.includes('rapor') || v.includes('belge') || v.includes('program')) return 'Doküman / Eser';
-    
     return 'Diğer'; 
 };
 
-export default function AnalyticsPage3() {
+export default function AnalyticsPage() {
     const navigate = useNavigate();
     const [rawData, setRawData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [mobOpen, setMobOpen] = useState(false);
+    
+    // UI states
+    const [showFab, setShowFab] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [sd, setSd] = useState({ year: '', university: '', department: '' });
+    const [activeDD, setActiveDD] = useState(null);
+
+    // Filters state
     const [f, setF] = useState({ search: '', category: '', year: '', university: '', department: '', tezTuru: '', method: '', language: '', advisorUnvan: '', gender: '', advisorGender: '', desen: '', veriToplama: '', orneklem: '', orneklemMahiyet: '', veriAnaliz: '', konu: '' });
 
-    const upd = (k, v) => setF(p => ({ ...p, [k]: p[k] === v ? '' : v }));
     const updD = (k, v) => setF(p => ({ ...p, [k]: v }));
+    const upd = (k, v) => setF(p => ({ ...p, [k]: p[k] === v ? '' : v }));
     const clearAll = () => setF({ search: '', category: '', year: '', university: '', department: '', tezTuru: '', method: '', language: '', advisorUnvan: '', gender: '', advisorGender: '', desen: '', veriToplama: '', orneklem: '', orneklemMahiyet: '', veriAnaliz: '', konu: '' });
     const hasF = Object.values(f).some(v => v !== '');
 
-    useEffect(() => { import('./data/tez3.json').then(m => { setRawData(m.default); setLoading(false); }).catch(() => setLoading(false)); }, []);
+    useEffect(() => {
+        const h = () => setShowFab(window.scrollY > 100);
+        window.addEventListener('scroll', h);
+        return () => window.removeEventListener('scroll', h);
+    }, []);
+
+    useEffect(() => {
+        const h = e => { if (!e.target.closest('.dropdown-container')) setActiveDD(null); };
+        document.addEventListener('mousedown', h);
+        return () => document.removeEventListener('mousedown', h);
+    }, []);
+
+    useEffect(() => { 
+        import('./data/tez3.json').then(m => { setRawData(m.default); setLoading(false); }).catch(() => setLoading(false));
+    }, []);
 
     const data = useMemo(() => {
         let r = rawData;
-        if (f.search) { const q = f.search.toLowerCase(); r = r.filter(t => S(t['Tez Başlığı']).toLowerCase().includes(q) || S(t['Tez Yazarı']).toLowerCase().includes(q) || S(t['Danışman']).toLowerCase().includes(q) || S(t['Üniversite']).toLowerCase().includes(q) || S(t['Araştırmanın Özeti']).toLowerCase().includes(q) || S(t['Araştırma Konusu']).toLowerCase().includes(q)); }
-        if (f.category) r = r.filter(t => S(t['Kategori']) === f.category);
+        if (f.search) { const q = TL(f.search); r = r.filter(t => TL(S(t['Tez Başlığı'])).includes(q) || TL(S(t['Tez Yazarı'])).includes(q) || TL(S(t['Danışman'])).includes(q) || TL(S(t['Üniversite'])).includes(q) || TL(S(t['Araştırmanın Özeti'])).includes(q) || TL(S(t['Araştırma Konusu'])).includes(q)); }
+        if (f.category) r = r.filter(t => S(t['_cat']) === f.category);
         if (f.year) r = r.filter(t => S(t['Yıl']) === f.year);
         if (f.university) r = r.filter(t => S(t['Üniversite']) === f.university);
         if (f.department) r = r.filter(t => S(t['Bölüm']) === f.department);
@@ -125,10 +179,7 @@ export default function AnalyticsPage3() {
         if (f.advisorGender) r = r.filter(t => S(t['Danışmanın Cinsiyeti']) === f.advisorGender);
         if (f.desen) r = r.filter(t => S(t['_desenNorm']) === f.desen);
         if (f.veriToplama) r = r.filter(t => (t['_veriTopNorm'] || []).includes(f.veriToplama));
-        
-        // ÖRNEKLEM FİLTRESİ (GRUP BAZLI)
         if (f.orneklem) r = r.filter(t => getOrneklemGrup(t['Araştırma Örneklemi']) === f.orneklem);
-        
         if (f.orneklemMahiyet) r = r.filter(t => S(t['_mahiyetNorm']) === f.orneklemMahiyet);
         if (f.veriAnaliz) r = r.filter(t => S(t['_veriAnalizNorm']) === f.veriAnaliz);
         if (f.konu) r = r.filter(t => S(t['_konuNorm']) === f.konu);
@@ -147,14 +198,16 @@ export default function AnalyticsPage3() {
     const vaList = useMemo(() => [...new Set(rawData.map(t => S(t['_veriAnalizNorm'])).filter(v => v && v !== 'Belirtilmemiş'))].sort(), [rawData]);
     const konuList = useMemo(() => [...new Set(rawData.map(t => S(t['_konuNorm'])).filter(v => v && v !== 'Belirtilmemiş'))].sort(), [rawData]);
 
-    // Örneklem Seçenekleri Listesi (Sidebar için)
     const orneklemGrupList = useMemo(() => {
         const s = new Set();
         rawData.forEach(t => s.add(getOrneklemGrup(t['Araştırma Örneklemi'])));
         return [...s].filter(v => v !== 'Belirtilmemiş').sort();
     }, [rawData]);
 
-    /* Grouped tables */
+    const fy = years.filter(y => y.toString().includes(sd.year));
+    const fu = universities.filter(u => TL(u).includes(TL(sd.university)));
+    const fd = departments.filter(d => TL(d).includes(TL(sd.department)));
+
     const mkNorm = (key, total) => { const m = {}; data.forEach(t => { const v = S(t[key]) || 'Belirtilmemiş'; m[v] = (m[v] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([label, count]) => ({ label, count, pct: total ? count / total * 100 : 0 })); };
     const mkVt = (total) => { const m = {}; data.forEach(t => { (t['_veriTopNorm'] || []).forEach(v => { m[v] = (m[v] || 0) + 1; }); }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([label, count]) => ({ label, count, pct: total ? count / total * 100 : 0 })); };
 
@@ -194,7 +247,6 @@ export default function AnalyticsPage3() {
         }, []).sort((a, b) => b.count - a.count); 
     }, [data]);
 
-    // === YENİ GRUPLANMIŞ ÖRNEKLEM VERİSİ ===
     const groupedOrneklemTable = useMemo(() => {
         const m = {};
         data.forEach(t => {
@@ -220,13 +272,16 @@ export default function AnalyticsPage3() {
     const kwMax = kwData[0]?.freq || 1;
     const hero = useMemo(() => ({ total: data.length, unis: new Set(data.map(t => S(t['Üniversite'])).filter(Boolean)).size, advisors: new Set(data.map(t => S(t['Danışman'])).filter(Boolean)).size, doktora: data.filter(t => S(t['Tez Türü']) === 'Doktora').length }), [data]);
 
-    /* DrillDown: navigate to tez list with URL param */
+    // DRILL-DOWN (Redirecting to AllTezList with parameters)
     const drill = (filterKey, filterVal) => {
-        const p = new URLSearchParams({ [filterKey]: filterVal });
-        navigate(`/tez-analytics/dogrudan-tezler?${p.toString()}`);
+        const activeParams = new URLSearchParams();
+        Object.entries(f).forEach(([k, v]) => {
+            if (v) activeParams.append(k, v);
+        });
+        activeParams.set(filterKey, filterVal);
+        navigate(`/tez-analytics/dogrudan-tezler?${activeParams.toString()}`);
     };
 
-    /* Grouped Table Component */
     const GT = ({ rows, fk, activeVal, hasPct = true }) => (
         <div className="dt-wrap"><table className={`dt dt-clickable`}>
             <thead><tr><th>#</th><th>Grup</th><th>Tez</th>{hasPct && <th>Oran</th>}</tr></thead>
@@ -242,35 +297,60 @@ export default function AnalyticsPage3() {
     );
 
     const FP = () => (
-        <div className="flex flex-col gap-4">
-            <div><p className="sf-label"><Search size={11} /> Genel Arama</p>
-                <div className="relative"><Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input className="mini-search-input" placeholder="Başlık, yazar, konu…" value={f.search} onChange={e => updD('search', e.target.value)} /></div></div>
-            {[{ l: 'Kategori', k: 'category', o: ['Doğrudan', 'Dolaylı'] }, { l: 'Tez Türü', k: 'tezTuru', o: ['Doktora', 'Yüksek Lisans'] }].map(({ l, k, o }) => (
-                <div key={k}><p className="sf-label">{l}</p><select className="ap-select" value={f[k]} onChange={e => updD(k, e.target.value)}><option value="">Tümü</option>{o.map(x => <option key={x} value={x}>{x}</option>)}</select></div>
-            ))}
-            <div><p className="sf-label">Araştırma Dili</p><select className="ap-select" value={f.language} onChange={e => updD('language', e.target.value)}><option value="">Tümü</option>{languages.map(l => <option key={l} value={l}>{l}</option>)}</select></div>
-            <div><p className="sf-label">Araştırma Yöntemi</p><select className="ap-select" value={f.method} onChange={e => updD('method', e.target.value)}><option value="">Tümü</option>{methods.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
-            <div><p className="sf-label">Yıl</p><select className="ap-select" value={f.year} onChange={e => updD('year', e.target.value)}><option value="">Tüm Yıllar</option>{years.map(y => <option key={y} value={y}>{y}</option>)}</select></div>
-            <div><p className="sf-label">Üniversite</p><select className="ap-select" value={f.university} onChange={e => updD('university', e.target.value)}><option value="">Tüm Üniversiteler</option>{universities.map(u => <option key={u} value={u}>{u}</option>)}</select></div>
-            <div><p className="sf-label">Araştırma Deseni</p><select className="ap-select" value={f.desen} onChange={e => updD('desen', e.target.value)}><option value="">Tümü</option>{desenList.map(d => <option key={d} value={d}>{d}</option>)}</select></div>
-            <div><p className="sf-label">Veri Toplama Aracı</p><select className="ap-select" value={f.veriToplama} onChange={e => updD('veriToplama', e.target.value)}><option value="">Tümü</option>{vtList.map(v => <option key={v} value={v}>{v}</option>)}</select></div>
-            <div><p className="sf-label">Örneklem Mahiyeti</p><select className="ap-select" value={f.orneklemMahiyet} onChange={e => updD('orneklemMahiyet', e.target.value)}><option value="">Tümü</option>{mahList.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
-            
-            {/* YENİ EKLENEN ÖRNEKLEM FİLTRESİ */}
-            <div><p className="sf-label">Araştırma Örneklemi</p>
-                <select className="ap-select" value={f.orneklem} onChange={e => updD('orneklem', e.target.value)}>
-                    <option value="">Tümü</option>
-                    {orneklemGrupList.map(o => <option key={o} value={o}>{o}</option>)}
-                </select>
+        <div className="flex flex-col gap-5">
+            <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Genel Arama</label>
+                <div className="relative">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input className="input-modern pl-10" placeholder="Başlık, yazar, konu…" value={f.search} onChange={e => updD('search', e.target.value)} />
+                </div>
             </div>
+            {[{ l: 'Kategori', k: 'category', o: ['Doğrudan', 'Dolaylı'] }, { l: 'Tez Türü', k: 'tezTuru', o: ['Doktora', 'Yüksek Lisans'] }].map(({ l, k, o }) => (
+                <FSelect key={k} label={l} value={f[k]} onChange={e => updD(k, e.target.value)} options={o} />
+            ))}
+            <FInput label="Yıl" placeholder="Yıl Seçin" value={f.year || sd.year}
+                onChange={e => { setSd({ ...sd, year: e.target.value }); if (activeDD !== 'year') setActiveDD('year'); }}
+                isOpen={activeDD === 'year'} onToggle={() => setActiveDD(p => p === 'year' ? null : 'year')}
+                options={fy} onSelect={val => { updD('year', val); setSd({ ...sd, year: '' }); setActiveDD(null); }} />
 
-            <div><p className="sf-label">Veri Analiz Yöntemi</p><select className="ap-select" value={f.veriAnaliz} onChange={e => updD('veriAnaliz', e.target.value)}><option value="">Tümü</option>{vaList.map(v => <option key={v} value={v}>{v}</option>)}</select></div>
-            <div><p className="sf-label">Araştırma Konusu</p><select className="ap-select" value={f.konu} onChange={e => updD('konu', e.target.value)}><option value="">Tümü</option>{konuList.map(k => <option key={k} value={k}>{k.length > 45 ? k.slice(0, 45) + '…' : k}</option>)}</select></div>
-            <div><p className="sf-label">Danışman Unvanı</p><select className="ap-select" value={f.advisorUnvan} onChange={e => updD('advisorUnvan', e.target.value)}><option value="">Tümü</option><option value="PROF">PROF. DR.</option><option value="DOÇ">DOÇ. DR.</option><option value="YRD">YRD. DOÇ. DR.</option><option value="DR. ÖĞR">DR. ÖĞR. ÜYESİ</option></select></div>
-            <div><p className="sf-label">Yazar Cinsiyeti</p><select className="ap-select" value={f.gender} onChange={e => updD('gender', e.target.value)}><option value="">Tümü</option><option value="Erkek">Erkek</option><option value="Kadın">Kadın</option></select></div>
-            <div><p className="sf-label">Danışman Cinsiyeti</p><select className="ap-select" value={f.advisorGender} onChange={e => updD('advisorGender', e.target.value)}><option value="">Tümü</option><option value="Erkek">Erkek</option><option value="Kadın">Kadın</option></select></div>
-            {hasF && (<div><div className="flex flex-wrap gap-1.5 mt-1">{Object.entries(f).filter(([, v]) => v).map(([k, v]) => (<span key={k} className="sf-chip">{v.length > 18 ? v.slice(0, 18) + '…' : v}<button onClick={() => updD(k, '')}><X size={10} /></button></span>))}</div><button onClick={clearAll} className="mt-2 w-full flex items-center justify-center gap-1 text-xs font-semibold text-red-500 hover:text-red-700 py-1.5 border border-red-100 rounded-lg hover:bg-red-50 transition-colors"><X size={12} />Filtreleri Temizle</button></div>)}
+            <FInput label="Üniversite" placeholder="Üniversite Ara" value={f.university || sd.university}
+                onChange={e => { setSd({ ...sd, university: e.target.value }); if (activeDD !== 'uni') setActiveDD('uni'); }}
+                isOpen={activeDD === 'uni'} onToggle={() => setActiveDD(p => p === 'uni' ? null : 'uni')}
+                options={fu} onSelect={val => { updD('university', val); setSd({ ...sd, university: '' }); setActiveDD(null); }} />
+            
+            <FInput label="Bölüm / ABD" placeholder="Bölüm Ara" value={f.department || sd.department}
+                onChange={e => { setSd({ ...sd, department: e.target.value }); if (activeDD !== 'dept') setActiveDD('dept'); }}
+                isOpen={activeDD === 'dept'} onToggle={() => setActiveDD(p => p === 'dept' ? null : 'dept')}
+                options={fd} onSelect={val => { updD('department', val); setSd({ ...sd, department: '' }); setActiveDD(null); }} />
+
+            <FSelect label="Araştırma Dili" value={f.language} onChange={e => updD('language', e.target.value)} options={languages} />
+            <FSelect label="Araştırma Yöntemi" value={f.method} onChange={e => updD('method', e.target.value)} options={methods} />
+            <FSelect label="Araştırma Deseni" value={f.desen} onChange={e => updD('desen', e.target.value)} options={desenList} />
+            <FSelect label="Veri Toplama Aracı" value={f.veriToplama} onChange={e => updD('veriToplama', e.target.value)} options={vtList} />
+            <FSelect label="Örneklem Mahiyeti" value={f.orneklemMahiyet} onChange={e => updD('orneklemMahiyet', e.target.value)} options={mahList} />
+            <FSelect label="Araştırma Örneklemi" value={f.orneklem} onChange={e => updD('orneklem', e.target.value)} options={orneklemGrupList} />
+            <FSelect label="Veri Analiz Yöntemi" value={f.veriAnaliz} onChange={e => updD('veriAnaliz', e.target.value)} options={vaList} />
+            <FSelect label="Araştırma Konusu" value={f.konu} onChange={e => updD('konu', e.target.value)} options={konuList} />
+            
+            <FSelect label="Danışman Unvanı" value={f.advisorUnvan} onChange={e => updD('advisorUnvan', e.target.value)} options={['PROF. DR.', 'DOÇ. DR.', 'YRD. DOÇ. DR.', 'DR. ÖĞR. ÜYESİ', 'DR.']} />
+            <FSelect label="Yazar Cinsiyeti" value={f.gender} onChange={e => updD('gender', e.target.value)} options={['Erkek', 'Kadın']} />
+            <FSelect label="Danışman Cinsiyeti" value={f.advisorGender} onChange={e => updD('advisorGender', e.target.value)} options={['Erkek', 'Kadın']} />
+
+            {hasF && (
+                <div>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                        {Object.entries(f).filter(([, v]) => v).map(([k, v]) => (
+                            <span key={k} className="filter-active-pill">
+                                {v.length > 18 ? v.slice(0, 18) + '…' : v}
+                                <button onClick={() => updD(k, '')}><X size={12} /></button>
+                            </span>
+                        ))}
+                    </div>
+                    <button onClick={clearAll} className="mt-3 w-full flex items-center justify-center gap-1 text-xs font-semibold text-red-500 hover:text-red-700 py-2 border border-red-100 rounded-xl hover:bg-red-50 transition-colors">
+                        <X size={14} /> Filtreleri Temizle
+                    </button>
+                </div>
+            )}
         </div>
     );
 
@@ -287,11 +367,11 @@ export default function AnalyticsPage3() {
                     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
                     th, td { border: 1px solid #D1D5DB; padding: 8px; text-align: left; vertical-align: middle; }
                     th { background-color: #F3F4F6; font-weight: bold; }
-                    .mini-bar-wrap { display: none; } /* Grafik bar'larını gizle, sadece rakamlar kalsın */
+                    .mini-bar-wrap { display: none; }
                 </style>
             </head>
             <body>
-                <h1>Doğrudan Tez Analiz Raporu</h1>
+                <h1>Kapsamlı Tez Analiz Raporu</h1>
                 <p><strong>Rapor Tarihi:</strong> ${new Date().toLocaleDateString('tr-TR')}</p>
                 <p><strong>Uygulanan Filtre Sayısı:</strong> ${Object.values(f).filter(v => v !== '').length}</p>
                 <p><strong>Görüntülenen Toplam Tez:</strong> ${data.length}</p>
@@ -323,7 +403,7 @@ export default function AnalyticsPage3() {
     return (
         <div className="min-h-screen flex flex-col bg-[#F9FAFB]">
             <style>{styles}</style>
-            {/* HERO */}
+            
             <section className="border-b-soft bg-white">
                 <div className="max-w-[1920px] mx-auto grid grid-cols-1 md:grid-cols-12 min-h-[340px]">
                     <div className="col-span-1 md:col-span-6 border-r-soft p-8 md:p-16 flex flex-col justify-between">
@@ -334,9 +414,9 @@ export default function AnalyticsPage3() {
                                     <Download size={14} /> Word Raporu İndir
                                 </button>
                             </div>
-                            <h2 className="font-display text-5xl md:text-7xl leading-[0.95] text-yellow-600 reveal-up">Doğrudan <br /><span className="text-gray-900">Analizler</span></h2>
+                            <h2 className="font-display text-5xl md:text-7xl leading-[0.95] text-yellow-600 reveal-up">Bibliyometrik <br /><span className="text-gray-900">Analiz</span></h2>
                         </div>
-                        <p className="font-data text-lg text-gray-500 max-w-md mt-8 reveal-up delay-100">35 tezin gruplandırılmış analizi. Tablolara tıklayarak ilgili tezlere gidin.</p>
+                        <p className="font-data text-lg text-gray-500 max-w-md mt-8 reveal-up delay-100">{data.length} tezin gruplandırılmış analizi. Tablolardaki verilere tıklayarak ilgili tezlere gidebilirsiniz.</p>
                     </div>
                     <div className="col-span-1 md:col-span-6 grid grid-cols-2 grid-rows-2">
                         {[{ num: hero.total, lbl: 'Toplam Tez', bg: '#F9FAFB', color: 'text-gray-900', delay: 'delay-200', bR: true, bB: true }, { num: hero.unis, lbl: 'Üniversite', bg: 'white', color: 'text-[#c7972f]', delay: 'delay-300', bR: false, bB: true }, { num: hero.advisors, lbl: 'Danışman', bg: 'white', color: 'text-gray-900', delay: 'delay-200', bR: true, bB: false }, { num: hero.doktora, lbl: 'Doktora Tezi', bg: '#F9FAFB', color: 'text-gray-900', delay: 'delay-300', bR: false, bB: false }]
@@ -351,20 +431,17 @@ export default function AnalyticsPage3() {
             </section>
 
             <div className="max-w-[1920px] mx-auto w-full flex flex-col lg:flex-row flex-1">
-                {/* SIDEBAR */}
                 <aside className="hidden lg:flex flex-col w-[280px] flex-shrink-0 border-r-soft bg-white sticky top-0 h-screen overflow-y-auto custom-scrollbar">
                     <div className="p-5 border-b-soft sticky top-0 bg-white z-10">
                         <h4 className="font-display text-lg flex items-center gap-2 text-yellow-900"><SlidersHorizontal size={18} className="text-gray-400" />Filtreler</h4>
-                        <p className="font-label text-gray-400 mt-1">{data.length} kayıt · tıkla → tezlere git</p>
+                        <p className="font-label text-gray-400 mt-1">{data.length} kayıt listeleniyor</p>
                     </div>
                     <div className="p-5"><FP /></div>
                 </aside>
 
                 <main className="flex-1 min-w-0">
-
-                    {/* ŞEKİL 1 – YIL */}
                     <section className="sec-panel">
-                        <PH icon={TrendingUp} title="Şekil 1 — Yıllara Göre Tez Dağılımı" sub="Çubuğa tıkla → o yılın tezleri" count={`${yearChart.length} yıl`} />
+                        <PH icon={TrendingUp} title="Şekil 1 — Yıllara Göre Tez Dağılımı" sub="Sütuna tıkla → o yılın tezlerine git" count={`${yearChart.length} yıl`} />
                         <div className="p-6 md:p-10"><div className="h-[260px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={yearChart}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
@@ -376,7 +453,6 @@ export default function AnalyticsPage3() {
                         </div></div>
                     </section>
 
-                    {/* ŞEKİL 2+3 – DİL & YÖNTEM */}
                     <section className="sec-panel border-b-soft">
                         <div className="grid grid-cols-1 lg:grid-cols-12">
                             <div className="lg:col-span-5 border-r-soft">
@@ -400,125 +476,85 @@ export default function AnalyticsPage3() {
                         </div>
                     </section>
 
-                    {/* TABLO 1 – DESEN (GRUPLU) */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={BarChart2} title="Tablo 1 — Araştırma Deseni" sub="Gruplandırılmış · satıra tıkla → tezlere git" count={`${groupedDesenNorm.length} desen`} />
-                        <div className="p-6 md:p-10">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div className="h-[240px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RechartsPie>
-                                            <Pie data={groupedDesenChart} dataKey="value" cx="50%" cy="45%" innerRadius={50} outerRadius={85} paddingAngle={4} cornerRadius={6} stroke="none">
-                                                {groupedDesenChart.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                                            </Pie>
-                                            <Tooltip content={<CT />} />
-                                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontFamily: 'Lexend', fontSize: '.70rem' }} />
-                                        </RechartsPie>
-                                    </ResponsiveContainer>
-                                </div>
-                                <div className="max-h-[240px] overflow-y-auto pr-2">
-                                    <GT rows={groupedDesenNorm} fk="desen" activeVal={f.desen} />
-                                </div>
+                        <div className="p-6 md:p-10"><div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="h-[240px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <RechartsPie>
+                                        <Pie data={groupedDesenChart} dataKey="value" cx="50%" cy="45%" innerRadius={50} outerRadius={85} paddingAngle={4} cornerRadius={6} stroke="none">
+                                            {groupedDesenChart.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                                        </Pie>
+                                        <Tooltip content={<CT />} /><Legend iconType="circle" iconSize={8} wrapperStyle={{ fontFamily: 'Lexend', fontSize: '.70rem' }} />
+                                    </RechartsPie>
+                                </ResponsiveContainer>
                             </div>
-                        </div>
+                            <div className="max-h-[240px] overflow-y-auto pr-2 custom-scrollbar"><GT rows={groupedDesenNorm} fk="desen" activeVal={f.desen} /></div>
+                        </div></div>
                     </section>
 
-                    {/* TABLO 2 – VERİ TOPLAMA */}
                     <section className="sec-panel border-b-soft">
-                        <PH icon={FileText} title="Tablo 2 — Veri Toplama Araçları" sub="Normalize gruplar: görüşme, ölçek, anket, gözlem, doküman · satıra tıkla" count={`${vtChart.length} grup`} />
+                        <PH icon={FileText} title="Tablo 2 — Veri Toplama Araçları" sub="Satıra tıkla → tezlere git" count={`${vtChart.length} grup`} />
                         <div className="p-6 md:p-10"><div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div className="h-[260px]"><ResponsiveContainer width="100%" height="100%"><BarChart data={vtChart} layout="vertical" margin={{ left: 10, right: 40 }}><XAxis type="number" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 11, fill: '#9CA3AF' }} /><YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 11, fill: '#111827', fontWeight: 600 }} width={140} /><Tooltip content={<CT />} /><Bar dataKey="value" name="Tez" radius={[0, 4, 4, 0]}>{vtChart.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar></BarChart></ResponsiveContainer></div>
                             <GT rows={mkVt(data.length)} fk="veriToplama" activeVal={f.veriToplama} />
                         </div></div>
                     </section>
 
-                    {/* TABLO 3 – ÖRNEKLEM MAHİYETİ */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={Users} title="Tablo 3 — Örneklem Mahiyeti" sub="Gruplandırılmış örnekleme yöntemleri · satıra tıkla → tezlere git" count={`${mahList.length} grup`} />
-                        <div className="p-6 md:p-10">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div className="h-[240px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <RechartsPie>
-                                            <Pie data={mkNorm('_mahiyetNorm', data.length).filter(r => r.label !== 'Belirtilmemiş').map(r => ({ name: r.label, value: r.count }))} dataKey="value" cx="50%" cy="45%" outerRadius={80} paddingAngle={3} cornerRadius={4} stroke="none">
-                                                {mahList.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                                            </Pie>
-                                            <Tooltip content={<CT />} />
-                                            <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontFamily: 'Lexend', fontSize: '.70rem' }} />
-                                        </RechartsPie>
-                                    </ResponsiveContainer>
-                                </div>
-                                <div className="max-h-[240px] overflow-y-auto pr-2">
-                                    <GT rows={mkNorm('_mahiyetNorm', data.length)} fk="orneklemMahiyet" activeVal={f.orneklemMahiyet} />
-                                </div>
+                        <div className="p-6 md:p-10"><div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="h-[240px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <RechartsPie>
+                                        <Pie data={mkNorm('_mahiyetNorm', data.length).filter(r => r.label !== 'Belirtilmemiş').map(r => ({ name: r.label, value: r.count }))} dataKey="value" cx="50%" cy="45%" outerRadius={80} paddingAngle={3} cornerRadius={4} stroke="none">
+                                            {mahList.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                                        </Pie>
+                                        <Tooltip content={<CT />} /><Legend iconType="circle" iconSize={8} wrapperStyle={{ fontFamily: 'Lexend', fontSize: '.70rem' }} />
+                                    </RechartsPie>
+                                </ResponsiveContainer>
                             </div>
-                        </div>
+                            <div className="max-h-[240px] overflow-y-auto pr-2 custom-scrollbar"><GT rows={mkNorm('_mahiyetNorm', data.length)} fk="orneklemMahiyet" activeVal={f.orneklemMahiyet} /></div>
+                        </div></div>
                     </section>
 
-                    {/* TABLO 4 – ARAŞTIRMA ÖRNEKLEMİ (GRUPLANDIRILMIŞ) */}
                     <section className="sec-panel border-b-soft">
-                        <PH
-                            icon={Users}
-                            title="Tablo 4 — Araştırma Örneklemi (Çalışma Grubu)"
-                            sub="satıra tıkla → tezlere git"
-                            count={`${groupedOrneklemTable.length} ana grup`}
-                        />
-                        <div className="p-6 md:p-10">
-                            <div className="max-h-[300px] overflow-y-auto pr-2">
-                                <GT rows={groupedOrneklemTable} fk="orneklem" activeVal={f.orneklem} />
-                            </div>
-                        </div>
+                        <PH icon={Users} title="Tablo 4 — Araştırma Örneklemi (Çalışma Grubu)" sub="Satıra tıkla → tezlere git" count={`${groupedOrneklemTable.length} ana grup`} />
+                        <div className="p-6 md:p-10"><div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar"><GT rows={groupedOrneklemTable} fk="orneklem" activeVal={f.orneklem} /></div></div>
                     </section>
                     
-                    {/* TABLO 5 – VERİ ANALİZ YÖNTEMİ */}
                     <section className="sec-panel border-b-soft">
-                        <PH icon={BarChart2} title="Tablo 5 — Veri Analiz Yöntemi" sub="MAXQDA, SPSS, NVivo vb. · satıra tıkla → tezlere git" count={`${vaList.length} grup`} />
-                        <div className="p-6 md:p-10">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div className="h-[300px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={vaChart.filter(d => d.name !== 'Belirtilmemiş')} layout="vertical" margin={{ left: 10, right: 40 }}>
-                                            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 11, fill: '#9CA3AF' }} />
-                                            <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 10, fill: '#111827', fontWeight: 600 }} width={180} />
-                                            <Tooltip content={<CT />} />
-                                            <Bar dataKey="value" name="Tez" radius={[0, 4, 4, 0]}>
-                                                {vaChart.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                                <div className="max-h-[300px] overflow-y-auto pr-2">
-                                    <GT rows={mkNorm('_veriAnalizNorm', data.length)} fk="veriAnaliz" activeVal={f.veriAnaliz} />
-                                </div>
+                        <PH icon={BarChart2} title="Tablo 5 — Veri Analiz Yöntemi" sub="Satıra tıkla → tezlere git" count={`${vaList.length} grup`} />
+                        <div className="p-6 md:p-10"><div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="h-[300px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={vaChart.filter(d => d.name !== 'Belirtilmemiş')} layout="vertical" margin={{ left: 10, right: 40 }}>
+                                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 11, fill: '#9CA3AF' }} />
+                                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 10, fill: '#111827', fontWeight: 600 }} width={180} />
+                                        <Tooltip content={<CT />} /><Bar dataKey="value" name="Tez" radius={[0, 4, 4, 0]}>{vaChart.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
                             </div>
-                        </div>
+                            <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar"><GT rows={mkNorm('_veriAnalizNorm', data.length)} fk="veriAnaliz" activeVal={f.veriAnaliz} /></div>
+                        </div></div>
                     </section>
 
-                    {/* TABLO 6 – ARAŞTIRMA KONUSU */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={Target} title="Tablo 6 — Araştırma Konusu" sub="Gruplandırılmış tematik kategoriler · satıra tıkla → tezlere git" count={`${konuList.length} grup`} />
-                        <div className="p-6 md:p-10">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div className="h-[360px]">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={konuChart.filter(d => d.name !== 'Belirtilmemiş')} layout="vertical" margin={{ left: 10, right: 40 }}>
-                                            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 11, fill: '#9CA3AF' }} />
-                                            <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 10, fill: '#111827', fontWeight: 600 }} width={190} />
-                                            <Tooltip content={<CT />} />
-                                            <Bar dataKey="value" name="Tez" radius={[0, 4, 4, 0]}>
-                                                {konuChart.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                                <div className="max-h-[360px] overflow-y-auto pr-2">
-                                    <GT rows={mkNorm('_konuNorm', data.length)} fk="konu" activeVal={f.konu} />
-                                </div>
+                        <div className="p-6 md:p-10"><div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="h-[360px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={konuChart.filter(d => d.name !== 'Belirtilmemiş')} layout="vertical" margin={{ left: 10, right: 40 }}>
+                                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 11, fill: '#9CA3AF' }} />
+                                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontFamily: 'Lexend', fontSize: 10, fill: '#111827', fontWeight: 600 }} width={190} />
+                                        <Tooltip content={<CT />} /><Bar dataKey="value" name="Tez" radius={[0, 4, 4, 0]}>{konuChart.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
                             </div>
-                        </div>
+                            <div className="max-h-[360px] overflow-y-auto pr-2 custom-scrollbar"><GT rows={mkNorm('_konuNorm', data.length)} fk="konu" activeVal={f.konu} /></div>
+                        </div></div>
                     </section>
 
-                    {/* TABLO 7 – SAYFA UZUNLUĞU */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={FileText} title="Tablo 7 — Sayfa Uzunlukları" sub={`${pageRows.filled} tezde veri mevcut · satıra tıkla → o aralıktaki tezlere git`} />
                         <div className="p-6 md:p-10">{pageRows.rows.length ? (
@@ -529,7 +565,6 @@ export default function AnalyticsPage3() {
                         ) : <div className="no-data">Sayfa sayısı verisi yok</div>}</div>
                     </section>
 
-                    {/* TABLO 8 – CİNSİYET */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={Users} title="Tablo 8 — Cinsiyet Dağılımı" sub="Satıra tıkla → o cinsiyetin tezlerine git" />
                         <div className="p-6 md:p-10">{(genderTable.yazar.length || genderTable.danisman.length) ? (
@@ -547,7 +582,6 @@ export default function AnalyticsPage3() {
                         ) : <div className="no-data">Cinsiyet verisi yok</div>}</div>
                     </section>
 
-                    {/* TABLO 9 – DANIŞMAN UNVAN */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={GraduationCap} title="Tablo 9 — Danışman Unvan Dağılımı" sub="Satıra tıkla → tezlere git" count={`${unvanTable.length} unvan`} />
                         <div className="p-6 md:p-10"><div className="dt-wrap"><table className="dt dt-clickable">
@@ -556,11 +590,10 @@ export default function AnalyticsPage3() {
                         </table></div></div>
                     </section>
 
-                    {/* TABLO 10 – ÜNİVERSİTE */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={Building2} title="Tablo 10 — Üniversite Dağılımı" sub="Satıra tıkla → o üniversitenin tezlerine git" count={`${uniTable.length} üniversite`} />
                         <div className="p-6 md:p-10">
-                            <div className="max-h-[360px] overflow-y-auto pr-2">
+                            <div className="max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
                                 <div className="dt-wrap">
                                     <table className="dt dt-clickable relative">
                                         <thead className="sticky top-0 bg-white shadow-sm z-10">
@@ -582,11 +615,10 @@ export default function AnalyticsPage3() {
                         </div>
                     </section>
 
-                    {/* TABLO 11 – BÖLÜM */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={BookOpen} title="Tablo 11 — Anabilim Dalı / Bölüm" sub="Satıra tıkla → tezlere git" count={`${deptTable.length} bölüm`} />
                         <div className="p-6 md:p-10">
-                            <div className="max-h-[360px] overflow-y-auto pr-2">
+                            <div className="max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
                                 <div className="dt-wrap">
                                     <table className="dt dt-clickable relative">
                                         <thead className="sticky top-0 bg-white shadow-sm z-10">
@@ -608,7 +640,6 @@ export default function AnalyticsPage3() {
                         </div>
                     </section>
 
-                    {/* ŞEKİL 4 – ANAHTAR KELİME BULUTU */}
                     <section className="sec-panel border-b-soft">
                         <PH
                             icon={Hash}
@@ -647,7 +678,6 @@ export default function AnalyticsPage3() {
                         </div>
                     </section>
 
-                    {/* TABLO 12 – ANAHTAR KELİME FREKANS */}
                     <section className="sec-panel border-b-soft">
                         <PH icon={Hash} title="Tablo 12 — Anahtar Kelime Frekans" sub="En sık kullanılan kavramlar" />
                         <div className="p-6 md:p-10">
@@ -679,13 +709,11 @@ export default function AnalyticsPage3() {
                         </div>
                     </section>
 
-                    {/* FOOTER */}
                     <footer className="border-b-soft py-24 bg-[#F9FAFB]">
                         <div className="max-w-2xl mx-auto text-center px-6">
                             <h2 className="font-display text-4xl md:text-5xl mb-8 leading-tight text-yellow-600">Tüm koleksiyonu <br /><span className="text-gray-900">keşfedin.</span></h2>
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <button onClick={() => navigate('/tez-analytics/dogrudan-tezler')} className="btn-primary">Tüm Tezleri Görüntüle <ArrowRight size={18} /></button>
-                                <button onClick={() => navigate('/tez-analytics/analiz')} className="btn-primary" style={{ background: '#c7972f', borderColor: '#c7972f' }}>Geniş Analiz <ArrowRight size={18} /></button>
+                                <button onClick={() => navigate('/tez-analytics/all')} className="btn-primary">Tüm Tezleri Görüntüle <ArrowRight size={18} /></button>
                                 <button onClick={() => navigate('/tez-analytics')} className="btn-primary" style={{ background: 'white', color: '#111827', borderColor: '#E5E7EB' }}>Dashboard <ArrowRight size={18} /></button>
                             </div>
                         </div>
@@ -694,12 +722,24 @@ export default function AnalyticsPage3() {
             </div>
 
             {/* MOBİL FAB */}
-            <button className="fixed bottom-6 right-6 w-14 h-14 bg-[#111827] text-white rounded-[18px] flex items-center justify-center shadow-xl z-50 lg:hidden" onClick={() => setMobOpen(true)}><SlidersHorizontal size={22} /></button>
-            <div className={`mob-overlay ${mobOpen ? 'open' : ''}`} onClick={() => setMobOpen(false)} />
-            <div className={`mob-drawer ${mobOpen ? 'open' : ''}`}>
-                <div className="flex items-center justify-between mb-5"><span className="font-display text-lg text-yellow-900">Filtreler</span><button className="p-2 bg-gray-100 rounded-full" onClick={() => setMobOpen(false)}><X size={18} /></button></div>
-                <FP /><div className="h-8" />
-                <button className="w-full py-3 bg-[#111827] text-white rounded-xl font-medium" onClick={() => setMobOpen(false)}>Sonuçları Göster ({data.length})</button>
+            <button className={`floating-filter-btn ${showFab ? 'visible' : ''}`} onClick={() => setMobOpen(true)}>
+                <SlidersHorizontal size={22} />
+            </button>
+            <div className={`filter-overlay ${isModalOpen ? 'open' : ''}`} onClick={() => setIsModalOpen(false)} />
+            <div className={`filter-modal ${isModalOpen ? 'open' : ''}`}>
+                <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+                    <span className="font-display text-lg text-yellow-900">Filtreler</span>
+                    <button className="p-2 bg-gray-100 rounded-full" onClick={() => setIsModalOpen(false)}><X size={18} /></button>
+                </div>
+                <div className="p-5 custom-scrollbar flex-1 overflow-y-auto">
+                    <div className="filter-grid-mobile">
+                        <FP />
+                    </div>
+                </div>
+                <div className="p-5 border-t border-gray-100 bg-gray-50 shrink-0 flex gap-3">
+                    <button onClick={clearAll} className="flex-1 py-3 bg-white border border-gray-200 text-red-500 rounded-xl font-medium">Temizle</button>
+                    <button onClick={() => setIsModalOpen(false)} className="flex-[2] py-3 bg-[#111827] text-white rounded-xl font-medium">Göster ({data.length})</button>
+                </div>
             </div>
         </div>
     );

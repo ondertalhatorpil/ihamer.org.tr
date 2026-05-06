@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { groupByProgram, calculateTrend, isAcikogretim } from '../utils/dataProcessor';
 
+
 const T = {
   bg: '#faf8f4', bgDeep: '#f4f0e8', bgCard: '#ffffff',
   border: 'rgba(28,31,46,0.10)', borderCard: 'rgba(28,31,46,0.08)',
